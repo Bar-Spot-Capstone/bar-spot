@@ -1,9 +1,16 @@
-import express from "express"
+import express from "express";
 import sequelize from "./config/connection";
-import 'dotenv/config'
+import userRouter from "./routes/User";
+import 'dotenv/config';
 
 const app: express.Application = express();
 const PORT: number = Number(process.env.PORT) | 3001;
+
+//Middleware
+app.use(express.json());
+
+//Routers
+app.use('/user', userRouter);
 
 sequelize.sync().then((): void => {
     app.listen(PORT, (): void => {
