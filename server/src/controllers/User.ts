@@ -35,9 +35,49 @@ const userRegister = async (req: Request, res: Response) => {
         res.status(500);
         return res.json({ error: `Server failed with error ${error}` });
     };
-    
+
+};
+
+const userLogin = async (req: Request, res: Response) => {
+    const { email, password }: { email: string, password: string } = req.body;
+    var handleEmpty: string = ''
+    handleEmpty = !email ? 'email' : '' || !password ? 'email' : '' //find missing parm
+
+    if (handleEmpty) {
+        res.status(400);
+        return res.json({ error: `Failed to login missing fields ${handleEmpty}` })
+    };
+
+    try {
+        const user: any = await User.findOne({
+            where: {
+                email: email,
+            }
+        });
+
+        if (user) {
+            //Need to check if rehashing the password is the same value
+            const correctPassword = await bcrypt.compare(password, user.password);
+            if (!correctPassword) {
+                res.status(400);
+                return res.json({ error: "Failed to login invaild password" })
+            };
+
+            res.status(200);
+            return res.json({ success: "Login Successful", user_id: user.id });
+        }
+        else {
+            res.status(400);
+            return res.json({ error: "Failed to login invaild credentials" })
+        };
+    }
+    catch (error: any) {
+        res.status(400);
+        return res.json({ error: "Failed with unknown reason" })
+    };
 };
 
 export {
-    userRegister
+    userRegister,
+    userLogin
 };
