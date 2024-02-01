@@ -7,7 +7,7 @@ class Favorite extends Model {
     public id!: number; // Primary Key
     public userId!: number; // Foreign key
     public barName!: string;
-    public address!: string | null;
+    public address!: string;
     public note!: string;
 
     // Define the relationship with User
@@ -49,6 +49,7 @@ User.init(
         timestamps: true
     }
 );
+
 
 // Define relationship between Users and Favorite
 User.hasOne(Favorite, {
