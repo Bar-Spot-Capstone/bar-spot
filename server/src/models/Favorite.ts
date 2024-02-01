@@ -14,9 +14,8 @@ class Favorite extends Model {
     public user?: User;
 }
 
-
 // Initialize the Favorite model with attributes and options
-User.init(
+Favorite.init(
     {
         id: {
             type: DataTypes.INTEGER.UNSIGNED,
@@ -52,12 +51,10 @@ User.init(
 
 
 // Define relationship between Users and Favorite
-User.hasOne(Favorite, {
-    foreignKey: 'userId'
-})
 
 Favorite.belongsTo(User, {
-    foreignKey: 'userId'
+    foreignKey: 'userId',
+    onDelete: 'CASCADE'
 })
 
 export default Favorite;
