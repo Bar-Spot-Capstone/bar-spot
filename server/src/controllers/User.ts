@@ -41,11 +41,11 @@ const userRegister = async (req: Request, res: Response) => {
 const userLogin = async (req: Request, res: Response) => {
     const { email, password }: { email: string, password: string } = req.body;
     var handleEmpty: string = ''
-    handleEmpty = !email ? 'email' : '' || !password ? 'email' : '' //find missing parm
+    handleEmpty = !email ? 'email' : '' || !password ? 'password' : '' //find missing parm
 
     if (handleEmpty) {
         res.status(400);
-        return res.json({ error: `Failed to login missing fields ${handleEmpty}` })
+        return res.json({ error: `Failed to login missing field: ${handleEmpty}` })
     };
 
     try {
@@ -60,7 +60,7 @@ const userLogin = async (req: Request, res: Response) => {
             const correctPassword = await bcrypt.compare(password, user.password);
             if (!correctPassword) {
                 res.status(400);
-                return res.json({ error: "Failed to login invaild password" })
+                return res.json({ error: "Failed to login invaild password" });
             };
 
             res.status(200);
@@ -68,12 +68,12 @@ const userLogin = async (req: Request, res: Response) => {
         }
         else {
             res.status(400);
-            return res.json({ error: "Failed to login invaild credentials" })
+            return res.json({ error: "Failed to login invaild credentials" });
         };
     }
     catch (error: any) {
         res.status(400);
-        return res.json({ error: "Failed with unknown reason" })
+        return res.json({ error: "Failed with unknown reason" });
     };
 };
 

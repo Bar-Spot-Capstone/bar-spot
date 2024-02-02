@@ -1,15 +1,15 @@
 import bcrypt from "bcrypt"
-import { userRegister } from "../controllers/User";
-import { UniqueConstraintError as SequelizeUniqueConstraintError } from 'sequelize';
 import User from "../models/Users";
+import { userRegister, userLogin } from "../controllers/User";
+import { UniqueConstraintError as SequelizeUniqueConstraintError } from 'sequelize';
 
 // Mock User.create
-jest.mock('../models/Users', () => ({
+jest.mock('../models/Users', (): any => ({
     create: jest.fn()
 }));
 
 // Mock bcrypt.hash
-jest.mock('bcrypt', () => ({
+jest.mock('bcrypt', (): any => ({
     hash: jest.fn().mockResolvedValue('hashedpassword')
 }));
 
@@ -82,4 +82,36 @@ describe('On successful user registeration', (): void => {
         expect(bcrypt.hash).toHaveBeenCalledWith(req.body.password, 10);// Expect bcrypt.hash to be called with the provided password
         expect(res.json).toHaveBeenCalledWith({ success: "Registeration Successful" });
     });
+});
+
+/*User login test case*/
+describe('On invaild user login', () => {
+    it('should return a status code of 400 and report missing password', async (): Promise<void> => {
+        const req: any = {
+            body: {
+                password: "",
+                email: "captstone@499.com"
+            }
+        };
+
+        await userLogin(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Failed to login missing field: password" });
+    });
+
+    it('should return a status code of 400 and report missing email', async (): Promise<void> => {
+        const req: any = {
+            body: {
+                password: "password",
+                email: ""
+            }
+        };
+
+        await userLogin(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Failed to login missing field: email" });
+    });
+
+
+
 });
