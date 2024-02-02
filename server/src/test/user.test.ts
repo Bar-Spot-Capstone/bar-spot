@@ -1,16 +1,18 @@
 import bcrypt from "bcrypt"
-import { userRegister } from "../controllers/User";
-import { UniqueConstraintError as SequelizeUniqueConstraintError } from 'sequelize';
 import User from "../models/Users";
+import { userRegister, userLogin } from "../controllers/User";
+import { UniqueConstraintError as SequelizeUniqueConstraintError } from 'sequelize';
 
 // Mock User.create
-jest.mock('../models/Users', () => ({
-    create: jest.fn()
+jest.mock('../models/Users', (): any => ({
+    create: jest.fn(),
+    findOne: jest.fn() //to mock the findOne function
 }));
 
 // Mock bcrypt.hash
-jest.mock('bcrypt', () => ({
-    hash: jest.fn().mockResolvedValue('hashedpassword')
+jest.mock('bcrypt', (): any => ({
+    hash: jest.fn().mockResolvedValue('hashedpassword'),
+    compare: jest.fn()
 }));
 
 const res: any = {
@@ -21,6 +23,10 @@ const res: any = {
 
 /*User registeration test case*/
 describe('On invaild user registeration', (): void => {
+    beforeEach(() => {
+        jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
+    });
+
     it('should return a status code of 400 and error if user has missing fields', async (): Promise<void> => {
         const req: any = {
             body: {
@@ -67,6 +73,10 @@ describe('On invaild user registeration', (): void => {
 });
 
 describe('On successful user registeration', (): void => {
+    beforeEach(() => {
+        jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
+    });
+
     it('should return a status code of 200 and add the user to the data base', async (): Promise<void> => {
         const req: any = {
             body: {
@@ -81,5 +91,99 @@ describe('On successful user registeration', (): void => {
         expect(res.status).toHaveBeenCalledWith(200);
         expect(bcrypt.hash).toHaveBeenCalledWith(req.body.password, 10);// Expect bcrypt.hash to be called with the provided password
         expect(res.json).toHaveBeenCalledWith({ success: "Registeration Successful" });
+    });
+});
+
+/*User login test case*/
+describe('On invaild user login', () => {
+    beforeEach(() => {
+        jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
+    });
+
+    it('should return a status code of 400 and report missing password', async (): Promise<void> => {
+        const req: any = {
+            body: {
+                password: "",
+                email: "captstone@499.com"
+            }
+        };
+
+        await userLogin(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Failed to login missing field: password" });
+    });
+
+    it('should return a status code of 400 and report missing email', async (): Promise<void> => {
+        const req: any = {
+            body: {
+                password: "password",
+                email: ""
+            }
+        };
+
+        await userLogin(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Failed to login missing field: email" });
+    });
+
+    it('should return a status code of 400 and error indicating user inputted invaild credentials', async (): Promise<void> => {
+        const req: any = {
+            body: {
+                password: "password",
+                email: "test@email"
+            }
+        };
+
+        (User as any).findOne.mockResolvedValue(null);
+
+        await userLogin(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Failed to login invaild credentials" });
+    });
+
+    it('should return a status code of 400 and error indicating user inputted invaild password', async (): Promise<void> => {
+        const req: any = {
+            body: {
+                password: "password",
+                email: "test@email"
+            }
+        };
+
+        (User as any).findOne.mockResolvedValue({
+            password: "password",
+            email: "test@email",
+            id: `${Number.MAX_SAFE_INTEGER}`
+        });
+        (bcrypt.compare as jest.Mock).mockResolvedValue(false);
+
+        await userLogin(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Failed to login invaild password" });
+    });
+});
+
+describe('On successful user login', () => {
+    beforeEach(() => {
+        jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
+    });
+
+    it('should return a status code of 200 and the user_id', async (): Promise<void> => {
+        const req: any = {
+            body: {
+                password: "password",
+                email: "test@email"
+            }
+        };
+
+        (User as any).findOne.mockResolvedValue({
+            password: "password",
+            email: "test@email",
+            username: 'capstone',
+            id: `${Number.MAX_SAFE_INTEGER}`
+        });
+        (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+        await userLogin(req, res);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ success: "Login Successful", email: 'test@email', username: 'capstone', user_id: `${Number.MAX_SAFE_INTEGER}` });
     });
 });
