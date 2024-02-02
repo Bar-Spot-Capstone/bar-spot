@@ -64,7 +64,7 @@ const userLogin = async (req: Request, res: Response) => {
             };
 
             res.status(200);
-            return res.json({ success: "Login Successful", user_id: user.id });
+            return res.json({ success: "Login Successful", email: email, username: user.username , user_id: user.id });
         }
         else {
             res.status(400);

@@ -178,11 +178,12 @@ describe('On successful user login', () => {
         (User as any).findOne.mockResolvedValue({
             password: "password",
             email: "test@email",
+            username: 'capstone',
             id: `${Number.MAX_SAFE_INTEGER}`
         });
         (bcrypt.compare as jest.Mock).mockResolvedValue(true);
         await userLogin(req, res);
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({ success: "Login Successful", user_id: `${Number.MAX_SAFE_INTEGER}` });
+        expect(res.json).toHaveBeenCalledWith({ success: "Login Successful", email: 'test@email', username: 'capstone', user_id: `${Number.MAX_SAFE_INTEGER}` });
     });
 });
