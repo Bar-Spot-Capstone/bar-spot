@@ -1,32 +1,14 @@
 import "./App.css";
-import logo from "./assets/Bar-Spot-Transparent.png";
-import Form from "react-bootstrap/Form";
-import { Fragment } from "react";
-import { Container, Row } from "react-bootstrap";
-
+import Login from "./components/Login";
+import { Fragment, useState } from "react";
 const App = () => {
+  const [page, setPage] = useState<string>("login");
+  const handleOnNewAcc = () =>{ 
+    setPage("CreateAcc");
+  }
   return (
     <Fragment>
-      <Container id="main">
-        <img src={logo}></img>
-        <p>Login</p>
-        <Form>
-          <Row>
-            <Form.Group>
-              <Form.Label>Email Address/ Username</Form.Label>
-              <Form.Control type="email" placeholder="johndoe@example.com" />
-            </Form.Group>
-          </Row>
-
-          <Row >
-            <Form.Group>
-              <Form.Label>Password</Form.Label>
-              <Form.Control type="password" placeholder="password" />
-            </Form.Group>
-          </Row>
-
-        </Form>
-      </Container>
+      {page == "login" && <Login onNewAcc={handleOnNewAcc}/>}
     </Fragment>
   );
 };

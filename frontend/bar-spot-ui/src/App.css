@@ -43,12 +43,23 @@
 /* img {
   height: 200px;
 } */
-
+/* 
 #main{
   display: flex;
   justify-content: center;
-  align-items: center;
   flex-direction: column;
   width: 100%;
   background-color: aqua;
+} */
+*{
+  font-family: 'Anonymous Pro', monospace;
+}
+:root{
+  background-color: #AC9F5D;
+}
+.main{
+  background-color: #E9EBA4;
+}
+.function-button{
+  background-color: #BFBA86;
 }
