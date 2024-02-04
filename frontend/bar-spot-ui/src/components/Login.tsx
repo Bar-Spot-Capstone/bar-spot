@@ -1,64 +1,64 @@
 import { Fragment } from "react";
-import logo from "../assets/Transparent-logo.png";
+import Logo from "./Logo";
 import Form from "react-bootstrap/Form";
 import Button from "react-bootstrap/Button";
-import Stack from "react-bootstrap/Stack";
-import { Container, Row } from "react-bootstrap";
+import { Col, Container, Row } from "react-bootstrap";
+import FormInput from "./FormInput";
 
-interface Props{
-    onNewAcc: () => void
+interface Props {
+  onNewAcc: () => void;
 }
 
-const Login = ({onNewAcc}: Props) => {
+const Login = ({ onNewAcc }: Props) => {
   return (
     <Fragment>
-      <Container className="main w-50 h-75 d-flex flex-column position-absolute top-50 start-50 translate-middle">
-        <Row className="justify-content-center">
-          <img src={logo} className="h-100 w-50"></img>
-        </Row>
-        <Row className="justify-content-center">
-          <h1 className="w-75">Login</h1>
-        </Row>
-        <Row className="d-flex flex-row justify-content-center">
-          <Form className="w-75">
-            <Stack gap={4}>
+      <Container className="main w-75 h-75 d-flex flex-column position-absolute top-50 start-50 translate-middle">
+        <Logo />
+        <Container className="col-md-7 mx-auto">
+          <Row>
+            <h1 className="w-75">Login</h1>
+          </Row>
+          <Row >
+            <Form>
               <Row>
-                <Form.Group>
-                  <Form.Label>Email Address/Username</Form.Label>
-                  <Form.Control
+                <Col>
+                  <FormInput
+                    lable="Email/Username"
                     type="email"
                     placeholder="johndoe@example.com"
                   />
-                </Form.Group>
+                  <FormInput
+                    lable="Password"
+                    type="password"
+                    placeholder="password"
+                  />
+                </Col>
               </Row>
 
               <Row>
-                <Form.Group>
-                  <Form.Label>Password</Form.Label>
-                  <Form.Control type="password" placeholder="password" />
-                </Form.Group>
-              </Row>
-
-              <Row>
-                <Stack>
+                <Col className="p-2">
                   <Button variant="success" type="submit">
                     Login
                   </Button>
-                  <Button variant="link" size="sm" onClick={onNewAcc}>
-                    Create new account
-                  </Button>
-                  <Button variant="link" size="sm">
-                    Reset Password
-                  </Button>
-                </Stack>
+                </Col>
               </Row>
 
-            </Stack>
+            </Form>
+          </Row>
 
-          </Form>
+          <Row>
+            <Button variant="link" size="sm" onClick={onNewAcc}>
+              Create new account
+            </Button>
+            <Button variant="link" size="sm">
+              Reset Password
+            </Button>
+          </Row>
 
-        </Row>
+        </Container>
+
       </Container>
+      
     </Fragment>
   );
 };
