@@ -10,14 +10,20 @@ const addGroup = async (req: Request, res: Response): Promise<Response> => {
     };
 
     try {
-        await Group.create({
+        const group = await Group.create({
             name: name
         });
-        res.status(200);
-        return res.json({ success: "Group creation successful" });
+        if(group){
+            res.status(200);
+            return res.json({ success: "Group creation successful" });
+        }
+        else{
+            res.status(400);
+            return res.json({ error: "Failed to create group" });
+        };
     }
     catch (error: any) {
-        res.status(400);
+        res.status(500);
         return res.json({ error: `Failed to create group with unexpected error: ${error}` })
     };
 };
