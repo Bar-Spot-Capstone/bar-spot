@@ -24,3 +24,5 @@ Group.init(
         timestamps: true
     }
 );
+
+export default Group
