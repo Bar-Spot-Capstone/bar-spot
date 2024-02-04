@@ -2,7 +2,7 @@ import User from "../models/Users";
 import bcrypt from "bcrypt"
 import { Request, Response } from "express";
 
-const userRegister = async (req: Request, res: Response) => {
+const userRegister = async (req: Request, res: Response): Promise<Response> => {
     const { username, password, email }: { username: string, password: string, email: string } = req.body;
 
     if (!username || !password || !email) {
@@ -38,7 +38,7 @@ const userRegister = async (req: Request, res: Response) => {
 
 };
 
-const userLogin = async (req: Request, res: Response) => {
+const userLogin = async (req: Request, res: Response): Promise<Response> => {
     const { email, password }: { email: string, password: string } = req.body;
     var handleEmpty: string = ''
     handleEmpty = !email ? 'email' : '' || !password ? 'password' : '' //find missing parm
@@ -64,7 +64,7 @@ const userLogin = async (req: Request, res: Response) => {
             };
 
             res.status(200);
-            return res.json({ success: "Login Successful", email: email, username: user.username , user_id: user.id });
+            return res.json({ success: "Login Successful", email: email, username: user.username, user_id: user.id });
         }
         else {
             res.status(400);
