@@ -8,7 +8,7 @@ class User extends Model {
     public username!: string;
     public password!: string;
     public email!: string;
-}
+};
 
 // Initialize the User model with attributes and options
 User.init(
@@ -43,6 +43,6 @@ User.init(
 User.hasOne(Favorite, {
     foreignKey: 'userId',
     onDelete: 'CASCADE'
-})
+});
 
 export default User;

@@ -49,12 +49,4 @@ Favorite.init(
     }
 );
 
-
-// Define relationship between Users and Favorite
-
-Favorite.belongsTo(User, {
-    foreignKey: 'userId',
-    onDelete: 'CASCADE'
-})
-
 export default Favorite;
