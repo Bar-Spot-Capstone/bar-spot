@@ -23,7 +23,7 @@ const res: any = {
 
 /*User registeration test case*/
 describe('On invaild user registeration', (): void => {
-    beforeEach(() => {
+    beforeEach((): void => {
         jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
     });
 
@@ -73,7 +73,7 @@ describe('On invaild user registeration', (): void => {
 });
 
 describe('On successful user registeration', (): void => {
-    beforeEach(() => {
+    beforeEach((): void => {
         jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
     });
 
@@ -96,7 +96,7 @@ describe('On successful user registeration', (): void => {
 
 /*User login test case*/
 describe('On invaild user login', () => {
-    beforeEach(() => {
+    beforeEach((): void => {
         jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
     });
 
@@ -163,7 +163,7 @@ describe('On invaild user login', () => {
 });
 
 describe('On successful user login', () => {
-    beforeEach(() => {
+    beforeEach((): void => {
         jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
     });
 
