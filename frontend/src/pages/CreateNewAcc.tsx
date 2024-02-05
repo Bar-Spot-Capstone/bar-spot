@@ -2,13 +2,12 @@ import { Button, Container, Row, Col } from "react-bootstrap";
 import Logo from "../components/Logo";
 import FormInput from "../components/FormInput";
 import { Link } from "react-router-dom";
-interface Props {
-  onLogin: () => void;
-}
+import NavBar from "../components/NavBar";
 
 const CreateNewAcc = () => {
   return (
     <>
+      <NavBar />
       <Container className="main py-3 position-absolute top-50 start-50 translate-middle">
         <Logo />
         <FormInput lable="Username" type="username" placeholder="Username" />

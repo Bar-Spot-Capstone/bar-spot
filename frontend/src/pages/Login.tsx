@@ -3,14 +3,12 @@ import Button from "react-bootstrap/Button";
 import { Col, Container, Row } from "react-bootstrap";
 import FormInput from "../components/FormInput";
 import { Link } from "react-router-dom";
-
-interface Props {
-  onNewAcc: () => void;
-}
+import NavBar from "../components/NavBar";
 
 const Login = () => {
   return (
     <>
+      <NavBar />
       <Container className="main h-75 position-absolute top-50 start-50 translate-middle">
         <Logo />
 
