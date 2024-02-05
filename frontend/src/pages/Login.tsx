@@ -1,13 +1,14 @@
-import Logo from "./Logo";
+import Logo from "../components/Logo";
 import Button from "react-bootstrap/Button";
 import { Col, Container, Row } from "react-bootstrap";
-import FormInput from "./FormInput";
+import FormInput from "../components/FormInput";
+import { Link } from "react-router-dom";
 
 interface Props {
   onNewAcc: () => void;
 }
 
-const Login = ({ onNewAcc }: Props) => {
+const Login = () => {
   return (
     <>
       <Container className="main h-75 position-absolute top-50 start-50 translate-middle">
@@ -29,12 +30,16 @@ const Login = ({ onNewAcc }: Props) => {
 
         <Row className="justify-content-lg-center mx-lg-5 my-2">
           <Col lg="6">
-            <Button variant="link" size="sm" onClick={onNewAcc}>
-              Create new account
-            </Button>
-            <Button variant="link" size="sm">
-              Reset Password
-            </Button>
+            <Link to="/sign-up">
+              <Button variant="link" size="sm">
+                Create new account
+              </Button>
+            </Link>
+            <Link to="/">
+              <Button variant="link" size="sm">
+                Reset Password
+              </Button>
+            </Link>
           </Col>
         </Row>
 
@@ -45,8 +50,6 @@ const Login = ({ onNewAcc }: Props) => {
             </Button>
           </Col>
         </Row>
-
-
       </Container>
     </>
   );

@@ -1,15 +1,15 @@
 import { Button, Container, Row, Col } from "react-bootstrap";
-import Logo from "./Logo";
-import FormInput from "./FormInput";
+import Logo from "../components/Logo";
+import FormInput from "../components/FormInput";
+import { Link } from "react-router-dom";
 interface Props {
   onLogin: () => void;
 }
 
-const CreateNewAcc = ({ onLogin }: Props) => {
+const CreateNewAcc = () => {
   return (
     <>
-      <Container style={{}}className="main py-3 position-absolute top-50 start-50 translate-middle">
-        
+      <Container className="main py-3 position-absolute top-50 start-50 translate-middle">
         <Logo />
         <FormInput lable="Username" type="username" placeholder="Username" />
         <FormInput
@@ -28,15 +28,17 @@ const CreateNewAcc = ({ onLogin }: Props) => {
           placeholder="Confirm password here"
         />
         <Row className="justify-content-end">
-          <Col lg="4">
-            <Button variant="link" onClick={onLogin}  size="sm">
-              Already have an account?
-            </Button>
+          <Col lg="5">
+            <Link to="/login">
+              <Button variant="link" size="sm">
+                Already have an account?
+              </Button>
+            </Link>
           </Col>
         </Row>
         <Row className="justify-content-lg-center mx-lg-5 my-2">
           <Col lg="6">
-            <Button variant="success" type="submit" >
+            <Button variant="success" type="submit">
               Sign-Up
             </Button>
           </Col>
