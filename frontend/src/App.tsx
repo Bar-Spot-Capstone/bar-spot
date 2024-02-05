@@ -1,4 +1,4 @@
-import "./App.css";
+import "./App.css"
 import CreateNewAcc from "./components/CreateNewAcc";
 import Login from "./components/Login";
 import { Fragment, useState } from "react";
