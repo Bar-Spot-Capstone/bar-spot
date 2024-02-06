@@ -11,7 +11,7 @@ Group.init(
         id: {
             type: DataTypes.INTEGER.UNSIGNED,
             autoIncrement: true,
-            primaryKey: true,
+            primaryKey: true
         },
         name: {
             type: DataTypes.STRING,
