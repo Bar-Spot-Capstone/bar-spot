@@ -12,11 +12,13 @@ const FormInput = ({ lable, placeholder, type }: Props) => {
       <Row className="mx-lg-5 my-lg-4 my-2 justify-content-lg-center" >
         <Col lg="6">
         <Form.Group >
-          <Form.Label>{lable} </Form.Label>
+          <Form.Label>{lable}</Form.Label>
           <Form.Control type={type} placeholder={placeholder} />
         </Form.Group>
         </Col>
       </Row>
+
+      
     </>
   );
 };

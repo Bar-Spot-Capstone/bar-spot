@@ -7,3 +7,6 @@
 .main{
   background-color: #E9EBA4;
 }
+.scroll-col{
+  overflow-y: auto;
+}
