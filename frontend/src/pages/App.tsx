@@ -1,16 +1,10 @@
-import Container from "react-bootstrap/Container";
 import NavBar from "../components/NavBar";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
-import QuickInfo from "../components/QuickInfo";
-import FormInput from "../components/FormInput";
-import Form from "react-bootstrap/Form";
 
 const App = () => {
-  const testStyle = {
-    overflow: 'auto',
-    height: "500px"
-  };
+  // const testStyle = {
+  //   overflow: 'auto',
+  //   height: "500px"
+  // };
   return (
     <>
       <NavBar />
