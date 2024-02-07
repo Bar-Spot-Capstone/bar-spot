@@ -4,15 +4,15 @@ import User from "../models/Users";
 import Group from "../models/Group";
 
 const createUserGroup = async (req: Request, res: Response): Promise<Response> => {
-    //take in userid for user creating the group, and name of the group
-    const { userid, name }: { userid: number, name: string } = req.body;
+    //take in userId for user creating the group, and name of the group
+    const { userId, name }: { userId: number, name: string } = req.body;
 
     var handleEmpty: string = ''
-    handleEmpty = !userid ? 'userid' : '' || !name ? 'name' : ''; //find missing parm
+    handleEmpty = !userId ? 'userId' : '' || !name ? 'name' : ''; //find missing parm
 
     if (handleEmpty) {
         res.status(400);
-        return res.json({ error: `Failed to login missing field: ${handleEmpty}` });
+        return res.json({ error: `Failed to create group missing field: ${handleEmpty}` });
     };
 
     try {
@@ -21,7 +21,7 @@ const createUserGroup = async (req: Request, res: Response): Promise<Response> =
         });
 
         await UserGroup.create({
-            userid: userid,
+            userId: userId,
             groupId: group.id,
             role: "Owner"
         });
@@ -31,20 +31,20 @@ const createUserGroup = async (req: Request, res: Response): Promise<Response> =
     }
     catch (error: any) {
         res.status(500);
-        return res.json({ error: `Unexpected error occured with error ${error}` });
+        return res.json({ error: `Unexpected error occured with error: ${error}` });
     };
 };
 
 const inviteUser = async (req: Request, res: Response): Promise<Response> => {
     //Need to take in the user being invited id, group inviting to id
-    const { userid, groupId }: { userid: number, groupId: number } = req.body;
+    const { userId, groupId }: { userId: number, groupId: number } = req.body;
 
     var handleEmpty: string = ''
-    handleEmpty = !userid ? 'userid' : '' || !groupId ? 'groupId' : ''; //find missing parm
+    handleEmpty = !userId ? 'userId' : '' || !groupId ? 'groupId' : ''; //find missing parm
 
     if (handleEmpty) {
         res.status(400);
-        return res.json({ error: `Failed to login missing field: ${handleEmpty}` });
+        return res.json({ error: `Failed to invite user missing field: ${handleEmpty}` });
     };
 
     try {
@@ -58,13 +58,26 @@ const inviteUser = async (req: Request, res: Response): Promise<Response> => {
         //Check if user exist
         const user: any = await User.findOne({
             where: {
-                userid: userid
+                id: userId
             }
         });
 
+        //Checks if the user is already in the group that there trying to join
+        const alreadyInGroup: any = await UserGroup.findOne({
+            where: {
+                groupId: groupId,
+                userId: userId
+            }
+        });
+
+        if (alreadyInGroup) {
+            res.status(400);
+            return res.json({ error: `Already in this group` });
+        };
+
         if (group && user) {
             await UserGroup.create({
-                userid: userid,
+                userId: userId,
                 groupId: groupId,
                 role: "member"
             });
@@ -79,7 +92,7 @@ const inviteUser = async (req: Request, res: Response): Promise<Response> => {
     }
     catch (error: any) {
         res.status(500);
-        return res.json({ error: `Unexpected error occured with error ${error}` });
+        return res.json({ error: `Unexpected error occured with error: ${error}` });
     };
 
 };
