@@ -121,3 +121,126 @@ describe('On vaild user_group input', (): void => {
         expect(res.json).toHaveBeenCalledWith({ success: "Group creation successful" });
     });
 });
+
+/*UserGroup invitation test case*/
+describe('On invaild user_group invitation input', (): void => {
+    beforeEach((): void => {
+        jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
+    });
+
+    it('should return a status code of 400 and error if user_group has missing userId', async (): Promise<void> => {
+        const req: any = {
+            body: {
+                groupId: Number.MAX_SAFE_INTEGER,
+                userId: ""
+            }
+        };
+
+        await inviteUser(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Failed to invite user missing field: userId" });
+    });
+
+    it('should return a status code of 400 and error if user_group has missing groupId', async (): Promise<void> => {
+        const req: any = {
+            body: {
+                groupId: "",
+                userId: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        await inviteUser(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Failed to invite user missing field: groupId" });
+    });
+
+    it('should return a status code of 400 and error if user is already in the group', async (): Promise<void> => {
+        const req: any = {
+            body: {
+                groupId: Number.MAX_SAFE_INTEGER,
+                userId: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (UserGroup as any).findOne.mockResolvedValueOnce(true);
+        (User as any).findOne.mockResolvedValue(true);
+        (UserGroup as any).findOne.mockResolvedValueOnce(true);
+
+        await inviteUser(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: `Already in this group` });
+    });
+
+    it('should return a status code of 400 and error if user doesnt exisit', async (): Promise<void> => {
+        const req: any = {
+            body: {
+                groupId: Number.MAX_SAFE_INTEGER,
+                userId: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (UserGroup as any).findOne.mockResolvedValueOnce(true);
+        (User as any).findOne.mockResolvedValue(false);
+        (UserGroup as any).findOne.mockResolvedValueOnce(false);
+
+        await inviteUser(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "No such group exisit" });
+    });
+
+    it('should return a status code of 400 and error if group doesnt exisit', async (): Promise<void> => {
+        const req: any = {
+            body: {
+                groupId: Number.MAX_SAFE_INTEGER,
+                userId: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (UserGroup as any).findOne.mockResolvedValueOnce(false);
+        (User as any).findOne.mockResolvedValue(true);
+        (UserGroup as any).findOne.mockResolvedValueOnce(false);
+
+        await inviteUser(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "No such group exisit" });
+    });
+
+    it('should return a status code of 500 and error if an unexpected error occurs', async (): Promise<void> => {
+        const req: any = {
+            body: {
+                groupId: Number.MAX_SAFE_INTEGER,
+                userId: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        // Mock Group.create to throw an error
+        (UserGroup as any).findOne.mockRejectedValue(new Error("Unexpected error"));
+
+        await inviteUser(req, res);
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({ error: "Unexpected error occured with error: Error: Unexpected error" });
+    });
+});
+
+describe('On vaild user_group invitation input', (): void => {
+    beforeEach((): void => {
+        jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
+    });
+
+    it('should return a status code of 200 and confirmation message if user was added to group', async (): Promise<void> => {
+        const req: any = {
+            body: {
+                groupId: Number.MAX_SAFE_INTEGER,
+                userId: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (UserGroup as any).findOne.mockResolvedValueOnce(true);
+        (User as any).findOne.mockResolvedValueOnce(true);
+        (UserGroup as any).findOne.mockResolvedValueOnce(false);
+
+        await inviteUser(req, res);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ success: "Successfully added to group" });
+    });
+});
