@@ -20,14 +20,24 @@ const createUserGroup = async (req: Request, res: Response): Promise<Response> =
             name: name
         });
 
-        await UserGroup.create({
+        if (!group) {
+            res.status(400);
+            return res.json({ error: "Failed to create group for user_group" });
+        }
+
+        const user_group = await UserGroup.create({
             userId: userId,
             groupId: group.id,
             role: "Owner"
         });
 
+        if (!user_group) {
+            res.status(400);
+            return res.json({ error: "Failed to create user_group" });
+        };
+
         res.status(200);
-        return res.json({ success: "Group creation Successful" });
+        return res.json({ success: "Group creation successful" });
     }
     catch (error: any) {
         res.status(500);
