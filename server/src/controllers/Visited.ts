@@ -2,11 +2,13 @@ import Visited from "../models/Visited";
 import {Request, Response} from "express";
 
 const newVisited = async (req: Request, res: Response): Promise<Response> => {
+
+    
     const {bar_name, address}: {bar_name: string, address: string} = req.body;
-    if(!bar_name || !address){
-        res.status(400);
-        return res.json({ error: "Failed to register missing feilds"});
-    }
+
+    var handleEmpty: string = '' 
+    handleEmpty = !bar_name? 'bar_name' : '' || !address? 'address' : '' 
+    if (handleEmpty) { res.status(400); return res.json({ error: `Failed to add new entire missing field: ${handleEmpty}` }) };
 
     try {
         await Visited.create({
@@ -28,3 +30,4 @@ const newVisited = async (req: Request, res: Response): Promise<Response> => {
 export{
     newVisited
 }
+
