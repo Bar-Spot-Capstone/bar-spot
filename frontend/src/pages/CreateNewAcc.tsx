@@ -6,9 +6,10 @@ import NavBar from "../components/NavBar";
 
 const CreateNewAcc = () => {
   return (
-    <>
+    <div style={{ backgroundColor: "#AC9F5D" }}
+    className="min-vh-100 d-flex flex-column">
       <NavBar />
-      <Container className="main py-3 position-absolute top-50 start-50 translate-middle">
+      <Container style={{ backgroundColor: "#E9EBA4" }} className="p-3 my-3">
         <Logo />
         <FormInput lable="Username" type="username" placeholder="Username" />
         <FormInput
@@ -43,7 +44,9 @@ const CreateNewAcc = () => {
           </Col>
         </Row>
       </Container>
-    </>
+    </div>
+      
+
   );
 };
 

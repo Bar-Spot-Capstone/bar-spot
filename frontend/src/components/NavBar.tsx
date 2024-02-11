@@ -21,7 +21,7 @@ const NavBar = () => {
         </Link>
 
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse className="justify-content-end">
+        <Navbar.Collapse className="justify-content-end my-2">
 
         <NavDropdown title="Dropdown" id="basic-nav-dropdown" className="me-3">
             <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
