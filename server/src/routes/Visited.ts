@@ -3,6 +3,6 @@ import { newVisited } from "../controllers/Visited";
 
 const router: express.Router = express.Router();
 
-router.post('/newVisit', newVisited);
+router.post('/new', newVisited);
 
 export default router;
