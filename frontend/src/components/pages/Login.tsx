@@ -1,9 +1,9 @@
-import Logo from "../components/Logo";
+import Logo from "../Logo";
 import Button from "react-bootstrap/Button";
 import { Col, Container, Row } from "react-bootstrap";
-import FormInput from "../components/FormInput";
+import FormInput from "../FormInput";
 import { Link } from "react-router-dom";
-import NavBar from "../components/NavBar";
+import NavBar from "../NavBar";
 
 const Login = () => {
   return (
@@ -12,9 +12,8 @@ const Login = () => {
       className="min-vh-100 d-flex flex-column"
     >
       <NavBar />
-
       <div className=" p-lg-5 d-flex flex-column justify-content-center py-5">
-        <Container style={{backgroundColor: "#E9EBA4"}} fluid={"md"} className="p-lg-5 py-5 my2">
+        <Container style={{ backgroundColor: "#E9EBA4" }} fluid={"md"} className="p-lg-5 py-5 my2">
           <Row>
             <Col>
               <Logo />
@@ -25,15 +24,12 @@ const Login = () => {
               <h1>Login</h1>
             </Col>
           </Row>
-
           <FormInput
             lable="Email/Username"
             type="email"
             placeholder="johndoe@example.com"
           />
-
           <FormInput lable="Password" type="password" placeholder="password" />
-
           <Row className="justify-content-lg-center mx-lg-5 ">
             <Col lg="6">
               <Link to="/sign-up">
@@ -48,7 +44,6 @@ const Login = () => {
               </Link>
             </Col>
           </Row>
-
           <Row className="justify-content-lg-center mx-lg-5">
             <Col lg="6">
               <Button variant="success" type="submit" className="w-25">
@@ -56,11 +51,8 @@ const Login = () => {
               </Button>
             </Col>
           </Row>
-
         </Container>
-
       </div>
-
     </div>
   );
 };

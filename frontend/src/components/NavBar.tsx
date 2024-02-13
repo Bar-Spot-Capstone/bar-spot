@@ -23,7 +23,7 @@ const NavBar = () => {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse className="justify-content-end my-2">
 
-        <NavDropdown title="Dropdown" id="basic-nav-dropdown" className="me-3">
+          <NavDropdown title="Dropdown" id="basic-nav-dropdown" className="me-3">
             <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
             <NavDropdown.Item href="#action/3.2">
               Another action
@@ -31,18 +31,14 @@ const NavBar = () => {
             <NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>
             <NavDropdown.Divider />
             <NavDropdown.Item>
-            <Link to={"/login"}>
-            Test
-            </Link>
+              <Link to={"/login"}>
+                Test
+              </Link>
             </NavDropdown.Item>
           </NavDropdown>
-
           <Navbar.Text>
             Signed in as: <Link to="/login">Oscar Comunidad</Link>
           </Navbar.Text>
-
-          
-
         </Navbar.Collapse>
       </Container>
     </Navbar>

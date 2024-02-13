@@ -1,13 +1,13 @@
 import { Routes, Route } from "react-router-dom"
-import Login from "./Login";
-import Register from "./Register";
+import Login from "./components/pages/Login";
+import Register from "./components/pages/Register";
 
 const App = () => {
   return (
-    <div className="min-vh-100 d-flex flex-column">
+    <div>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/register" element={< Register/>} />
+        <Route path="/register" element={< Register />} />
       </Routes>
     </div>
   );

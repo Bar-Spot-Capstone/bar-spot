@@ -1,8 +1,8 @@
 import { Button, Container, Row, Col } from "react-bootstrap";
-import Logo from "../components/Logo";
-import FormInput from "../components/FormInput";
+import Logo from "../Logo";
+import FormInput from "../FormInput";
 import { Link } from "react-router-dom";
-import NavBar from "../components/NavBar";
+import NavBar from "../NavBar";
 
 const Register = () => {
   return (
