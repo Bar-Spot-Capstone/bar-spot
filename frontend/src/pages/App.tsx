@@ -1,11 +1,14 @@
-import NavBar from "../components/NavBar";
+import { Routes, Route } from "react-router-dom"
+import Login from "./Login";
+import Register from "./Register";
 
 const App = () => {
-
   return (
-    <div style={{ backgroundColor: "#AC9F5D" }}
-    className="min-vh-100 d-flex flex-column">
-      <NavBar/>
+    <div className="min-vh-100 d-flex flex-column">
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/register" element={< Register/>} />
+      </Routes>
     </div>
   );
 };
