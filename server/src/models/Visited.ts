@@ -6,7 +6,7 @@ class Visited extends Model {
   public id!: number;
   public bar_name!: string;
   public address!: string;
-}
+};
 
 Visited.init(
   {

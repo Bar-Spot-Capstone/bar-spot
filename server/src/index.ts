@@ -3,6 +3,7 @@ import sequelize from "./config/connection";
 import userRouter from "./routes/User";
 import groupRouter from "./routes/Group"
 import visitedRouter from "./routes/Visited"
+
 import 'dotenv/config';
 
 const app: express.Application = express();

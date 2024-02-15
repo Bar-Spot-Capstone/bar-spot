@@ -12,7 +12,6 @@ const newVisited = async (req: Request, res: Response): Promise<Response> => {
       error: `Failed to add new entire missing field: ${handleEmpty}`,
     });
   }
-
   try {
     await Visited.create({
       bar_name: bar_name,
