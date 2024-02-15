@@ -30,14 +30,18 @@ const newVisited = async (req: Request, res: Response): Promise<Response> => {
 
 const getAllVisited = async (req: Request, res: Response) => {
   try {
+
     const bars = await Visited.findAll();
     res.status(200);
     return res.json(bars);
+
   } catch (error: any) {
+
     res.status(500);
     return res.json({
       error: `Failed to retrieve visited bars with unexpected error: ${error}`,
     });
+
   }
 };
 
