@@ -97,7 +97,10 @@ const inviteUser = async (req: Request, res: Response): Promise<Response> => {
         }
         else {
             res.status(400);
-            return res.json({ error: "No such group exisit" });
+            if(!user){
+                return res.json({ error: "No such user exisit" }) ;
+            };
+            return res.json({ error: "No such group exisit" }) ;
         };
     }
     catch (error: any) {

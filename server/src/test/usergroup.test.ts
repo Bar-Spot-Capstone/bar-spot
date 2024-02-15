@@ -189,7 +189,7 @@ describe('On invaild user_group invitation input', (): void => {
 
         await inviteUser(req, res);
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({ error: "No such group exisit" });
+        expect(res.json).toHaveBeenCalledWith({ error: "No such user exisit" });
     });
 
     it('should return a status code of 400 and error if group doesnt exisit', async (): Promise<void> => {
