@@ -2,6 +2,7 @@ import express from "express";
 import sequelize from "./config/connection";
 import userRouter from "./routes/User";
 import groupRouter from "./routes/Group"
+import userGroupRouter from "./routes/UserGroup"
 import 'dotenv/config';
 
 const app: express.Application = express();
@@ -12,7 +13,8 @@ app.use(express.json());
 
 //Routers
 app.use('/user', userRouter);
-app.use('/group', groupRouter)
+app.use('/group', groupRouter);
+app.use('/party', userGroupRouter);
 
 sequelize.sync().then((): void => {
     app.listen(PORT, (): void => {
