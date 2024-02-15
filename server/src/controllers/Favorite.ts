@@ -37,6 +37,13 @@ const addFavorite = async (req: Request, res: Response): Promise<Response> => {
     }
 };
 
+const getFavorite = async (req: Request, res: Response) => {
+    const {userId}: any = req.params;
+    res.status(200);
+    return res.json({ success: `${userId}` });
+};
+
 export {
-    addFavorite
+    addFavorite,
+    getFavorite
 };
