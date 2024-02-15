@@ -37,7 +37,7 @@ const createUserGroup = async (req: Request, res: Response): Promise<Response> =
         };
 
         res.status(200);
-        return res.json({ success: "Group creation successful" });
+        return res.json({ success: "Group creation successful", groupId: user_group.groupId });
     }
     catch (error: any) {
         res.status(500);

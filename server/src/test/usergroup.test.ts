@@ -114,11 +114,15 @@ describe('On vaild user_group input', (): void => {
         };
 
         (Group as any).create.mockResolvedValue(true);
-        (UserGroup as any).create.mockResolvedValue(true);
+        (UserGroup as any).create.mockResolvedValue({
+            userId: Number.MAX_SAFE_INTEGER,
+            groupId: Number.MAX_SAFE_INTEGER,
+            role: "Owner"
+        });
 
         await createUserGroup(req, res);
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({ success: "Group creation successful" });
+        expect(res.json).toHaveBeenCalledWith({ success: "Group creation successful", groupId: Number.MAX_SAFE_INTEGER });
     });
 });
 
