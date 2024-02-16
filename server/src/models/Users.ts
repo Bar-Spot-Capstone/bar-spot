@@ -40,7 +40,7 @@ User.init(
     }
 );
 
-User.hasOne(Favorite, {
+User.hasMany(Favorite, {
     foreignKey: 'userId',
     onDelete: 'CASCADE'
 });

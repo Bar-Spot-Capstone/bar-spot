@@ -25,17 +25,14 @@ Favorite.init(
         userId: {
             type: DataTypes.INTEGER.UNSIGNED,
             allowNull: false,
-            unique: true,
         },
         barName: {
             type: DataTypes.STRING,
             allowNull: false,
-            unique: true,
         },
         address: {
             type: DataTypes.STRING,
             allowNull: true,
-            unique: true,
         },
         note: {
             type: DataTypes.STRING,
@@ -45,7 +42,7 @@ Favorite.init(
     {
         sequelize,
         modelName: 'Favorite',
-        timestamps: true
+        timestamps: true,
     }
 );
 
