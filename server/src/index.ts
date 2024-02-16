@@ -2,7 +2,7 @@ import express from "express";
 import sequelize from "./config/connection";
 import userRouter from "./routes/User";
 import groupRouter from "./routes/Group";
-import favoriteRouter from "./routes/Favorite";
+import favoriteRouter from "./routes/Favorites";
 import 'dotenv/config';
 
 const app: express.Application = express();
