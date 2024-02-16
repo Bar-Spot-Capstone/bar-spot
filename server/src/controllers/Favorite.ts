@@ -1,4 +1,4 @@
-import Favorite from "../models/Favorite";
+import Favorites from "../models/Favorites";
 import { Request, Response } from "express";
 
 const addFavorite = async (req: Request, res: Response): Promise<Response> => {
@@ -10,7 +10,7 @@ const addFavorite = async (req: Request, res: Response): Promise<Response> => {
     };
 
     try {
-        const existingFavorite = await Favorite.findOne({
+        const existingFavorite = await Favorites.findOne({
             where: {
                 userId: userId,
                 barName: barName,
@@ -22,7 +22,7 @@ const addFavorite = async (req: Request, res: Response): Promise<Response> => {
             return res.json({ error: "Bar already in favorites" });
         }
 
-        await Favorite.create({
+        await Favorites.create({
             userId: userId,
             barName: barName,
             address: address,
@@ -37,7 +37,7 @@ const addFavorite = async (req: Request, res: Response): Promise<Response> => {
     }
 };
 
-const getFavorite = async (req: Request, res: Response) => {
+const getFavorites = async (req: Request, res: Response) => {
     const {userId}: any = req.params;
     res.status(200);
     return res.json({ success: `${userId}` });
@@ -45,5 +45,5 @@ const getFavorite = async (req: Request, res: Response) => {
 
 export {
     addFavorite,
-    getFavorite
+    getFavorites
 };

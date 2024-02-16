@@ -1,6 +1,6 @@
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../config/connection';
-import Favorite from './Favorite';
+import Favorites from './Favorites';
 
 // Define the User model
 class User extends Model {
@@ -40,7 +40,7 @@ User.init(
     }
 );
 
-User.hasMany(Favorite, {
+User.hasMany(Favorites, {
     foreignKey: 'userId',
     onDelete: 'CASCADE'
 });
