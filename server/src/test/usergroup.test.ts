@@ -283,3 +283,48 @@ describe('On invaild get all party members input', (): void => {
     });
 
 });
+
+describe('On vaild get all party members input', (): void => {
+    beforeEach((): void => {
+        jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
+    });
+
+    it('should return a status code of 200 and list of all users in the group', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                groupId: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (UserGroup as any).findOne.mockResolvedValueOnce(true);
+        (UserGroup as any).findAll.mockResolvedValueOnce([
+            {
+                dataValues: {
+                    id: Number.MIN_VALUE,
+                    role: 'Owner',
+                    userId: Number.MIN_VALUE,
+                    groupId: Number.MAX_SAFE_INTEGER
+                }
+            }
+        ]);
+
+        (User as any).findOne.mockResolvedValueOnce({
+            id: Number.MIN_VALUE,
+            username: 'Deondrae',
+            password: 'HashedPassword',
+            email: 'dev@deving.com'
+        });
+
+        await getMembers(req, res);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({
+            "members": [
+                [
+                    "Deondrae",
+                    "Owner",
+                    Number.MIN_VALUE
+                ]
+            ]
+        });
+    });
+});
