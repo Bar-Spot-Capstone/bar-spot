@@ -115,7 +115,7 @@ const getMembers = async (req: Request, res: Response): Promise<Response> => {
 
     if (!groupId) {
         res.status(400);
-        return res.json({ error: "Failed to find group" });
+        return res.json({ error: "No groupId provided" });
     };
 
     try {
@@ -128,7 +128,7 @@ const getMembers = async (req: Request, res: Response): Promise<Response> => {
 
         if (!group) {
             res.status(400);
-            return res.json({ error: "No such group exisit" });
+            return res.json({ error: "No such group exist" });
         };
 
         const party: any = await UserGroup.findAll({
