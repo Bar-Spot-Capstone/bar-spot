@@ -43,6 +43,12 @@ Favorites.init(
         sequelize,
         modelName: 'Favorites',
         timestamps: true,
+        indexes: [
+            {
+                unique: true,
+                fields: ['userId', 'barName', 'address']
+            }
+        ]
     }
 );
 
