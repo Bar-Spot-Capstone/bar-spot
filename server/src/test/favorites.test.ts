@@ -22,7 +22,7 @@ describe('On invaild favorite creation', () => {
     it("should return a status code of 400 and error if userId or barName is missing", async (): Promise<void> => {
         const req: any = {
             body: {
-                userId: "",
+                userId: Number.MAX_SAFE_INTEGER,
                 barName: "",
                 address: "test",
                 note: "test"
@@ -36,7 +36,7 @@ describe('On invaild favorite creation', () => {
     it("should return a status code of 400 and error if the bar is already in favorites", async (): Promise<void> => {
         const req: any = {
             body: {
-                userId: "1",
+                userId: Number.MAX_SAFE_INTEGER,
                 barName: "The Number 1 Bar",
                 address: "",
                 note: ""
@@ -59,7 +59,7 @@ describe('On successful favorite creation', (): void => {
     it('should return a status code of 200 and success message if the favorite is added successfully', async (): Promise<void> => {
         const req: any = {
             body: {
-                userId: "1",
+                userId: Number.MAX_SAFE_INTEGER,
                 barName: "Bar Example",
                 address: "499 Capstone St",
                 note: "Nice staff"
@@ -70,6 +70,6 @@ describe('On successful favorite creation', (): void => {
         (Favorites as any).findOne.mockResolvedValue(null);
         await addFavorite(req, res);
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({ success: "Bar added to favorites", userId: "1", barName: "Bar Example", address: "499 Capstone St", note: "Nice staff"});
+        expect(res.json).toHaveBeenCalledWith({ success: "Bar added to favorites", userId: Number.MAX_SAFE_INTEGER, barName: "Bar Example", address: "499 Capstone St", note: "Nice staff"});
     });
 });
