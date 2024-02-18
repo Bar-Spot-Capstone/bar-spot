@@ -30,7 +30,7 @@ const addFavorite = async (req: Request, res: Response): Promise<Response> => {
         });
         
         res.status(200);
-        return res.json({ success: "Bar added to favorites" })
+        return res.json({ success: "Bar added to favorites", userId: userId, barName: barName, address: address, note: note })
     } catch (error: any) {
         res.status(500);
         return res.json({ error: "Server failed with error ${error}" })

@@ -1,6 +1,5 @@
 import Favorites from "../models/Favorites";
 import { addFavorite } from "../controllers/Favorites";
-import { UniqueConstraintError as SequelizeUniqueConstraintError } from 'sequelize';
 
 // Mock Favorites.create
 jest.mock('../models/Favorites', (): any => ({
@@ -71,6 +70,6 @@ describe('On successful favorite creation', (): void => {
         (Favorites as any).findOne.mockResolvedValue(null);
         await addFavorite(req, res);
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({ success: "Bar added to favorites" });
+        expect(res.json).toHaveBeenCalledWith({ success: "Bar added to favorites", userId: "1", barName: "Bar Example", address: "499 Capstone St", note: "Nice staff"});
     });
 });
