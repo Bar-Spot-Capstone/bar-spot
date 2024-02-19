@@ -1,7 +1,7 @@
 import UserGroup from "../models/UserGroup";
 import User from "../models/Users";
 import Group from "../models/Group";
-import { inviteUser, createUserGroup } from "../controllers/UserGroup";
+import { inviteUser, createUserGroup, getMembers } from "../controllers/UserGroup";
 
 // Mock Group.create and findOne
 jest.mock('../models/Group', (): any => ({
@@ -12,7 +12,8 @@ jest.mock('../models/Group', (): any => ({
 // Mock UserGroup.create and findOne
 jest.mock('../models/UserGroup', (): any => ({
     create: jest.fn(),
-    findOne: jest.fn() //to mock the findOne function
+    findOne: jest.fn(), //to mock the findOne function
+    findAll: jest.fn() //to mock the findAll function
 }));
 
 // Mock User.findOne
@@ -246,5 +247,84 @@ describe('On vaild user_group invitation input', (): void => {
         await inviteUser(req, res);
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({ success: "Successfully added to group" });
+    });
+});
+
+/*UserGroup get all party members test*/
+describe('On invaild get all party members input', (): void => {
+    beforeEach((): void => {
+        jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
+    });
+
+    it('should return a status code of 400 and error if groupId is missing from params', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                groupId: null
+            }
+        };
+
+        await getMembers(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "No groupId provided" });
+    });
+
+    it('should return a status code of 400 and error if group doesnt exist', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                groupId: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (UserGroup as any).findOne.mockResolvedValueOnce(false);
+
+        await getMembers(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "No such group exist" });
+    });
+
+});
+
+describe('On vaild get all party members input', (): void => {
+    beforeEach((): void => {
+        jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
+    });
+
+    it('should return a status code of 200 and list of all users in the group', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                groupId: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (UserGroup as any).findOne.mockResolvedValueOnce(true);
+        (UserGroup as any).findAll.mockResolvedValueOnce([
+            {
+                dataValues: {
+                    id: Number.MIN_VALUE,
+                    role: 'Owner',
+                    userId: Number.MIN_VALUE,
+                    groupId: Number.MAX_SAFE_INTEGER
+                }
+            }
+        ]);
+
+        (User as any).findOne.mockResolvedValueOnce({
+            id: Number.MIN_VALUE,
+            username: 'Deondrae',
+            password: 'HashedPassword',
+            email: 'dev@deving.com'
+        });
+
+        await getMembers(req, res);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({
+            "members": [
+                [
+                    "Deondrae",
+                    "Owner",
+                    Number.MIN_VALUE
+                ]
+            ]
+        });
     });
 });

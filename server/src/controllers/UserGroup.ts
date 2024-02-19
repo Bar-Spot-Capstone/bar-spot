@@ -97,10 +97,10 @@ const inviteUser = async (req: Request, res: Response): Promise<Response> => {
         }
         else {
             res.status(400);
-            if(!user){
-                return res.json({ error: "No such user exisit" }) ;
+            if (!user) {
+                return res.json({ error: "No such user exisit" });
             };
-            return res.json({ error: "No such group exisit" }) ;
+            return res.json({ error: "No such group exisit" });
         };
     }
     catch (error: any) {
@@ -110,7 +110,59 @@ const inviteUser = async (req: Request, res: Response): Promise<Response> => {
 
 };
 
+const getMembers = async (req: Request, res: Response): Promise<Response> => {
+    const groupId: string = req.params.groupId;
+
+    if (!groupId) {
+        res.status(400);
+        return res.json({ error: "No groupId provided" });
+    };
+
+    try {
+        //Check if group exist in the table 
+        const group: any = await UserGroup.findOne({
+            where: {
+                groupId: groupId
+            }
+        });
+
+        if (!group) {
+            res.status(400);
+            return res.json({ error: "No such group exist" });
+        };
+
+        const party: any = await UserGroup.findAll({
+            where: {
+                groupId: parseInt(groupId)
+            },
+            // Attributes wanted
+            attributes: ['id', 'role', 'userId', 'groupId']
+        });
+
+        const members: Array<Array<any>> = [];
+
+        for (let i = 0; i < party.length; i++) {
+            const userId: number = party[i].dataValues.userId;
+            const user: any = await User.findOne({
+                where: {
+                    id: userId
+                }
+            });
+            members.push([user.username, party[i].dataValues.role, user.id]);
+        };
+
+        res.status(200);
+        return res.json({ members });
+    }
+    catch (error: any) {
+        res.status(500);
+        return res.json({ error: `Unexpected error occured with error: ${error}` });
+    };
+};
+
+
 export {
     createUserGroup,
-    inviteUser
+    inviteUser,
+    getMembers
 };
