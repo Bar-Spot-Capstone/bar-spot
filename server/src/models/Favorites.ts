@@ -2,8 +2,8 @@ import { DataTypes, Model } from 'sequelize';
 import sequelize from '../config/connection';
 import User from './Users';
 
-// Define the Favorite model
-class Favorite extends Model {
+// Define the Favorites model
+class Favorites extends Model {
     public id!: number; // Primary Key
     public userId!: number; // Foreign key
     public barName!: string;
@@ -14,8 +14,8 @@ class Favorite extends Model {
     public user?: User;
 }
 
-// Initialize the Favorite model with attributes and options
-Favorite.init(
+// Initialize the Favorites model with attributes and options
+Favorites.init(
     {
         id: {
             type: DataTypes.INTEGER.UNSIGNED,
@@ -25,17 +25,14 @@ Favorite.init(
         userId: {
             type: DataTypes.INTEGER.UNSIGNED,
             allowNull: false,
-            unique: true,
         },
         barName: {
             type: DataTypes.STRING,
             allowNull: false,
-            unique: true,
         },
         address: {
             type: DataTypes.STRING,
             allowNull: true,
-            unique: true,
         },
         note: {
             type: DataTypes.STRING,
@@ -44,9 +41,9 @@ Favorite.init(
     },
     {
         sequelize,
-        modelName: 'Favorite',
-        timestamps: true
+        modelName: 'Favorites',
+        timestamps: true,
     }
 );
 
-export default Favorite;
+export default Favorites;
