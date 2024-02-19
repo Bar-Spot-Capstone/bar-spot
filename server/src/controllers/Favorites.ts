@@ -3,15 +3,14 @@ import { Request, Response } from "express";
 
 const addFavorite = async (req: Request, res: Response): Promise<Response> => {
     const { userId, barName, address, note }: { userId: string, barName: string, address: string, note: string } = req.body;
+    
+    var handleEmpty: string = ''
+    handleEmpty = !userId ? 'userId' : '' || !barName ? 'barName' : ''; //find missing parm
 
-    if (!userId || !barName) {
+    if (handleEmpty) {
         res.status(400);
-        return res.json({ error: "Failed to register missing fields" });
+        return res.json({ error: `Failed to create favorite, missing field: ${handleEmpty}` });
     };
-
-    if (!barName) {
-        return res.json({ error: "Bar "})
-    }
 
     try {
         const existingFavorite = await Favorites.findOne({

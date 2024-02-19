@@ -19,7 +19,7 @@ describe('On invaild favorite creation', () => {
         jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
     });
 
-    it("should return a status code of 400 and error if userId or barName is missing", async (): Promise<void> => {
+    it("should return a status code of 400 and error if barName is missing", async (): Promise<void> => {
         const req: any = {
             body: {
                 userId: Number.MAX_SAFE_INTEGER,
@@ -30,8 +30,23 @@ describe('On invaild favorite creation', () => {
         };
         await addFavorite(req, res);
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({ error: "Failed to register missing fields" });
+        expect(res.json).toHaveBeenCalledWith({ error: "Failed to create favorite, missing field: barName" });
     });
+
+    it("should return a status code of 400 and error if barName is missing", async (): Promise<void> => {
+        const req: any = {
+            body: {
+                userId: null,
+                barName: "Test Bar",
+                address: "test",
+                note: "test"
+            }
+        };
+        await addFavorite(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Failed to create favorite, missing field: userId" });
+    });
+
 
     it("should return a status code of 400 and error if the bar is already in favorites", async (): Promise<void> => {
         const req: any = {
@@ -68,6 +83,8 @@ describe('On successful favorite creation', (): void => {
         
         // Mocking findOne to return no existing favorite
         (Favorites as any).findOne.mockResolvedValue(null);
+        // Mocking create to indicate successful addition
+        (Favorites as any).create.mockResolvedValue(true);
         await addFavorite(req, res);
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({ success: "Bar added to favorites", userId: Number.MAX_SAFE_INTEGER, barName: "Bar Example", address: "499 Capstone St", note: "Nice staff"});
