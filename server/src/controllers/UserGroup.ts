@@ -160,9 +160,74 @@ const getMembers = async (req: Request, res: Response): Promise<Response> => {
     };
 };
 
+const deleteParty = async (req: Request, res: Response): Promise<Response> => {
+    const id: string = req.params.groupId; // Takes in the UserGroup id for deleting the party
+
+    if (!id) {
+        res.status(400);
+        return res.json({ error: "No such group exist" });
+    };
+
+    try {
+        const partyDeleted: number = await UserGroup.destroy({
+            where: {
+                id: id
+            }
+        });
+
+        if (!partyDeleted) {
+            res.status(400);
+            return res.json({ error: "Party is unabled to be destroyed at this moment" });
+        }
+
+        res.status(200);
+        return res.json({ success: "Successfully deleted party" });
+    }
+    catch (error: any) {
+        res.status(500);
+        return res.json({ error: `Unexpected error occured with error: ${error}` });
+    };
+
+};
+
+const removeMember = async (req: Request, res: Response): Promise<Response> => {
+    const userId: string = req.params.userId
+    const id: string = req.params.id
+
+    var handleEmpty: string = ''
+    handleEmpty = !userId ? 'userId' : '' || !id ? 'groupId' : '' //find missing parm
+
+    if (handleEmpty) {
+        res.status(400);
+        return res.json({ error: `Unable to read: ${handleEmpty}` })
+    };
+
+    try {
+        const memberRemoved: number = await UserGroup.destroy({
+            where: {
+                id: id,
+                userId: userId
+            }
+        });
+
+        if (!memberRemoved) {
+            res.status(400);
+            return res.json({ error: "Error in deleting member, please try again" });
+        };
+        res.status(200);
+        return res.json({ success: "Successfully removed member" });
+    }
+    catch (error: any) {
+        res.status(500);
+        return res.json({ error: `Unexpected error occured with error: ${error}` });
+    };
+};
+
 
 export {
     createUserGroup,
     inviteUser,
-    getMembers
+    getMembers,
+    deleteParty,
+    removeMember
 };
