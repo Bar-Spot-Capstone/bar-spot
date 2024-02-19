@@ -1,5 +1,4 @@
 import Favorites from "../models/Favorites";
-import User from "../models/Users"
 import { Request, Response } from "express";
 
 const addFavorite = async (req: Request, res: Response): Promise<Response> => {
@@ -14,12 +13,6 @@ const addFavorite = async (req: Request, res: Response): Promise<Response> => {
     };
 
     try {
-        const existingUser = await User.findByPk(userId);
-        if (!existingUser) {
-            res.status(400);
-            return res.json({ error: "No such userId exists" });
-        }
-
         const existingFavorite = await Favorites.findOne({
             where: {
                 userId: userId,
