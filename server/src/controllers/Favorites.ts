@@ -9,6 +9,10 @@ const addFavorite = async (req: Request, res: Response): Promise<Response> => {
         return res.json({ error: "Failed to register missing fields" });
     };
 
+    if (!barName) {
+        return res.json({ error: "Bar "})
+    }
+
     try {
         const existingFavorite = await Favorites.findOne({
             where: {
@@ -33,7 +37,7 @@ const addFavorite = async (req: Request, res: Response): Promise<Response> => {
         return res.json({ success: "Bar added to favorites", userId: userId, barName: barName, address: address, note: note })
     } catch (error: any) {
         res.status(500);
-        return res.json({ error: "Server failed with error ${error}" })
+        return res.json({ error: `Server failed with error ${error}` })
     }
 };
 
