@@ -56,7 +56,7 @@ describe('On invaild favorite creation', () => {
                 note: ""
             }
         };
-        
+
         // Mocking findOne to return an existing favorite
         (Favorites as any).findOne.mockResolvedValue(true);
         await addFavorite(req, res);
@@ -79,13 +79,13 @@ describe('On successful favorite creation', (): void => {
                 note: "Nice staff"
             }
         };
-        
+
         // Mocking findOne to return no existing favorite
         (Favorites as any).findOne.mockResolvedValue(null);
         // Mocking create to indicate successful addition
-        (Favorites as any).create.mockResolvedValue(true);
+        (Favorites as any).create.mockResolvedValue({ userId: Number.MAX_SAFE_INTEGER, barName: "Bar Example", address: "499 Capstone St", note: "Nice staff" });
         await addFavorite(req, res);
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({ success: "Bar added to favorites", userId: Number.MAX_SAFE_INTEGER, barName: "Bar Example", address: "499 Capstone St", note: "Nice staff"});
+        expect(res.json).toHaveBeenCalledWith({ success: "Bar added to favorites", userId: Number.MAX_SAFE_INTEGER, barName: "Bar Example", address: "499 Capstone St", note: "Nice staff" });
     });
 });
