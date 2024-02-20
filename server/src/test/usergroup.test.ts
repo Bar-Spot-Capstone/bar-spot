@@ -1,7 +1,7 @@
 import UserGroup from "../models/UserGroup";
 import User from "../models/Users";
 import Group from "../models/Group";
-import { inviteUser, createUserGroup, getMembers } from "../controllers/UserGroup";
+import { inviteUser, createUserGroup, getMembers, deleteParty, removeMember } from "../controllers/UserGroup";
 
 // Mock Group.create and findOne
 jest.mock('../models/Group', (): any => ({
@@ -13,7 +13,8 @@ jest.mock('../models/Group', (): any => ({
 jest.mock('../models/UserGroup', (): any => ({
     create: jest.fn(),
     findOne: jest.fn(), //to mock the findOne function
-    findAll: jest.fn() //to mock the findAll function
+    findAll: jest.fn(), //to mock the findAll function
+    destroy: jest.fn() //to mock the findAll function
 }));
 
 // Mock User.findOne
@@ -326,5 +327,178 @@ describe('On vaild get all party members input', (): void => {
                 ]
             ]
         });
+    });
+});
+
+/*UserGroup test delete party methods*/
+describe('On invaild delete party input', (): void => {
+    beforeEach((): void => {
+        jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
+    });
+
+    it('should return a status code of 400 and error message if id is missing in the request', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                id: null
+            }
+        };
+
+        await deleteParty(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "No such group exist" });
+    });
+
+    it('should return a status code of 400 and error message if the party couldnt be deleted', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                id: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (UserGroup as any).destroy.mockResolvedValueOnce(false);
+
+        await deleteParty(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Party is unabled to be destroyed at this moment" });
+    });
+
+});
+
+describe('On vaild delete party input', (): void => {
+    beforeEach((): void => {
+        jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
+    });
+
+    it('should return a status code of 200 and success message if party was deleted', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                id: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (UserGroup as any).destroy.mockResolvedValueOnce(true);
+
+        await deleteParty(req, res);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ success: "Successfully deleted party" });
+    });
+});
+
+/*UserGroup test delete members methods*/
+describe('On invaild delete party member input', (): void => {
+    beforeEach((): void => {
+        jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
+    });
+
+    it('should return a status code of 400 and error message if userId is missing', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                userId: null,
+                groupId: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        await removeMember(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Unable to read: userId" });
+    });
+
+    it('should return a status code of 400 and error message if groupId is missing', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                userId: Number.MAX_SAFE_INTEGER,
+                groupId: null
+            }
+        };
+
+        await removeMember(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Unable to read: groupId" });
+    });
+
+    it('should return a status code of 400 and error message if owner of large group tries to leave', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                userId: Number.MAX_SAFE_INTEGER - 1,
+                groupId: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (UserGroup as any).findOne.mockResolvedValueOnce({
+            role: "Owner"
+        });
+
+        (UserGroup as any).findAll.mockResolvedValueOnce([
+            {
+                role: 'Owner',
+                userId: Number.MAX_SAFE_INTEGER - 1,
+            },
+            {
+                role: 'member', userId: Number.MAX_SAFE_INTEGER
+            }
+        ]);
+
+        await removeMember(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Cannot leave party as the owner while there are other memebers" });
+    });
+
+    it('should return a status code of 400 and error message if member was not deleted', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                userId: Number.MAX_SAFE_INTEGER,
+                groupId: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (UserGroup as any).findOne.mockResolvedValueOnce({
+            role: "Owner"
+        });
+
+        (UserGroup as any).findAll.mockResolvedValueOnce([
+            {
+                role: 'Owner',
+                userId: Number.MAX_SAFE_INTEGER,
+            }
+        ]);
+
+        (UserGroup as any).destroy.mockResolvedValueOnce(false);
+
+        await removeMember(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Error in deleting member, please try again" });
+    });
+
+});
+
+describe('On vaild delete party member input', (): void => {
+    beforeEach((): void => {
+        jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
+    });
+
+    it('should return a status code of 200 and success message member was deleted', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                userId: Number.MAX_SAFE_INTEGER,
+                groupId: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (UserGroup as any).findOne.mockResolvedValueOnce({
+            role: "Owner"
+        });
+
+        (UserGroup as any).findAll.mockResolvedValueOnce([
+            {
+                role: 'Owner',
+                userId: Number.MAX_SAFE_INTEGER,
+            }
+        ]);
+
+        (UserGroup as any).destroy.mockResolvedValueOnce(true);
+
+        await removeMember(req, res);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ success: "Successfully removed member" });
     });
 });
