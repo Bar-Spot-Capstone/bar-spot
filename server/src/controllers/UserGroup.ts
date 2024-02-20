@@ -161,7 +161,7 @@ const getMembers = async (req: Request, res: Response): Promise<Response> => {
 };
 
 const deleteParty = async (req: Request, res: Response): Promise<Response> => {
-    const id: string = req.params.groupId; // Takes in the UserGroup id for deleting the party
+    const id: string = req.params.id; // Takes in the UserGroup id for deleting the party
 
     if (!id) {
         res.status(400);
@@ -192,10 +192,10 @@ const deleteParty = async (req: Request, res: Response): Promise<Response> => {
 
 const removeMember = async (req: Request, res: Response): Promise<Response> => {
     const userId: string = req.params.userId
-    const id: string = req.params.id
+    const groupId: string = req.params.groupId
 
     var handleEmpty: string = ''
-    handleEmpty = !userId ? 'userId' : '' || !id ? 'groupId' : '' //find missing parm
+    handleEmpty = !userId ? 'userId' : '' || !groupId ? 'groupId' : '' //find missing parm
 
     if (handleEmpty) {
         res.status(400);
@@ -203,9 +203,31 @@ const removeMember = async (req: Request, res: Response): Promise<Response> => {
     };
 
     try {
+        const member: any = await UserGroup.findOne({
+            where: {
+                groupId: groupId,
+                userId: userId
+            },
+            attributes: ['role']
+        });
+
+        if (member.role.toLowerCase() === 'owner') {
+            const party: any = await UserGroup.findAll({
+                where: {
+                    groupId: groupId
+                },
+                attributes: ['role', 'userId']
+            });
+
+            if (party.length > 1) {
+                res.status(400);
+                return res.json({ error: "Cannot leave party as the owner while there are other memebers" });
+            };
+        }
+
         const memberRemoved: number = await UserGroup.destroy({
             where: {
-                id: id,
+                groupId: groupId,
                 userId: userId
             }
         });
