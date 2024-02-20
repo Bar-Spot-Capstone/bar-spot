@@ -6,6 +6,7 @@ import Login from "./pages/Login.tsx";
 import CreateNewAcc from "./pages/CreateNewAcc.tsx";
 import "bootstrap/dist/css/bootstrap.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+
 const router = createBrowserRouter([
   {
     path: "/",
