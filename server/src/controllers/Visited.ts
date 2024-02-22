@@ -31,7 +31,7 @@ const newVisited = async (req: Request, res: Response): Promise<Response> => {
 const getAllVisited = async (req: Request, res: Response) => {
   try {
 
-    const bars = await Visited.findAll();
+    const bars = await Visited.findAll({attributes: ["bar_name", "address", "id"]});
     res.status(200);
     return res.json(bars);
 
