@@ -77,7 +77,39 @@ const userLogin = async (req: Request, res: Response): Promise<Response> => {
     };
 };
 
+/*Having issues with this need to test it out and make sure it works*/
+const deleteUser = async (req: Request, res: Response): Promise<Response> => {
+    const id: string = req.params.id;
+
+    if (!id) {
+        res.status(400);
+        return res.json({ error: "Failed to execute delete due to no id" });
+    };
+
+    try {
+        const user: any = await User.destroy({
+            where: {
+                id: id
+            }
+        });
+
+        if (!user) {
+            res.status(400);
+            return res.json({ error: "Failed to delete user" });
+        }
+
+        res.status(200);
+        return res.json({ success: "Successfully deleted user" });
+    }
+    catch (error: any) {
+        res.status(500);
+        return res.json({ error: `Unexpected error occured with error: ${error}` });
+    };
+
+};
+
 export {
     userRegister,
-    userLogin
+    userLogin,
+    deleteUser
 };
