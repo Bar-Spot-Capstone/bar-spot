@@ -1,5 +1,5 @@
 import Favorites from "../models/Favorites";
-import { addFavorite } from "../controllers/Favorites";
+import { addFavorite, getFavorites } from "../controllers/Favorites";
 
 // Mock Favorites.create
 jest.mock('../models/Favorites', (): any => ({
@@ -87,5 +87,63 @@ describe('On successful favorite creation', (): void => {
         await addFavorite(req, res);
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({ success: "Bar added to favorites", userId: Number.MAX_SAFE_INTEGER, barName: "Bar Example", address: "499 Capstone St", note: "Nice staff" });
+    });
+});
+
+/*Favorites get bar list test*/
+describe('On invalid get favorites input', (): void => {
+    beforeEach((): void => {
+        jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
+    });
+
+    it('should return a status code of 400 and error if userId is missing from params', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                userId: null
+            }
+        };
+        await getFavorites(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "No userId provided" });
+    });
+
+    it('should return a status code of 400 and error if user doesnt exist', async(): Promise<void> => {
+        const req: any = {
+            params: {
+                userId: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (Favorites as any).findOne.mockResolvedValueOnce(false);
+
+        await getFavorites(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "User not found" });
+    });
+});
+
+describe('On valid get favorites input', (): void => {
+    beforeEach((): void => {
+        jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
+    });
+
+    it('should return a status code of 200 and list of all bars for the user', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                userId: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (Favorites as any).findOne.mockResolvedValueOnce(true);
+        (Favorites as any).findAll.mockResolvedValueOnce([
+            {
+                dataValues: {
+                    userId: Number.MIN_VALUE,
+                    barName: 'The Salty Dog',
+                    address: '123 Test Stree',
+                    note: 'Excellent on tap selection'
+                }
+            }
+        ]);
     });
 });

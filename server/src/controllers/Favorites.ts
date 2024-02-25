@@ -78,7 +78,7 @@ const getFavorites = async (req: Request, res: Response) => {
                 barName: favorite.barName,
                 address: favorite.address,
                 note: favorite.note
-            })
+            });
         };
 
         res.status(200);
