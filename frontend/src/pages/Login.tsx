@@ -7,16 +7,11 @@ import NavBar from "../components/NavBar";
 
 const Login = () => {
   return (
-    <>
+    <div className="vh-100 ">
       <NavBar />
-      <Container className="main h-75 position-absolute top-50 start-50 translate-middle">
-        <Logo />
+      <Container className="my-5">
 
-        <Row className="mx-lg-5 justify-content-lg-center">
-          <Col lg="6">
-            <h1>Login</h1>
-          </Col>
-        </Row>
+        <Logo />
 
         <FormInput
           lable="Email/Username"
@@ -49,7 +44,7 @@ const Login = () => {
           </Col>
         </Row>
       </Container>
-    </>
+    </div>
   );
 };
 

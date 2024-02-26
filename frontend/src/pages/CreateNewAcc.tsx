@@ -6,9 +6,9 @@ import NavBar from "../components/NavBar";
 
 const CreateNewAcc = () => {
   return (
-    <>
+    <div className="d-flex flex-column vh-100 ">
       <NavBar />
-      <Container className="main py-3 position-absolute top-50 start-50 translate-middle">
+      <Container className="">
         <Logo />
         <FormInput lable="Username" type="username" placeholder="Username" />
         <FormInput
@@ -43,7 +43,7 @@ const CreateNewAcc = () => {
           </Col>
         </Row>
       </Container>
-    </>
+    </div>
   );
 };
 

@@ -1,6 +1,5 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "./style/App.css"
 import App from "./pages/App.tsx";
 import Login from "./pages/Login.tsx";
 import CreateNewAcc from "./pages/CreateNewAcc.tsx";

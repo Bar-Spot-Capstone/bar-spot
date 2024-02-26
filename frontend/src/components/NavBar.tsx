@@ -6,7 +6,8 @@ import { Link } from "react-router-dom";
 
 const NavBar = () => {
   return (
-    <Navbar expand="md">
+    // bg color subject to change
+    <Navbar expand="md" className="bg-secondary-subtle"> 
       <Container>
         <Link to="/">
           <Navbar.Brand>
@@ -21,7 +22,7 @@ const NavBar = () => {
         </Link>
 
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse className="justify-content-end">
+        <Navbar.Collapse className="justify-content-end me-3">
 
         <NavDropdown title="Dropdown" id="basic-nav-dropdown" className="me-3">
             <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
