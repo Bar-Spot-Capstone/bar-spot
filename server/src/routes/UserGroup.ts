@@ -6,7 +6,7 @@ const router: express.Router = express.Router();
 router.post('/create', createUserGroup);
 router.post('/invite', inviteUser);
 router.get('/members/:groupId', getMembers);
-router.delete('/deleteparty/:id', deleteParty);
+router.delete('/delete/:id', deleteParty);
 router.delete('/remove/:userId/:groupId', removeMember);
 
 
