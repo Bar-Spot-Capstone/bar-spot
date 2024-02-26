@@ -1,5 +1,6 @@
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../config/connection';
+import Favorites from './Favorites';
 
 // Define the User model
 class User extends Model {
@@ -7,7 +8,7 @@ class User extends Model {
     public username!: string;
     public password!: string;
     public email!: string;
-}
+};
 
 // Initialize the User model with attributes and options
 User.init(
@@ -15,21 +16,21 @@ User.init(
         id: {
             type: DataTypes.INTEGER.UNSIGNED,
             autoIncrement: true,
-            primaryKey: true,
+            primaryKey: true
         },
         username: {
             type: DataTypes.STRING,
             allowNull: false,
-            unique: true,
+            unique: true
         },
         password: {
             type: DataTypes.STRING,
-            allowNull: false,
+            allowNull: false
         },
         email: {
             type: DataTypes.STRING,
             allowNull: false,
-            unique: true,
+            unique: true
         },
     },
     {
@@ -38,5 +39,10 @@ User.init(
         timestamps: true
     }
 );
+
+User.hasMany(Favorites, {
+    foreignKey: 'userId',
+    onDelete: 'CASCADE'
+});
 
 export default User;

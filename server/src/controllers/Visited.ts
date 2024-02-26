@@ -12,7 +12,6 @@ const newVisited = async (req: Request, res: Response): Promise<Response> => {
       error: `Failed to add new entire missing field: ${handleEmpty}`,
     });
   }
-
   try {
     await Visited.create({
       bar_name: bar_name,
@@ -31,10 +30,13 @@ const newVisited = async (req: Request, res: Response): Promise<Response> => {
 
 const getAllVisited = async (req: Request, res: Response) => {
   try {
-    const bars = await Visited.findAll();
+
+    const bars = await Visited.findAll({attributes: ["bar_name", "address", "id"]});
     res.status(200);
     return res.json(bars);
+
   } catch (error: any) {
+
     res.status(500);
     return res.json({
       error: `Failed to retrieve visited bars with unexpected error: ${error}`,
