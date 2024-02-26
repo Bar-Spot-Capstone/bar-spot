@@ -1,4 +1,5 @@
 import Favorites from "../models/Favorites";
+import User from "../models/Users";
 import { addFavorite, getFavorites } from "../controllers/Favorites";
 
 // Mock Favorites.create
@@ -134,16 +135,28 @@ describe('On valid get favorites input', (): void => {
             }
         };
 
-        (Favorites as any).findOne.mockResolvedValueOnce(true);
+        (User as any).findOne.mockResolvedValueOnce(true);
         (Favorites as any).findAll.mockResolvedValueOnce([
             {
                 dataValues: {
                     userId: Number.MIN_VALUE,
                     barName: 'The Salty Dog',
-                    address: '123 Test Stree',
+                    address: '123 Test Street',
                     note: 'Excellent on tap selection'
                 }
             }
         ]);
+
+        await getFavorites(req, res);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({
+            "bars": [
+                [
+                    "The Salty Dog",
+                    "123 Test Street",
+                    "Excellent on tap selection"
+                ]
+            ]
+        });
     });
 });
