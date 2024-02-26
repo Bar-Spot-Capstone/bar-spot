@@ -41,7 +41,6 @@ const getAllVisited = async (req: Request, res: Response) => {
     return res.json({
       error: `Failed to retrieve visited bars with unexpected error: ${error}`,
     });
-
   }
 };
 
