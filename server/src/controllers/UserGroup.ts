@@ -160,9 +160,102 @@ const getMembers = async (req: Request, res: Response): Promise<Response> => {
     };
 };
 
+const deleteParty = async (req: Request, res: Response): Promise<Response> => {
+    const groupId: string = req.params.groupId; // Takes in the UserGroup id for deleting the party
+
+    if (!groupId) {
+        res.status(400);
+        return res.json({ error: "No such group exist" });
+    };
+
+    try {
+        const partyDeleted: number = await UserGroup.destroy({
+            where: {
+                groupId: groupId
+            }
+        });
+
+        const groupDeleted: number = await Group.destroy({
+            where: {
+                id: groupId
+            }
+        });
+
+        if (!partyDeleted || !groupDeleted) {
+            res.status(400);
+            return res.json({ error: "Party is unabled to be destroyed at this moment" });
+        }
+
+        res.status(200);
+        return res.json({ success: "Successfully deleted party" });
+    }
+    catch (error: any) {
+        res.status(500);
+        return res.json({ error: `Unexpected error occured with error: ${error}` });
+    };
+
+};
+
+const removeMember = async (req: Request, res: Response): Promise<Response> => {
+    const userId: string = req.params.userId
+    const groupId: string = req.params.groupId
+
+    var handleEmpty: string = ''
+    handleEmpty = !userId ? 'userId' : '' || !groupId ? 'groupId' : '' //find missing parm
+
+    if (handleEmpty) {
+        res.status(400);
+        return res.json({ error: `Unable to read: ${handleEmpty}` })
+    };
+
+    try {
+        const member: any = await UserGroup.findOne({
+            where: {
+                groupId: groupId,
+                userId: userId
+            },
+            attributes: ['role']
+        });
+
+        if (member.role.toLowerCase() === 'owner') {
+            const party: any = await UserGroup.findAll({
+                where: {
+                    groupId: groupId
+                },
+                attributes: ['role', 'userId']
+            });
+
+            if (party.length > 1) {
+                res.status(400);
+                return res.json({ error: "Cannot leave party as the owner while there are other memebers" });
+            };
+        }
+
+        const memberRemoved: number = await UserGroup.destroy({
+            where: {
+                groupId: groupId,
+                userId: userId
+            }
+        });
+
+        if (!memberRemoved) {
+            res.status(400);
+            return res.json({ error: "Error in deleting member, please try again" });
+        };
+        res.status(200);
+        return res.json({ success: "Successfully removed member" });
+    }
+    catch (error: any) {
+        res.status(500);
+        return res.json({ error: `Unexpected error occured with error: ${error}` });
+    };
+};
+
 
 export {
     createUserGroup,
     inviteUser,
-    getMembers
+    getMembers,
+    deleteParty,
+    removeMember
 };
