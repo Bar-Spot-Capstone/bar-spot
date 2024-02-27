@@ -175,7 +175,13 @@ const deleteParty = async (req: Request, res: Response): Promise<Response> => {
             }
         });
 
-        if (!partyDeleted) {
+        const groupDeleted: number = await Group.destroy({
+            where: {
+                id: groupId
+            }
+        });
+
+        if (!partyDeleted || !groupDeleted) {
             res.status(400);
             return res.json({ error: "Party is unabled to be destroyed at this moment" });
         }

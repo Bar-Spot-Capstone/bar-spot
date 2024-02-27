@@ -6,7 +6,8 @@ import { inviteUser, createUserGroup, getMembers, deleteParty, removeMember } fr
 // Mock Group.create and findOne
 jest.mock('../models/Group', (): any => ({
     create: jest.fn(),
-    findOne: jest.fn() //to mock the findOne function
+    findOne: jest.fn(), //to mock the findOne function
+    destroy: jest.fn() //to mock the findAll function
 }));
 
 // Mock UserGroup.create and findOne
@@ -362,6 +363,21 @@ describe('On invaild delete party input', (): void => {
         expect(res.json).toHaveBeenCalledWith({ error: "Party is unabled to be destroyed at this moment" });
     });
 
+    it('should return a status code of 400 and error message if the group couldnt be deleted', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                groupId: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (UserGroup as any).destroy.mockResolvedValueOnce(true);
+        (Group as any).destroy.mockResolvedValueOnce(false);
+
+        await deleteParty(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Party is unabled to be destroyed at this moment" });
+    });
+
 });
 
 describe('On vaild delete party input', (): void => {
@@ -377,6 +393,7 @@ describe('On vaild delete party input', (): void => {
         };
 
         (UserGroup as any).destroy.mockResolvedValueOnce(true);
+        (Group as any).destroy.mockResolvedValueOnce(true);
 
         await deleteParty(req, res);
         expect(res.status).toHaveBeenCalledWith(200);
