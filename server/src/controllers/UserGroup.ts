@@ -161,9 +161,9 @@ const getMembers = async (req: Request, res: Response): Promise<Response> => {
 };
 
 const deleteParty = async (req: Request, res: Response): Promise<Response> => {
-    const id: string = req.params.id; // Takes in the UserGroup id for deleting the party
+    const groupId: string = req.params.groupId; // Takes in the UserGroup id for deleting the party
 
-    if (!id) {
+    if (!groupId) {
         res.status(400);
         return res.json({ error: "No such group exist" });
     };
@@ -171,7 +171,7 @@ const deleteParty = async (req: Request, res: Response): Promise<Response> => {
     try {
         const partyDeleted: number = await UserGroup.destroy({
             where: {
-                id: id
+                groupId: groupId
             }
         });
 
