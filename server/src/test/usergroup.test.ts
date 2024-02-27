@@ -339,7 +339,7 @@ describe('On invaild delete party input', (): void => {
     it('should return a status code of 400 and error message if id is missing in the request', async (): Promise<void> => {
         const req: any = {
             params: {
-                id: null
+                groupId: null
             }
         };
 
@@ -351,7 +351,7 @@ describe('On invaild delete party input', (): void => {
     it('should return a status code of 400 and error message if the party couldnt be deleted', async (): Promise<void> => {
         const req: any = {
             params: {
-                id: Number.MAX_SAFE_INTEGER
+                groupId: Number.MAX_SAFE_INTEGER
             }
         };
 
@@ -372,7 +372,7 @@ describe('On vaild delete party input', (): void => {
     it('should return a status code of 200 and success message if party was deleted', async (): Promise<void> => {
         const req: any = {
             params: {
-                id: Number.MAX_SAFE_INTEGER
+                groupId: Number.MAX_SAFE_INTEGER
             }
         };
 
