@@ -9,15 +9,17 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App/>,
-  },
-  {
-    path: "/login",
-    element: <Login />,
-  },
-  {
-    path: "/sign-up",
-    element: <CreateNewAcc />,
+    element: <App />,
+    children: [
+      {
+        path: "login",
+        element: <Login />,
+      },
+      {
+        path: "/sign-up",
+        element: <CreateNewAcc />,
+      },
+    ],
   },
 ]);
 ReactDOM.createRoot(document.getElementById("root")!).render(

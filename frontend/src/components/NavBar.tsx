@@ -3,8 +3,12 @@ import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import Logo from "../assets/Bar-Spot-Translucent-Logo.png";
 import { Link } from "react-router-dom";
+import NavBadge from "./NavBadge";
 
-const NavBar = () => {
+interface Props {
+  isLoggedIn: boolean;
+}
+const NavBar = ({isLoggedIn}:Props) => {
   return (
     // bg color subject to change
     <Navbar expand="md" className="bg-secondary-subtle"> 
@@ -32,15 +36,13 @@ const NavBar = () => {
             <NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>
             <NavDropdown.Divider />
             <NavDropdown.Item>
-            <Link to={"/login"}>
+            {/* <Link to={"/login"}>
             Test
-            </Link>
+            </Link> */}
             </NavDropdown.Item>
           </NavDropdown>
 
-          <Navbar.Text>
-            Signed in as: <Link to="/login">Oscar Comunidad</Link>
-          </Navbar.Text>
+          <NavBadge isLoggedIn = {isLoggedIn}/>
 
           
 
