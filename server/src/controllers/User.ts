@@ -1,6 +1,7 @@
 import User from "../models/Users";
 import bcrypt from "bcrypt"
 import { Request, Response } from "express";
+import UserGroup from "../models/UserGroup";
 
 const userRegister = async (req: Request, res: Response): Promise<Response> => {
     const { username, password, email }: { username: string, password: string, email: string } = req.body;
@@ -78,6 +79,7 @@ const userLogin = async (req: Request, res: Response): Promise<Response> => {
 };
 
 /*Having issues with this need to test it out and make sure it works*/
+
 const deleteUser = async (req: Request, res: Response): Promise<Response> => {
     const id: string = req.params.id;
 
@@ -87,7 +89,7 @@ const deleteUser = async (req: Request, res: Response): Promise<Response> => {
     };
 
     try {
-        const user: any = await User.destroy({
+        const user: any = await User.findOne({
             where: {
                 id: id
             }
@@ -95,11 +97,56 @@ const deleteUser = async (req: Request, res: Response): Promise<Response> => {
 
         if (!user) {
             res.status(400);
-            return res.json({ error: "Failed to delete user" });
+            return res.json({ error: "User does not exist" });
+        };
+
+        const userGroups: any = await UserGroup.findOne({
+            where: {
+                userId: user.id
+            }
+        });
+
+        if (userGroups) {
+            /*Need to check if user has any groups in UserGroup and need to handle that*/
+            const groupsFound: any = await UserGroup.findAll({
+                where: {
+                    userId: user.id
+                }
+            });
+
+            for (var i = 0; i < groupsFound.length; i++) {
+                if (groupsFound[i].dataValues.role.toLowerCase() === 'owner') {
+                    res.status(400);
+                    return res.json({ error: "Failed to delete. User is current owner of a group" });
+                };
+            };
+            //Now know that user is not a owner, thus need to delete all entries in Usergroup
+            const deleteUserEntrie: any = await UserGroup.destroy({
+                where: {
+                    userId: user.id
+                }
+            });
+
+            if (!deleteUserEntrie) {
+                res.status(400);
+                return res.json({ error: "Failed to delete. User is current a member of a group and failed to leave group" });
+            }
         }
+
+        const deleteRes = await User.destroy({
+            where: {
+                id: id
+            }
+        });
+
+        if (!deleteRes) {
+            res.status(400);
+            return res.json({ error: "Failed to delete user" });
+        };
 
         res.status(200);
         return res.json({ success: "Successfully deleted user" });
+
     }
     catch (error: any) {
         res.status(500);
