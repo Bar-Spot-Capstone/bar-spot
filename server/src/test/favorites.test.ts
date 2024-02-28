@@ -1,5 +1,5 @@
 import Favorites from "../models/Favorites";
-import { addFavorite } from "../controllers/Favorites";
+import { addFavorite, deleteFavorite } from "../controllers/Favorites";
 
 // Mock Favorites.create
 jest.mock('../models/Favorites', (): any => ({
