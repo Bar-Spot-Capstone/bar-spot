@@ -5,7 +5,15 @@ import { addFavorite, getFavorites } from "../controllers/Favorites";
 // Mock Favorites.create
 jest.mock('../models/Favorites', (): any => ({
     create: jest.fn(),
-    findOne: jest.fn()
+    findOne: jest.fn(),
+    findAll: jest.fn()
+}));
+
+// Mock User.create
+jest.mock('../models/Users', (): any => ({
+    create: jest.fn(),
+    findOne: jest.fn(),
+    findAll: jest.fn()
 }));
 
 const res: any = {
@@ -108,7 +116,7 @@ describe('On invalid get favorites input', (): void => {
         expect(res.json).toHaveBeenCalledWith({ error: "No userId provided" });
     });
 
-    it('should return a status code of 400 and error if user doesnt exist', async(): Promise<void> => {
+    it('should return a status code of 400 and error if user doesnt exist', async (): Promise<void> => {
         const req: any = {
             params: {
                 userId: Number.MAX_SAFE_INTEGER
@@ -138,24 +146,23 @@ describe('On valid get favorites input', (): void => {
         (User as any).findOne.mockResolvedValueOnce(true);
         (Favorites as any).findAll.mockResolvedValueOnce([
             {
-                dataValues: {
-                    userId: Number.MIN_VALUE,
-                    barName: 'The Salty Dog',
-                    address: '123 Test Street',
-                    note: 'Excellent on tap selection'
-                }
+                userId: Number.MIN_VALUE,
+                barName: 'The Salty Dog',
+                address: '123 Test Street',
+                note: 'Excellent on tap selection'
+                
             }
         ]);
 
         await getFavorites(req, res);
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
-            "bars": [
-                [
-                    "The Salty Dog",
-                    "123 Test Street",
-                    "Excellent on tap selection"
-                ]
+            "favorites": [
+                {
+                    "barName": "The Salty Dog",
+                    "address": "123 Test Street",
+                    "note":  "Excellent on tap selection"
+                }
             ]
         });
     });
