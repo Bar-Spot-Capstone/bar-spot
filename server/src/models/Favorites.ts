@@ -5,7 +5,7 @@ import User from './Users';
 // Define the Favorites model
 class Favorites extends Model {
     public id!: number; // Primary Key
-    public userId!: number; // Foreign key
+    public userId!: User; // Foreign key
     public barName!: string;
     public address!: string;
     public note!: string;
@@ -23,8 +23,11 @@ Favorites.init(
             primaryKey: true,
         },
         userId: {
-            type: DataTypes.INTEGER.UNSIGNED,
-            allowNull: false,
+            type: DataTypes.INTEGER,
+            references: {
+                model: User,
+                key: 'id'
+            }
         },
         barName: {
             type: DataTypes.STRING,
