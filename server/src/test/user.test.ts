@@ -1,12 +1,21 @@
 import bcrypt from "bcrypt"
 import User from "../models/Users";
+import UserGroup from "../models/UserGroup";
 import { userRegister, userLogin } from "../controllers/User";
 import { UniqueConstraintError as SequelizeUniqueConstraintError } from 'sequelize';
 
 // Mock User.create
 jest.mock('../models/Users', (): any => ({
     create: jest.fn(),
-    findOne: jest.fn() //to mock the findOne function
+    findOne: jest.fn(), //to mock the findOne function
+    destroy: jest.fn()
+}));
+
+// Mock UserGroup.create and findOne
+jest.mock('../models/UserGroup', (): any => ({
+    findOne: jest.fn(), //to mock the findOne function
+    findAll: jest.fn(), //to mock the findAll function
+    destroy: jest.fn()
 }));
 
 // Mock bcrypt.hash
@@ -187,3 +196,64 @@ describe('On successful user login', () => {
         expect(res.json).toHaveBeenCalledWith({ success: "Login Successful", email: 'test@email', username: 'capstone', user_id: `${Number.MAX_SAFE_INTEGER}` });
     });
 });
+
+/*
+
+[
+  UserGroup {
+    dataValues: {
+      id: 11,
+      userId: 1,
+      groupId: 14,
+      role: 'Owner',
+      createdAt: 2024-02-15T15:39:29.162Z,
+      updatedAt: 2024-02-15T15:39:29.162Z
+    },
+    _previousDataValues: {
+      id: 11,
+      userId: 1,
+      groupId: 14,
+      role: 'Owner',
+      createdAt: 2024-02-15T15:39:29.162Z,
+      updatedAt: 2024-02-15T15:39:29.162Z
+    },
+    uniqno: 1,
+    _changed: Set(0) {},
+    _options: {
+      isNewRecord: false,
+      _schema: null,
+      _schemaDelimiter: '',
+      raw: true,
+      attributes: [Array]
+    },
+    isNewRecord: false
+  },
+  UserGroup {
+    dataValues: {
+      id: 15,
+      userId: 1,
+      groupId: 17,
+      role: 'Owner',
+      createdAt: 2024-02-15T16:12:57.046Z,
+      updatedAt: 2024-02-15T16:12:57.046Z
+    },
+    _previousDataValues: {
+      id: 15,
+      userId: 1,
+      groupId: 17,
+      role: 'Owner',
+      createdAt: 2024-02-15T16:12:57.046Z,
+      updatedAt: 2024-02-15T16:12:57.046Z
+    },
+    uniqno: 1,
+    _changed: Set(0) {},
+    _options: {
+      isNewRecord: false,
+      _schema: null,
+      _schemaDelimiter: '',
+      raw: true,
+      attributes: [Array]
+    },
+    isNewRecord: false
+  }
+*/
