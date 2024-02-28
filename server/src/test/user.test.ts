@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt"
 import User from "../models/Users";
 import UserGroup from "../models/UserGroup";
-import { userRegister, userLogin } from "../controllers/User";
+import { userRegister, userLogin, deleteUser } from "../controllers/User";
 import { UniqueConstraintError as SequelizeUniqueConstraintError } from 'sequelize';
 
 // Mock User.create
@@ -197,63 +197,233 @@ describe('On successful user login', () => {
     });
 });
 
-/*
+/*User delete testcase*/
+describe('On invaild user delete', (): void => {
+    beforeEach((): void => {
+        jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
+    });
 
-[
-  UserGroup {
-    dataValues: {
-      id: 11,
-      userId: 1,
-      groupId: 14,
-      role: 'Owner',
-      createdAt: 2024-02-15T15:39:29.162Z,
-      updatedAt: 2024-02-15T15:39:29.162Z
-    },
-    _previousDataValues: {
-      id: 11,
-      userId: 1,
-      groupId: 14,
-      role: 'Owner',
-      createdAt: 2024-02-15T15:39:29.162Z,
-      updatedAt: 2024-02-15T15:39:29.162Z
-    },
-    uniqno: 1,
-    _changed: Set(0) {},
-    _options: {
-      isNewRecord: false,
-      _schema: null,
-      _schemaDelimiter: '',
-      raw: true,
-      attributes: [Array]
-    },
-    isNewRecord: false
-  },
-  UserGroup {
-    dataValues: {
-      id: 15,
-      userId: 1,
-      groupId: 17,
-      role: 'Owner',
-      createdAt: 2024-02-15T16:12:57.046Z,
-      updatedAt: 2024-02-15T16:12:57.046Z
-    },
-    _previousDataValues: {
-      id: 15,
-      userId: 1,
-      groupId: 17,
-      role: 'Owner',
-      createdAt: 2024-02-15T16:12:57.046Z,
-      updatedAt: 2024-02-15T16:12:57.046Z
-    },
-    uniqno: 1,
-    _changed: Set(0) {},
-    _options: {
-      isNewRecord: false,
-      _schema: null,
-      _schemaDelimiter: '',
-      raw: true,
-      attributes: [Array]
-    },
-    isNewRecord: false
-  }
-*/
+    it('should return a status code of 400 and error if id is missing', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                id: null
+            }
+        };
+
+        await deleteUser(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Failed to execute delete due to no id" });
+
+    });
+
+    it('should return a status code of 400 and error if user is not found', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                id: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (User as any).findOne.mockResolvedValueOnce(false);
+
+        await deleteUser(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "User does not exist" });
+    });
+
+    it('should return a status code of 400 and error if user is a current owner of a group', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                id: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (User as any).findOne.mockResolvedValueOnce({
+            dataValues: {
+                id: Number.MAX_SAFE_INTEGER,
+                name: "Capstone",
+                email: "capstone@gmail.com",
+                password: "hashedpassword"
+            }
+        });
+
+        (UserGroup as any).findOne.mockResolvedValueOnce([{
+            dataValues: {
+                id: Number.MAX_SAFE_INTEGER,
+                userId: Number.MAX_SAFE_INTEGER,
+                groupId: Number.MAX_SAFE_INTEGER,
+                role: 'Owner'
+            }
+        }]);
+
+        (UserGroup as any).findAll.mockResolvedValueOnce([{
+            dataValues: {
+                id: Number.MAX_SAFE_INTEGER,
+                userId: Number.MAX_SAFE_INTEGER,
+                groupId: Number.MAX_SAFE_INTEGER,
+                role: 'Owner'
+            }
+        }]);
+
+        await deleteUser(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Failed to delete. User is current owner of a group" });
+    });
+
+    it('should return a status code of 400 and error if failed to delete user that is in group', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                id: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (User as any).findOne.mockResolvedValueOnce({
+            dataValues: {
+                id: Number.MAX_SAFE_INTEGER,
+                name: "Capstone",
+                email: "capstone@gmail.com",
+                password: "hashedpassword"
+            }
+        });
+
+        (UserGroup as any).findOne.mockResolvedValueOnce([{
+            dataValues: {
+                id: Number.MAX_SAFE_INTEGER,
+                userId: Number.MAX_SAFE_INTEGER,
+                groupId: Number.MAX_SAFE_INTEGER,
+                role: 'member'
+            }
+        }]);
+
+        (UserGroup as any).findAll.mockResolvedValueOnce([{
+            dataValues: {
+                id: Number.MAX_SAFE_INTEGER,
+                userId: Number.MAX_SAFE_INTEGER,
+                groupId: Number.MAX_SAFE_INTEGER,
+                role: 'member'
+            }
+        }]);
+
+        (UserGroup as any).destroy.mockResolvedValueOnce(false);
+
+        await deleteUser(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Failed to delete. User is current a member of a group and failed to leave group" });
+    });
+
+    it('should return a status code of 400 and error if failed to delete user', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                id: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (User as any).findOne.mockResolvedValueOnce({
+            dataValues: {
+                id: Number.MAX_SAFE_INTEGER,
+                name: "Capstone",
+                email: "capstone@gmail.com",
+                password: "hashedpassword"
+            }
+        });
+
+        (UserGroup as any).findOne.mockResolvedValueOnce([{
+            dataValues: {
+                id: Number.MAX_SAFE_INTEGER,
+                userId: Number.MAX_SAFE_INTEGER,
+                groupId: Number.MAX_SAFE_INTEGER,
+                role: 'member'
+            }
+        }]);
+
+        (UserGroup as any).findAll.mockResolvedValueOnce([{
+            dataValues: {
+                id: Number.MAX_SAFE_INTEGER,
+                userId: Number.MAX_SAFE_INTEGER,
+                groupId: Number.MAX_SAFE_INTEGER,
+                role: 'member'
+            }
+        }]);
+
+        (UserGroup as any).destroy.mockResolvedValueOnce(true);
+
+        (User as any).destroy.mockResolvedValueOnce(false);
+
+        await deleteUser(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Failed to delete user" });
+    });
+});
+
+describe('On vaild user delete', (): void => {
+    beforeEach((): void => {
+        jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
+    });
+
+    it('should return a status code of 200 and delete the user if they are not apart of a group', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                id: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (User as any).findOne.mockResolvedValueOnce({
+            dataValues: {
+                id: Number.MAX_SAFE_INTEGER,
+                name: "Capstone",
+                email: "capstone@gmail.com",
+                password: "hashedpassword"
+            }
+        });
+
+        (UserGroup as any).findOne.mockResolvedValueOnce(false);
+
+        (User as any).destroy.mockResolvedValueOnce(true);
+
+        await deleteUser(req, res);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ success: "Successfully deleted user" });
+    });
+
+    it('should return a status code of 200 and delete the user if they are apart of a group and not the owner of the group', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                id: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (User as any).findOne.mockResolvedValueOnce({
+            dataValues: {
+                id: Number.MAX_SAFE_INTEGER,
+                name: "Capstone",
+                email: "capstone@gmail.com",
+                password: "hashedpassword"
+            }
+        });
+
+        (UserGroup as any).findOne.mockResolvedValueOnce([{
+            dataValues: {
+                id: Number.MAX_SAFE_INTEGER,
+                userId: Number.MAX_SAFE_INTEGER,
+                groupId: Number.MAX_SAFE_INTEGER,
+                role: 'member'
+            }
+        }]);
+
+        (UserGroup as any).findAll.mockResolvedValueOnce([{
+            dataValues: {
+                id: Number.MAX_SAFE_INTEGER,
+                userId: Number.MAX_SAFE_INTEGER,
+                groupId: Number.MAX_SAFE_INTEGER,
+                role: 'member'
+            }
+        }]);
+
+        (UserGroup as any).destroy.mockResolvedValueOnce(true);
+
+        (User as any).destroy.mockResolvedValueOnce(true)
+
+        await deleteUser(req, res);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ success: "Successfully deleted user" });
+    });
+});
