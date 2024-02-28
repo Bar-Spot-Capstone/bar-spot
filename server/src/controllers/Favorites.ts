@@ -67,7 +67,7 @@ const getFavorites = async (req: Request, res: Response) => {
                 userId: userId
             },
             // Attributes wanted
-            attributes: ['userId', 'barName', 'address', 'note']
+            attributes: ['id', 'userId', 'barName', 'address', 'note']
         });
         
         const bars = [];

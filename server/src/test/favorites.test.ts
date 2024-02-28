@@ -115,7 +115,7 @@ describe('On invalid get favorites input', (): void => {
             }
         };
 
-        (Favorites as any).findOne.mockResolvedValueOnce(false);
+        (User as any).findOne.mockResolvedValueOnce(false);
 
         await getFavorites(req, res);
         expect(res.status).toHaveBeenCalledWith(400);
