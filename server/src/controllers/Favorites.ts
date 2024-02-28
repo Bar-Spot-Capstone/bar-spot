@@ -1,4 +1,5 @@
 import Favorites from "../models/Favorites";
+import User from "../models/Users";
 import { Request, Response } from "express";
 
 const addFavorite = async (req: Request, res: Response): Promise<Response> => {
@@ -42,8 +43,52 @@ const addFavorite = async (req: Request, res: Response): Promise<Response> => {
 
 const getFavorites = async (req: Request, res: Response) => {
     const {userId}: any = req.params;
-    res.status(200);
-    return res.json({ success: `${userId}` });
+
+    if (!userId) {
+        res.status(400);
+        return res.json({ error: "No userId provided" });
+    };
+
+    try {
+        // check if user exists
+        const user: any = await User.findOne({
+            where: {
+                id: userId
+            }
+        });
+
+        if (!user) {
+            res.status(400);
+            return res.json({error: "User not found" });
+        }
+
+        const faves: any = await Favorites.findAll({
+            where: {
+                userId: userId
+            },
+            // Attributes wanted
+            attributes: ['id', 'userId', 'barName', 'address', 'note']
+        });
+        
+        const bars = [];
+
+        for (let i = 0; i < faves.length; i++) {
+            const favorite = faves[i];
+            bars.push({
+                barName: favorite.barName,
+                address: favorite.address,
+                note: favorite.note
+            });
+        };
+
+        res.status(200);
+        return res.json({ favorites: bars });
+    }
+    catch (error: any) {
+        res.status(500);
+        return res.json({ error: `Unexpected error occured with error: ${error}` });
+    };
+
 };
 
 const deleteFavorite = async (req: Request, res: Response) => {

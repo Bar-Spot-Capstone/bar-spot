@@ -40,9 +40,4 @@ User.init(
     }
 );
 
-User.hasMany(Favorites, {
-    foreignKey: 'userId',
-    onDelete: 'CASCADE'
-});
-
 export default User;
