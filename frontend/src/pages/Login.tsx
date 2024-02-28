@@ -4,6 +4,8 @@ import { Col, Container, Row } from "react-bootstrap";
 import FormInput from "../components/FormInput";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { login, setUsername, setUserID } from "../state/slices/userSlice";
 
 interface loginData {
   email: string;
@@ -11,15 +13,16 @@ interface loginData {
 }
 
 const Login = () => {
+  //Hooks
   const [data, setData] = useState<loginData>({
     email: "",
     password: "",
   });
-
   const [error, setError] = useState<boolean>(false);
-
   const navigate = useNavigate();
-  //updates the data everytime there is a change to the input feilds
+  const dispatch = useDispatch();
+
+  //updates the data everytime there is a change to the input fields
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
 
@@ -29,13 +32,17 @@ const Login = () => {
     }));
   };
 
+  //click handler for the login button
   const handleLogin = () => {
     callLogin();
   };
 
+  // @param => number
+  // returns void
+  // if status # == 200 then there is no error and we can anvigate to home page
+  // else sets error to true
   const loadPage = (status: number) => {
     if (status == 200) {
-      
       setError(false);
       navigate("/");
     } else {
@@ -43,7 +50,11 @@ const Login = () => {
     }
   };
 
-  const callLogin = async () => {
+  // @param => none
+  // returns error || none
+  // fetch request for login endpoint, if successful, stores necessary info and sets user as actively logged in
+  // else returns 400 error code
+  const callLogin = async (): Promise<any> => {
     try {
       const response = await fetch("http://localhost:3001/user/login", {
         method: "POST",
@@ -56,10 +67,19 @@ const Login = () => {
 
       if (response.ok) {
         const res = response.json();
-        console.log(res);
+        //console.log(res);
         loadPage(response.status);
+
+        dispatch(login());
+
+        res.then((userInfo) => {
+          //console.log("Data: ", userInfo);
+
+          dispatch(setUsername(userInfo.username));
+
+          dispatch(setUserID(userInfo.user_id));
+        });
       }
-      
     } catch (error) {
       console.error("Error:", error);
     }

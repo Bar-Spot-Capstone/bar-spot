@@ -12,6 +12,7 @@ interface signUpData {
 }
 
 const CreateNewAcc = () => {
+  //Hooks
   const [data, setData] = useState<signUpData>({
     email: "",
     password: "",
@@ -19,10 +20,11 @@ const CreateNewAcc = () => {
     username: "",
   });
   const [error, setError] = useState<boolean>(false);
-  
   const navigate = useNavigate();
 
-  //updates the data everytime there is a change to the input feilds
+  // @param => event element
+  // return => void
+  // updates the data everytime there is a change to the input fields
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
 
@@ -31,14 +33,23 @@ const CreateNewAcc = () => {
       [name]: value,
     }));
   };
-  
+
+  // @param => number
+  // returns void
+  // if status # == 200 then there is no error and we can anvigate to home page
+  // else sets error to true
   const loadPage = (status: number) => {
     if (status == 200) {
-      navigate("/");
+      navigate("/login");
     } else {
       setError(true);
     }
   };
+
+  // @param => none
+  // returns error || none
+  // fetch request for login endpoint, if successful, creates a new user in the database table
+  // else returns 400 error code
   const callSignUp = async () => {
     try {
       const response = await fetch("http://localhost:3001/user/register", {
@@ -59,12 +70,12 @@ const CreateNewAcc = () => {
         console.log(res);
         loadPage(response.status);
       }
-
     } catch (error) {
       console.error("Error:", error);
     }
   };
 
+  //click handler for the sign up button
   const handleRegister = () => {
     callSignUp();
   };
