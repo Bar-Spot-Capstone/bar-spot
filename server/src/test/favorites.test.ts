@@ -1,6 +1,6 @@
 import Favorites from "../models/Favorites";
 import User from "../models/Users";
-import { addFavorite, getFavorites } from "../controllers/Favorites";
+import { addFavorite, getFavorites, deleteFavorite, clearFavorites } from "../controllers/Favorites";
 
 // Mock Favorites.create
 jest.mock('../models/Favorites', (): any => ({
@@ -167,3 +167,74 @@ describe('On valid get favorites input', (): void => {
         });
     });
 });
+
+/*Favorites test delete favorite method*/
+describe('On invaild delete favorite input', (): void => {
+    beforeEach((): void => {
+        jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
+    });
+
+    it('should return a status code of 400 and error message if id is missing', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                id: null,
+                userId: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        await deleteFavorite(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Unable to read: id" });
+    });
+
+    it('should return a status code of 400 and error message if groupId is missing', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                id: Number.MAX_SAFE_INTEGER,
+                userId: null
+            }
+        };
+
+        await deleteFavorite(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Unable to read: userId" });
+    });
+
+
+    it('should return a status code of 400 and error message if favorite was not deleted', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                userId: Number.MAX_SAFE_INTEGER,
+                groupId: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (Favorites as any).destroy.mockResolvedValueOnce(false);
+
+        await deleteFavorite(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Error in deleting favorite, please try again" });
+    });
+
+});
+
+describe('On vaild delete party member input', (): void => {
+    beforeEach((): void => {
+        jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
+    });
+
+    it('should return a status code of 200 and success message bar was deleted', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                id: Number.MAX_SAFE_INTEGER,
+                userId: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (Favorites as any).destroy.mockResolvedValueOnce(true);
+
+        await deleteFavorite(req, res);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ success: "Successfully removed favorite" });
+    });
+});;
