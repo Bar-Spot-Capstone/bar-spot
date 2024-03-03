@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { login, setUsername, setUserID } from "../state/slices/userSlice";
+import AlertBadge from "../components/AlertBadge";
 
 interface loginData {
   email: string;
@@ -18,6 +19,7 @@ const Login = () => {
     email: "",
     password: "",
   });
+
   const [error, setError] = useState<boolean>(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -44,7 +46,6 @@ const Login = () => {
   const loadPage = (status: number) => {
     if (status == 200) {
       setError(false);
-      navigate("/");
     } else {
       setError(true);
     }
@@ -66,6 +67,8 @@ const Login = () => {
       });
 
       if (response.ok) {
+        setError(false);
+
         const res = response.json();
         //console.log(res);
         loadPage(response.status);
@@ -79,9 +82,14 @@ const Login = () => {
 
           dispatch(setUserID(userInfo.user_id));
         });
+
+        navigate("/");
+      } else {
+        setError(true);
       }
     } catch (error) {
       console.error("Error:", error);
+      setError(true);
     }
   };
 
@@ -89,7 +97,11 @@ const Login = () => {
     <div className="vh-100 ">
       <Container className="my-5">
         <Logo />
-
+        <AlertBadge
+          text="ALERT! Incorrect Password or E-mail!"
+          active={error}
+          variant="danger"
+        ></AlertBadge>
         <FormInput
           lable="Email"
           type="email"
