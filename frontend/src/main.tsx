@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./pages/App.tsx";
+import Home from "./pages/Home.tsx";
 import Login from "./pages/Login.tsx";
 import CreateNewAcc from "./pages/CreateNewAcc.tsx";
 import "bootstrap/dist/css/bootstrap.css";
@@ -13,7 +13,7 @@ import { Provider } from "react-redux";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
+    element: <Home />,
     children: [
       {
         path: "login",

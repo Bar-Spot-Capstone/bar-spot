@@ -5,7 +5,7 @@ import {  useSelector } from "react-redux";
 
 import { Rootstate } from "../state/store";
 
-const App = () => {
+const Home = () => {
   const login = useSelector((state: Rootstate) => state.user.isLoggedIn);
 
   return (
@@ -19,4 +19,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default Home;
