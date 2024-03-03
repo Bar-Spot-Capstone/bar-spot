@@ -19,7 +19,7 @@ const CreateNewAcc = () => {
     confirmationPassword: "",
     username: "",
   });
-  const [error, setError] = useState<boolean>(false);
+  // const [error, setError] = useState<boolean>(false);
   const navigate = useNavigate();
 
   // @param => event element
@@ -42,7 +42,7 @@ const CreateNewAcc = () => {
     if (status == 200) {
       navigate("/login");
     } else {
-      setError(true);
+      // setError(true);
     }
   };
 
