@@ -68,7 +68,6 @@ const CreateNewAcc = () => {
         }),
       });
       const res = await response.json();
-      console.log(res);
 
       if (response.ok) {
         navigate("/login");
