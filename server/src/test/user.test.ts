@@ -68,7 +68,7 @@ describe('On invaild user registeration', (): void => {
         await userRegister(req, res);
         expect(res.status).toHaveBeenCalledWith(400);
         expect(bcrypt.hash).toHaveBeenCalledWith(req.body.password, 10);// Expect bcrypt.hash to be called with the provided password
-        expect(res.json).toHaveBeenCalledWith({ error: "Failed to register, email is not unique with error: SequelizeUniqueConstraintError" });
+        expect(res.json).toHaveBeenCalledWith({ error: "Failed to register, email is not unique" });
     });
 });
 

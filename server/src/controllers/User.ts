@@ -30,7 +30,7 @@ const userRegister = async (req: Request, res: Response): Promise<Response> => {
     catch (error: any) {
         if (error.name === 'SequelizeUniqueConstraintError') {
             res.status(400);
-            return res.json({ error: `Failed to register, email is not unique with error: ${error.name}` });
+            return res.json({ error: `Failed to register, email is not unique` });
         }
         res.status(500);
         return res.json({ error: `Server failed with error ${error}` });
