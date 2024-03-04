@@ -8,6 +8,7 @@ import { useDispatch } from "react-redux";
 import { login, setUsername, setUserID } from "../state/slices/userSlice";
 import AlertBadge from "../components/AlertBadge";
 
+
 interface loginData {
   email: string;
   password: string;
@@ -36,6 +37,7 @@ const Login = () => {
 
   //click handler for the login button
   const handleLogin = () => {
+    setError(false);
     callLogin();
   };
 
