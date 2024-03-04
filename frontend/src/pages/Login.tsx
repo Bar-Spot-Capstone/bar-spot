@@ -99,11 +99,13 @@ const Login = () => {
     <div className="vh-100 ">
       <Container className="my-5">
         <Logo />
+        
         <AlertBadge
           text="ALERT! Incorrect Password or E-mail!"
           active={error}
           variant="danger"
         ></AlertBadge>
+
         <FormInput
           lable="Email"
           type="email"

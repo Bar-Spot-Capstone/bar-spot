@@ -3,6 +3,7 @@ import Logo from "../components/Logo";
 import FormInput from "../components/FormInput";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import AlertBadge from "../components/AlertBadge";
 
 interface signUpData {
   email: string;
@@ -19,13 +20,15 @@ const CreateNewAcc = () => {
     confirmationPassword: "",
     username: "",
   });
-  // const [error, setError] = useState<boolean>(false);
+  const [alert, setAlert] = useState<boolean>(false);
+  const [alertTxt, setAlertTxt] = useState<string>("");
   const navigate = useNavigate();
 
   // @param => event element
   // return => void
   // updates the data everytime there is a change to the input fields
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setAlert(false);
     const { name, value } = event.target;
 
     setData((prevValues) => ({
@@ -38,13 +41,13 @@ const CreateNewAcc = () => {
   // returns void
   // if status # == 200 then there is no error and we can anvigate to home page
   // else sets error to true
-  const loadPage = (status: number) => {
-    if (status == 200) {
-      navigate("/login");
-    } else {
-      // setError(true);
-    }
-  };
+  // const loadPage = (status: number) => {
+  //   if (status == 200) {
+  //     setAlert(false);
+  //   } else {
+  //     setAlert(true);
+  //   }
+  // };
 
   // @param => none
   // returns error || none
@@ -64,26 +67,63 @@ const CreateNewAcc = () => {
           email: data.email,
         }),
       });
+      const res = await response.json();
+      console.log(res);
 
       if (response.ok) {
-        const res = response.json();
-        console.log(res);
-        loadPage(response.status);
+        navigate("/login");
+      } else {
+        setAlertTxt(res.error);
+        setAlert(true);
       }
     } catch (error) {
       console.error("Error:", error);
     }
   };
 
+  //returns true if password and comfirmation password match
+  //returns false if they are different
+  const checkInputs = (): boolean => {
+    if (
+      data.password != data.confirmationPassword ||
+      data.password == "" ||
+      data.confirmationPassword == ""
+    ) {
+      setAlertTxt("Passwords do not match or are empty");
+      setAlert(true);
+      return false;
+    } else if (data.username == "") {
+      setAlertTxt("Username Field is left empty");
+      setAlert(true);
+      return false;
+    } else if (data.email == "") {
+      setAlertTxt("Email Field is left empty");
+      setAlert(true);
+      return false;
+    }
+    setAlert(false);
+    return true;
+  };
+
   //click handler for the sign up button
   const handleRegister = () => {
-    callSignUp();
+    setAlert(false);
+    if (checkInputs()) {
+      callSignUp();
+    }
   };
 
   return (
     <div className="d-flex flex-column vh-100 ">
       <Container className="">
         <Logo />
+
+        <AlertBadge
+          active={alert}
+          variant="danger"
+          text={alertTxt}
+        ></AlertBadge>
+
         <FormInput
           lable="Username"
           type="username"
