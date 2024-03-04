@@ -7,9 +7,7 @@ import "bootstrap/dist/css/bootstrap.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { store } from "./state/store";
 import { Provider } from "react-redux";
-
-
-
+import MapView from "./pages/MapView.tsx";
 
 const router = createBrowserRouter([
   {
@@ -17,14 +15,18 @@ const router = createBrowserRouter([
     element: <Home />,
     children: [
       {
-        path: "login",
-        element: <Login />,
-      },
-      {
-        path: "/sign-up",
-        element: <CreateNewAcc />,
+        path: "/",
+        element:<MapView/>,
       },
     ],
+  },
+  {
+    path: "login",
+    element: <Login />,
+  },
+  {
+    path: "/sign-up",
+    element: <CreateNewAcc />,
   },
 ]);
 ReactDOM.createRoot(document.getElementById("root")!).render(
