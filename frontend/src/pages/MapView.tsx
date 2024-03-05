@@ -1,4 +1,4 @@
-import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
+import { GoogleMap, MarkerF, useLoadScript } from "@react-google-maps/api";
 
 const MapView = () => {
   const mapStyle = {
@@ -23,6 +23,10 @@ const MapView = () => {
     {
       position: { lat: 40.7709, lng: -73.9675 },
       lable: "Frick",
+    },
+    {
+      position: { lat: 40.7793, lng: -73.7675 },
+      lable: "Other",
     },
   ];
 
@@ -285,14 +289,19 @@ const MapView = () => {
           options={{
             streetViewControl: false,
             disableDefaultUI: true,
-            clickableIcons: false,
+            clickableIcons: true,
             mapTypeControl: false,
+
             styles: visibleStyle,
           }}
         >
           {/* Render Markers */}
           {markers.map((marker, index) => (
-            <Marker position={marker.position} label={marker.lable} />
+            <MarkerF
+              key={index}
+              position={marker.position}
+              label={marker.lable}
+            />
           ))}
         </GoogleMap>
       ) : null}
