@@ -1,14 +1,56 @@
 import { GoogleMap, MarkerF, useLoadScript } from "@react-google-maps/api";
+import { useEffect, useState } from "react";
+
+interface LngLat {
+  lat: number;
+  lng: number;
+}
 
 const MapView = () => {
+  const [userGeo, setUserGeo] = useState<LngLat>({
+    lat: 0,
+    lng: 0,
+  });
+  const getGeoloaction = async () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+
+          setUserGeo({
+            lng: pos.coords.longitude,
+            lat: pos.coords.latitude,
+          });
+
+        },
+        (err) => {
+          console.log(err);
+        }
+      );
+    } else {
+      alert("Browser does not suprt geolocation");
+    }
+  };
+
+  const determineCenter = () => {
+    //hunter coords
+    const mapCenter = {
+      lat: 40.7685,
+      lng: -73.9648,
+    };
+
+    if (userGeo.lat == 0 || userGeo.lng == 0) {
+      return mapCenter;
+    } else {
+      return userGeo;
+    }
+  };
+
+  useEffect(() => {
+    getGeoloaction();
+  }, []);
   const mapStyle = {
     height: "100vh",
     width: "100%",
-  };
-
-  const mapCenter = {
-    lat: 40.7685,
-    lng: -73.9648,
   };
 
   const { isLoaded } = useLoadScript({
@@ -30,6 +72,8 @@ const MapView = () => {
     },
   ];
 
+  //this is the styling for the map that gives it its color ans removes the default pins
+  //provided by using https://mapstyle.withgoogle.com
   const visibleStyle = [
     {
       elementType: "geometry",
@@ -284,7 +328,7 @@ const MapView = () => {
       {isLoaded ? (
         <GoogleMap
           mapContainerStyle={mapStyle}
-          center={mapCenter}
+          center={determineCenter()}
           zoom={17}
           options={{
             streetViewControl: false,
