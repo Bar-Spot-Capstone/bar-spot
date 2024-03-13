@@ -2,3 +2,7 @@
     border-top: 3px solid #8c8b8b;
     width: 100%;
 }
+
+.card-orientation{
+    height: 28rem;
+}
