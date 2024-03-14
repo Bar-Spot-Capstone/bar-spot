@@ -1,13 +1,51 @@
-import "../styles/Profile.css"
-import "bootstrap/dist/css/bootstrap.css";
-import 'bootstrap/dist/css/bootstrap.min.css';
 import { RiAccountCircleFill } from "react-icons/ri";
 import { MdPrivacyTip } from "react-icons/md";
 import { IoSettingsSharp } from "react-icons/io5";
 import { IoRibbon } from "react-icons/io5";
+import { useSelector } from "react-redux";
+import { Rootstate } from "../state/store";
+import "../styles/Profile.css"
+import "bootstrap/dist/css/bootstrap.css";
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { useState } from "react";
 
 
 const Profile = () => {
+    const username: string = useSelector((state: Rootstate) => state.user.username);
+    const [renderOption, setOption] = useState('accountSetting');
+
+    const accountSettings: any = () => {
+        return (
+            <div>
+                <p>Account Info</p>
+            </div>
+        );
+    };
+
+    const securitySettings: any = () => {
+        return (
+            <div>
+                <p>security Info</p>
+            </div>
+        );
+    };
+
+    const preferencesSettings: any = () => {
+        return (
+            <div>
+                <p>preferences Info</p>
+            </div>
+        );
+    };
+
+    const favoriteSettings: any = () => {
+        return (
+            <div>
+                <p>favorite Info</p>
+            </div>
+        );
+    };
+
     return (
         <div className="profile-page">
             <div className="container">
@@ -31,7 +69,26 @@ const Profile = () => {
                     <div className="col-6 col-m-6 w-75 pt-3 side-content">
                         <div className="card card-orientation">
                             <div className="card-body">
-                                Side bar Content
+                                <h5>Account Information</h5>
+                                <div className="header-bar"></div>
+                                <div className="pt-3 d-flex flex-column user-info">
+                                    <div className="p-2 fs-5">Username: </div>
+                                    <input className="form-control mb-2" type="text" value={username ? username : "Not logged in"} aria-label="readonly input example" readonly />
+
+                                    <div className="p-2 fs-5">Email: </div>
+                                    <input className="form-control mb-2" type="text" value="Readonly input here..." aria-label="readonly input example" readonly />
+
+                                    <div className="p-2 fs-5">Change Username:</div>
+                                    <input type="text" className="form-control mb-2" id="exampleFormControlInput1" placeholder="Curren Username" />
+                                    <input type="text" className="form-control mt-1" id="exampleFormControlInput1" placeholder="New Username" />
+                                    <button type="button" className="btn btn-primary btn-style w-75 mt-3">Confirm</button>
+
+                                    <div className="p-2 fs-5">Update Password:</div>
+                                    <input type="text" className="form-control mb-2" id="exampleFormControlInput1" placeholder="Old Password" />
+                                    <input type="text" className="form-control mt-1" id="exampleFormControlInput1" placeholder="New Password" />
+                                    <button type="button" className="btn btn-primary btn-style w-75 mt-3">Confirm</button>
+                                </div>
+
                             </div>
                         </div>
                     </div>

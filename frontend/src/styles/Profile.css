@@ -27,3 +27,13 @@
 .icon-style{
     font-size: 2rem;
 }
+
+.btn-style{
+    margin-left: 7rem;
+}
+
+@media (max-width: 1023px) {
+    .btn-style{
+        margin-left: 1rem;
+    }
+}
