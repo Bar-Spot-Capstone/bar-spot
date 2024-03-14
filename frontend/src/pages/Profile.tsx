@@ -14,6 +14,8 @@ const Profile = () => {
     const username: string = useSelector((state: Rootstate) => state.user.username);
     const email: string = useSelector((state: Rootstate) => state.user.email);
     const [renderOption, setOption]: any = useState('accountSetting');
+    const [trackLocation, setLocationOption] = useState(true);
+    const [trackBars, setTrackedBars] = useState(true);
 
     const renderSelection = () => {
         if (renderOption == 'accountSetting') {
@@ -46,6 +48,26 @@ const Profile = () => {
                 <div>
                     <h5>Security & Privacy</h5>
                     <div className="header-bar"></div>
+
+                    <div className="pt-3 d-flex security-section">
+                        <h5>Tracking</h5>
+                    </div>
+                    <div className="d-flex flex-column tracking-setting">
+                        <p>We keep track of your location and your visited bars for analytical purposes</p>
+                    </div>
+
+                    <div className="d-flex flex-row mb-3 tracking-setting">
+                        <div className="form-check form-switch">
+                            <input className="form-check-input" type="checkbox" id="flexSwitchCheckChecked" checked={trackLocation} onClick={() => setLocationOption(!trackLocation)} />
+                            <label className="form-check-label" for="flexSwitchCheckChecked">Toggle Geolocation</label>
+                        </div>
+                        <div className="m-3 filler-space">
+                        </div>
+                        <div className="form-check form-switch">
+                            <input className="form-check-input" type="checkbox" id="flexSwitchCheckChecked" checked={trackBars} onClick={() => setTrackedBars(!trackBars)} />
+                            <label className="form-check-label" for="flexSwitchCheckChecked">Toggle sharing visited bar</label>
+                        </div>
+                    </div>
                 </div>
             )
         }
