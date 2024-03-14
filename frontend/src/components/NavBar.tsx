@@ -29,7 +29,9 @@ const NavBar = ({isLoggedIn}:Props) => {
         <Navbar.Collapse className="justify-content-end me-3">
 
         <NavDropdown title="Dropdown" id="basic-nav-dropdown" className="me-3">
-            <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
+            <NavDropdown.Item>
+              <Link to="/profile">Profile</Link>
+              </NavDropdown.Item>
             <NavDropdown.Item href="#action/3.2">
               Another action
             </NavDropdown.Item>

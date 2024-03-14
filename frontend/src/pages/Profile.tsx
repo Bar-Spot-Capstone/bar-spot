@@ -12,6 +12,7 @@ import { useState } from "react";
 
 const Profile = () => {
     const username: string = useSelector((state: Rootstate) => state.user.username);
+    const email: string = useSelector((state: Rootstate) => state.user.email);
     const [renderOption, setOption]: any = useState('accountSetting');
 
     const renderSelection = () => {
@@ -25,10 +26,10 @@ const Profile = () => {
                         <input className="form-control mb-2" type="text" value={username ? username : "Not logged in"} aria-label="readonly input example" readonly />
 
                         <div className="p-2 fs-5">Email: </div>
-                        <input className="form-control mb-2" type="text" value="Readonly input here..." aria-label="readonly input example" readonly />
+                        <input className="form-control mb-2" type="text" value={email ? email : "Not logged in"} aria-label="readonly input example" readonly />
 
                         <div className="p-2 fs-5">Change Username:</div>
-                        <input type="text" className="form-control mb-2" id="exampleFormControlInput1" placeholder="Curren Username" />
+                        <input type="text" className="form-control mb-2" id="exampleFormControlInput1" placeholder="Current Username" />
                         <input type="text" className="form-control mt-1" id="exampleFormControlInput1" placeholder="New Username" />
                         <button type="button" className="btn btn-primary btn-style w-75 mt-3">Confirm</button>
 
