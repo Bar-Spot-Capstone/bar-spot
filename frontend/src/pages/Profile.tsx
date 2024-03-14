@@ -39,6 +39,30 @@ const Profile = () => {
                     </div>
                 </div>
             );
+        }
+        else if (renderOption == 'securityPrivacy') {
+            return (
+                <div>
+                    <h5>Security & Privacy</h5>
+                    <div className="header-bar"></div>
+                </div>
+            )
+        }
+        else if (renderOption == 'preferences') {
+            return (
+                <div>
+                    <h5>Preferences</h5>
+                    <div className="header-bar"></div>
+                </div>
+            )
+        }
+        else if (renderOption == 'favoriteBars') {
+            return (
+                <div>
+                    <h5>Favorite Bars</h5>
+                    <div className="header-bar"></div>
+                </div>
+            )
         };
     };
 
