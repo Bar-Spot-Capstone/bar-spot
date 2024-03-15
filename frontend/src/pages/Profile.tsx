@@ -4,10 +4,10 @@ import { IoSettingsSharp } from "react-icons/io5";
 import { IoRibbon } from "react-icons/io5";
 import { useSelector } from "react-redux";
 import { Rootstate } from "../state/store";
+import { useState } from "react";
 import "../styles/Profile.css"
 import "bootstrap/dist/css/bootstrap.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useState } from "react";
 
 
 const Profile = () => {
@@ -75,6 +75,34 @@ const Profile = () => {
                 <div>
                     <h5>Preferences</h5>
                     <div className="header-bar"></div>
+
+
+                    <div className="pt-3 d-flex security-section">
+                        <h5>Timer</h5>
+                    </div>
+                    <div className="d-flex flex-column tracking-header">
+                        <p>We keep track of your time out when your out drinking and with a group</p>
+                    </div>
+
+                    <div className="preference-setting">
+                        <div className="d-flex flex-row mb-3 gap-3 tracking-setting">
+                            <p>Do you wish to have a timer on?</p>
+                            <div className="form-check form-switch">
+                                <input className="form-check-input" type="checkbox" id="flexSwitchCheckChecked" checked={trackLocation} onClick={() => setLocationOption(!trackLocation)} />
+                                <label className="form-check-label" htmlFor="flexSwitchCheckChecked">Toggle Timer</label>
+                            </div>
+                        </div>
+
+                        <div className="d-flex flex-row mb-3 gap-3 tracking-setting">
+                            <p>Do you wish to update the timer?</p>
+                            <div className="form-check form-switch">
+                                <input className="form-check-input" type="checkbox" id="flexSwitchCheckChecked" checked={trackLocation} onClick={() => setLocationOption(!trackLocation)} />
+                                <label className="form-check-label" htmlFor="flexSwitchCheckChecked">Toggle Timer</label>
+                            </div>
+                        </div>
+
+                    </div>
+
                 </div>
             )
         }
