@@ -8,7 +8,7 @@ import { useState } from "react";
 import "../styles/Profile.css"
 import "bootstrap/dist/css/bootstrap.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
-
+import TimerInput from "../components/TimerInput";
 
 const Profile = () => {
     const username: string = useSelector((state: Rootstate) => state.user.username);
@@ -94,13 +94,11 @@ const Profile = () => {
                         </div>
 
                         <div className="d-flex flex-row mb-3 gap-3 tracking-setting">
+                            <p>Current Set Timer</p>
+                            <TimerInput readOnly={true} />
                             <p>Do you wish to update the timer?</p>
-                            <div className="form-check form-switch">
-                                <input className="form-check-input" type="checkbox" id="flexSwitchCheckChecked" checked={trackLocation} onClick={() => setLocationOption(!trackLocation)} />
-                                <label className="form-check-label" htmlFor="flexSwitchCheckChecked">Toggle Timer</label>
-                            </div>
+                            <TimerInput readOnly={false} />
                         </div>
-
                     </div>
 
                 </div>
