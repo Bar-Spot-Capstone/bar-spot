@@ -170,19 +170,19 @@ const Profile = () => {
                 </div>
                 <div className="header-bar"></div>
                 <div className="row">
-                    <div className="col-md-3 col-sm-6 pt-3 side-area">
+                    <div className="col-md-5 col-sm-6 pt-3 side-area">
                         <div className="card card-orientation">
                             <div className="card-body">
                                 <ul className="pt-1">
-                                    <li className="list-element"><RiAccountCircleFill style={{ color: '#0366fc' }} className="icon-style primary" /><button onClick={() => setOption('accountSetting')} className="btn btn-txt fs-5">Account Setting</button></li>
-                                    <li className="list-element"><MdPrivacyTip style={{ color: '#4c4a52' }} className="icon-style" /><button onClick={() => setOption('securityPrivacy')} className="btn btn-txt fs-5">Security & Privacy</button></li>
-                                    <li className="list-element"><IoSettingsSharp className="icon-style" /><button onClick={() => setOption('preferences')} className="btn btn-txt fs-5">Preferences</button></li>
-                                    <li className="list-element"><IoRibbon style={{ color: '#d61c57' }} className="icon-style" /><button onClick={() => setOption('favoriteBars')} className="btn btn-txt fs-5">Favorite Bars</button></li>
+                                    <li className="list-element"><RiAccountCircleFill style={{ color: '#0366fc' }} className="icon-style primary" /><button onClick={() => setOption('accountSetting')} className="btn btn-txt ">Account Setting</button></li>
+                                    <li className="list-element"><MdPrivacyTip style={{ color: '#4c4a52' }} className="icon-style" /><button onClick={() => setOption('securityPrivacy')} className="btn btn-txt ">Security & Privacy</button></li>
+                                    <li className="list-element"><IoSettingsSharp className="icon-style" /><button onClick={() => setOption('preferences')} className="btn btn-txt ">Preferences</button></li>
+                                    <li className="list-element"><IoRibbon style={{ color: '#d61c57' }} className="icon-style" /><button onClick={() => setOption('favoriteBars')} className="btn btn-txt ">Favorite Bars</button></li>
                                 </ul>
                             </div>
                         </div>
                     </div>
-                    <div className="col-md-9 col-sm-6 pt-3 side-content">
+                    <div className="col-md-7 col-sm-6 pt-3 side-content">
                         <div className="card card-orientation">
                             <div className="card-body">
                                 {renderSelection()}
