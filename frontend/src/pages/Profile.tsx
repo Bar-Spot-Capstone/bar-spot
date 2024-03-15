@@ -17,6 +17,28 @@ const Profile = () => {
     const [trackLocation, setLocationOption] = useState(true);
     const [trackBars, setTrackedBars] = useState(true);
 
+    /*
+        Will show favorite bars and the option to delete. No adding from here
+        Sample response from get favorite. Not complete, need to also store bar image url.
+    */
+    const [favoriteBars, setFavoriteBars] = useState({
+        favorites: [
+            {
+                barName: "O'Flannigans",
+                address: "123 Test St",
+                note: "Great mocktail menu!",
+                image_url: null
+            },
+            {
+                barName: "Hillarys Bar",
+                address: null,
+                note: null,
+                image_url: null
+            }
+        ]
+    });
+
+
     const renderSelection = () => {
         if (renderOption == 'accountSetting') {
             return (
@@ -105,14 +127,36 @@ const Profile = () => {
             )
         }
         else if (renderOption == 'favoriteBars') {
-            /*Will show favorite bars and the option to delete. No adding from here*/
-
             return (
-                <div>
+                <div className="favorite-bars">
                     <h5>Favorite Bars</h5>
                     <div className="header-bar"></div>
+                    {/* Container for images */}
+                    <div className="container-fluid pt-3">
+                        <div className="row d-flex">
+                            {favoriteBars && favoriteBars.favorites && favoriteBars.favorites.length > 0 ? (
+                                favoriteBars.favorites.map((bar, index) => (
+                                    <div key={index} className="col-md-4 mb-3">
+                                        {/* Render the image if available, or a placeholder */}
+                                        {bar.image_url ? (
+                                            <img src={bar.image_url} alt={bar.barName} className="img-fluid" />
+                                        ) : (
+                                            <div className="placeholder-image">No Image Available</div>
+                                        )}
+                                        <div className="bar-details">
+                                            <h6>{bar.barName}</h6>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="col-12">
+                                    <h6>No favorites</h6>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
-            )
+            );
         };
     };
 
