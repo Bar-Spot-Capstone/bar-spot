@@ -170,7 +170,7 @@ const Profile = () => {
                 </div>
                 <div className="header-bar"></div>
                 <div className="row">
-                    <div className="col-6 col-m-6 w-25 pt-3 side-area">
+                    <div className="col-md-3 col-sm-6 pt-3 side-area">
                         <div className="card card-orientation">
                             <div className="card-body">
                                 <ul className="pt-1">
@@ -182,7 +182,7 @@ const Profile = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="col-6 col-m-6 w-75 pt-3 side-content">
+                    <div className="col-md-9 col-sm-6 pt-3 side-content">
                         <div className="card card-orientation">
                             <div className="card-body">
                                 {renderSelection()}
