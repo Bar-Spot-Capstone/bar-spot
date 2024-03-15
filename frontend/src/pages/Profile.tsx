@@ -52,20 +52,19 @@ const Profile = () => {
                     <div className="pt-3 d-flex security-section">
                         <h5>Tracking</h5>
                     </div>
-                    <div className="d-flex flex-column tracking-setting">
+                    <div className="d-flex flex-column tracking-header">
                         <p>We keep track of your location and your visited bars for analytical purposes</p>
                     </div>
 
-                    <div className="d-flex flex-row mb-3 tracking-setting">
+                    <div className="d-flex flex-row mb-3 gap-5 tracking-setting">
                         <div className="form-check form-switch">
                             <input className="form-check-input" type="checkbox" id="flexSwitchCheckChecked" checked={trackLocation} onClick={() => setLocationOption(!trackLocation)} />
-                            <label className="form-check-label" for="flexSwitchCheckChecked">Toggle Geolocation</label>
+                            <label className="form-check-label" htmlFor="flexSwitchCheckChecked">Toggle Geolocation</label>
                         </div>
-                        <div className="m-3 filler-space">
-                        </div>
+
                         <div className="form-check form-switch">
                             <input className="form-check-input" type="checkbox" id="flexSwitchCheckChecked" checked={trackBars} onClick={() => setTrackedBars(!trackBars)} />
-                            <label className="form-check-label" for="flexSwitchCheckChecked">Toggle sharing visited bar</label>
+                            <label className="form-check-label" htmlFor="flexSwitchCheckChecked">Toggle sharing visited bar</label>
                         </div>
                     </div>
                 </div>
@@ -80,6 +79,8 @@ const Profile = () => {
             )
         }
         else if (renderOption == 'favoriteBars') {
+            /*Will show favorite bars and the option to delete. No adding from here*/
+
             return (
                 <div>
                     <h5>Favorite Bars</h5>
