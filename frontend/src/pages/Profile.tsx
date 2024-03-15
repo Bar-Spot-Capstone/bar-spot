@@ -5,10 +5,11 @@ import { IoRibbon } from "react-icons/io5";
 import { useSelector } from "react-redux";
 import { Rootstate } from "../state/store";
 import { useState } from "react";
+import TimerInput from "../components/TimerInput";
+import unavailableImage from "../assets/image_unavailable_photo.png"
 import "../styles/Profile.css"
 import "bootstrap/dist/css/bootstrap.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import TimerInput from "../components/TimerInput";
 
 const Profile = () => {
     const username: string = useSelector((state: Rootstate) => state.user.username);
@@ -141,7 +142,7 @@ const Profile = () => {
                                         {bar.image_url ? (
                                             <img src={bar.image_url} alt={bar.barName} className="img-fluid" />
                                         ) : (
-                                            <div className="placeholder-image">No Image Available</div>
+                                            <img src={unavailableImage} alt={bar.barName} className="img-fluid" />
                                         )}
                                         <div className="bar-details">
                                             <h6>{bar.barName}</h6>
