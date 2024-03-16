@@ -100,7 +100,7 @@ describe('On successful favorite creation', (): void => {
     });
 });
 
-/*Favorites get bar list test*/
+/*Get Favorites test*/
 describe('On invalid get favorites input', (): void => {
     beforeEach((): void => {
         jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
@@ -169,7 +169,7 @@ describe('On valid get favorites input', (): void => {
     });
 });
 
-/*Favorites delete favorites method test*/
+/*Delete favorites test*/
 describe('On invaild delete favorite input', (): void => {
     beforeEach((): void => {
         jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
@@ -219,7 +219,7 @@ describe('On invaild delete favorite input', (): void => {
 
 });
 
-describe('On vaild delete party member input', (): void => {
+describe('On vaild delete favorite input', (): void => {
     beforeEach((): void => {
         jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
     });
@@ -237,5 +237,58 @@ describe('On vaild delete party member input', (): void => {
         await deleteFavorite(req, res);
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({ success: "Successfully removed favorite" });
+    });
+});;
+
+/*Clear favorites test*/
+describe('On invalid clear favorites input', (): void => {
+    beforeEach((): void => {
+        jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
+    });
+
+    it('should return a status code of 400 and error message if userId is missing', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                userId: null
+            }
+        };
+
+        await clearFavorites(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "No such user exist" });
+    });
+
+    it('should return a status code of 400 and error message if favorites were not cleared', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                userId: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (Favorites as any).destroy.mockResolvedValueOnce(false);
+
+        await clearFavorites(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Error in deleting all favorites, please try again" });
+    });
+});
+
+describe('On vaild clear favorites input', (): void => {
+    beforeEach((): void => {
+        jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
+    });
+
+    it('should return a status code of 200 and success message user favorites were deleted', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                userId: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (Favorites as any).destroy.mockResolvedValueOnce(true);
+
+        await clearFavorites(req, res);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ success: "Successfully deleted user Favorites" });
     });
 });;
