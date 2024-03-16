@@ -169,7 +169,7 @@ describe('On valid get favorites input', (): void => {
     });
 });
 
-/*Favorites test delete favorite method*/
+/*Favorites delete favorites method test*/
 describe('On invaild delete favorite input', (): void => {
     beforeEach((): void => {
         jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
@@ -219,23 +219,23 @@ describe('On invaild delete favorite input', (): void => {
 
 });
 
-// describe('On vaild delete party member input', (): void => {
-//     beforeEach((): void => {
-//         jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
-//     });
+describe('On vaild delete party member input', (): void => {
+    beforeEach((): void => {
+        jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
+    });
 
-//     it('should return a status code of 200 and success message bar was deleted', async (): Promise<void> => {
-//         const req: any = {
-//             params: {
-//                 id: Number.MAX_SAFE_INTEGER,
-//                 userId: Number.MAX_SAFE_INTEGER
-//             }
-//         };
+    it('should return a status code of 200 and success message bar was deleted', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                id: Number.MAX_SAFE_INTEGER,
+                userId: Number.MAX_SAFE_INTEGER
+            }
+        };
 
-//         (Favorites as any).destroy.mockResolvedValueOnce(true);
+        (Favorites as any).destroy.mockResolvedValueOnce(true);
 
-//         await deleteFavorite(req, res);
-//         expect(res.status).toHaveBeenCalledWith(200);
-//         expect(res.json).toHaveBeenCalledWith({ success: "Successfully removed favorite" });
-//     });
-// });;
+        await deleteFavorite(req, res);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ success: "Successfully removed favorite" });
+    });
+});;
