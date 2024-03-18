@@ -8,6 +8,7 @@ class Preferences extends Model {
     public userId!: User; // Foreign key
     public timerSetting!: number;
     public shareLocation!: boolean;
+    public shareVisitedBars!: boolean;
 }
 
 // Initialize the Favorites model with attributes and options
@@ -35,6 +36,10 @@ Preferences.init(
             type: DataTypes.BOOLEAN,
             allowNull: false,
         },
+        shareVisitedBars: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+        }
     },
     {
         sequelize,

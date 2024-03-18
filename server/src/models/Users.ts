@@ -40,16 +40,3 @@ User.init(
 );
 
 export default User;
-
-// Define hook function to create preferences entry after user creation
-import Preferences from './Preferences';
-
-export const createUserPreferences = async (user: User) => {
-    try {
-        // Create boilerplate preferences data
-        await Preferences.create({ userId: user.id, timerSetting: 10, shareLocation: false });
-    } catch (error) {
-        console.error('Error creating preferences:', error);
-        // Handle error if preferences creation fails
-    }
-};

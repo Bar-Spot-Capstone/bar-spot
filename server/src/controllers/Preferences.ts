@@ -56,6 +56,60 @@ const setLocationShare = async (req: Request, res: Response): Promise<Response> 
     }
 };
 
+const setVisitedShare = async (req: Request, res: Response): Promise<Response> => {
+    const { userId, shareVisitedBars }: { userId: string, shareVisitedBars: boolean } = req.body;
+
+    // Check if shareVisitedBars is not a boolean
+    if (typeof shareVisitedBars !== 'boolean') {
+        res.status(400);
+        return res.json({ error: `Failed to change location share, 'shareLocation' must be a boolean` });
+    };
+
+    // Check which params are missing
+    var handleEmpty: string = ''
+    handleEmpty = !userId ? 'userId' : '' || !shareVisitedBars ? 'shareVisitedBars' : ''; //find missing parm
+
+    if (handleEmpty) {
+        res.status(400);
+        return res.json({ error: `Failed to change location share, missing field: ${handleEmpty}` });
+    };
+
+    // check if user exists
+    const user: any = await User.findOne({
+        where: {
+            id: userId
+        }
+    });
+
+    if (!user) {
+        res.status(400);
+        return res.json({error: "User not found" });
+    }
+
+    try {
+        // Check if shareVisitedBars is already set to the desired value
+        const existingPreferences = await Preferences.findOne({ where: { userId: userId } });
+
+        if (existingPreferences && existingPreferences.shareLocation === shareVisitedBars) {
+            res.status(200);
+            return res.json({ success: `Share Visited Bars is already set to ${shareVisitedBars}`, userId: userId, shareVisitedBars: shareVisitedBars });
+        }
+
+        // Update shareLocation if preferences exist
+        if (existingPreferences) {
+            await Preferences.update({ shareVisitedBars: shareVisitedBars }, { where: { userId: userId } });
+            res.status(200);
+            return res.json({ success: `Share Visited Bars changed to ${shareVisitedBars}`, userId: userId, shareVisitedBars: shareVisitedBars });
+        } else {
+            res.status(400);
+            return res.json({ error: "Preferences entry not found for the user" });
+        }
+    } catch (error: any) {
+        res.status(500);
+        return res.json({ error: `Server failed with error ${error}` })
+    }
+};
+
 const setTimerSetting = async (req: Request, res: Response): Promise<Response> => {
     const { userId, timerSetting }: { userId: string, timerSetting: number } = req.body;
 
@@ -128,6 +182,7 @@ const getPreferences = async (req: Request, res: Response) => {
 
 export {
     setLocationShare,
+    setVisitedShare,
     setTimerSetting,
     getPreferences
 };
