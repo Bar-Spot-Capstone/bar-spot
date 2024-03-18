@@ -3,7 +3,7 @@ import User from "../models/Users";
 import { Request, Response } from "express";
 
 const addFavorite = async (req: Request, res: Response): Promise<Response> => {
-    const { userId, barName, address, note }: { userId: string, barName: string, address: string, note: string } = req.body;
+    const { userId, barName, address, note, imageURL }: { userId: string, barName: string, address: string, note: string, imageURL: string } = req.body;
     
     var handleEmpty: string = ''
     handleEmpty = !userId ? 'userId' : '' || !barName ? 'barName' : ''; //find missing parm
@@ -31,10 +31,11 @@ const addFavorite = async (req: Request, res: Response): Promise<Response> => {
             barName: barName,
             address: address,
             note: note,
+            imageURL: imageURL
         });
     
         res.status(200);
-        return res.json({ success: "Bar added to favorites", userId: userId, barName: barName, address: address, note: note })
+        return res.json({ success: "Bar added to favorites", userId: userId, barName: barName, address: address, note: note, imageURL })
 
     } catch (error: any) {
         res.status(500);
@@ -68,7 +69,7 @@ const getFavorites = async (req: Request, res: Response) => {
                 userId: userId
             },
             // Attributes wanted
-            attributes: ['id', 'userId', 'barName', 'address', 'note']
+            attributes: ['id', 'userId', 'barName', 'address', 'note', 'imageURL']
         });
         
         const bars = [];
@@ -78,7 +79,8 @@ const getFavorites = async (req: Request, res: Response) => {
             bars.push({
                 barName: favorite.barName,
                 address: favorite.address,
-                note: favorite.note
+                note: favorite.note,
+                imageURL: favorite.imageURL
             });
         };
 

@@ -35,7 +35,8 @@ describe('On invaild favorite creation', () => {
                 userId: Number.MAX_SAFE_INTEGER,
                 barName: "",
                 address: "test",
-                note: "test"
+                note: "test",
+                imageURL: "test.png"
             }
         };
         await addFavorite(req, res);
@@ -49,7 +50,8 @@ describe('On invaild favorite creation', () => {
                 userId: null,
                 barName: "Test Bar",
                 address: "test",
-                note: "test"
+                note: "test",
+                imageURL: "test.png"
             }
         };
         await addFavorite(req, res);
@@ -63,7 +65,8 @@ describe('On invaild favorite creation', () => {
                 userId: Number.MAX_SAFE_INTEGER,
                 barName: "The Number 1 Bar",
                 address: "",
-                note: ""
+                note: "",
+                imageURL: ""
             }
         };
 
@@ -86,17 +89,18 @@ describe('On successful favorite creation', (): void => {
                 userId: Number.MAX_SAFE_INTEGER,
                 barName: "Bar Example",
                 address: "499 Capstone St",
-                note: "Nice staff"
+                note: "Nice staff",
+                imageURL: "barexample.png"
             }
         };
 
         // Mocking findOne to return no existing favorite
         (Favorites as any).findOne.mockResolvedValue(null);
         // Mocking create to indicate successful addition
-        (Favorites as any).create.mockResolvedValue({ userId: Number.MAX_SAFE_INTEGER, barName: "Bar Example", address: "499 Capstone St", note: "Nice staff" });
+        (Favorites as any).create.mockResolvedValue({ userId: Number.MAX_SAFE_INTEGER, barName: "Bar Example", address: "499 Capstone St", note: "Nice staff", imageURL: "barexample.png" });
         await addFavorite(req, res);
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({ success: "Bar added to favorites", userId: Number.MAX_SAFE_INTEGER, barName: "Bar Example", address: "499 Capstone St", note: "Nice staff" });
+        expect(res.json).toHaveBeenCalledWith({ success: "Bar added to favorites", userId: Number.MAX_SAFE_INTEGER, barName: "Bar Example", address: "499 Capstone St", note: "Nice staff", imageURL: "barexample.png" });
     });
 });
 
@@ -150,8 +154,8 @@ describe('On valid get favorites input', (): void => {
                 userId: Number.MIN_VALUE,
                 barName: 'The Salty Dog',
                 address: '123 Test Street',
-                note: 'Excellent on tap selection'
-                
+                note: 'Excellent on tap selection',
+                imageURL: 'saltydog.png'
             }
         ]);
 
@@ -162,7 +166,8 @@ describe('On valid get favorites input', (): void => {
                 {
                     "barName": "The Salty Dog",
                     "address": "123 Test Street",
-                    "note":  "Excellent on tap selection"
+                    "note":  "Excellent on tap selection",
+                    "imageURL": "saltydog.png"
                 }
             ]
         });
