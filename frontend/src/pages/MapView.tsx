@@ -1,53 +1,60 @@
 import { GoogleMap, MarkerF, useLoadScript } from "@react-google-maps/api";
 import { useEffect, useState } from "react";
+import Error from "../components/Error";
 
 interface LngLat {
   lat: number;
   lng: number;
 }
+interface marker {
+  position: LngLat;
+  lable: string;
+}
 
 const MapView = () => {
+  //https://www.youtube.com/watch?v=OvDu9c8PYrk <= the geolocation tutorial I used
   const [userGeo, setUserGeo] = useState<LngLat>({
     lat: 0,
     lng: 0,
   });
+
+  const [markers, setMarkers] = useState<marker[]>([]);
+  const [showMarkers, setShowMarkers] = useState<boolean>(false);
+
   const getGeoloaction = async () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-
           setUserGeo({
             lng: pos.coords.longitude,
             lat: pos.coords.latitude,
           });
-
+          
+          setMarkers([
+            {
+              position: {
+                lng: pos.coords.longitude,
+                lat: pos.coords.latitude,
+              },
+              lable: "me"
+            }
+          ]);
+          setShowMarkers(true);
         },
         (err) => {
           console.log(err);
         }
       );
     } else {
-      alert("Browser does not suprt geolocation");
+      alert("Browser does not support geolocation");
     }
   };
 
-  const determineCenter = () => {
-    //hunter coords
-    const mapCenter = {
-      lat: 40.7685,
-      lng: -73.9648,
-    };
-
-    if (userGeo.lat == 0 || userGeo.lng == 0) {
-      return mapCenter;
-    } else {
-      return userGeo;
-    }
-  };
 
   useEffect(() => {
     getGeoloaction();
   }, []);
+
   const mapStyle = {
     height: "100vh",
     width: "100%",
@@ -57,22 +64,9 @@ const MapView = () => {
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_API_KEY,
   });
 
-  const markers = [
-    {
-      position: { lat: 40.7685, lng: -73.9648 },
-      lable: "hunter",
-    },
-    {
-      position: { lat: 40.7709, lng: -73.9675 },
-      lable: "Frick",
-    },
-    {
-      position: { lat: 40.7793, lng: -73.7675 },
-      lable: "Other",
-    },
-  ];
 
-  //this is the styling for the map that gives it its color ans removes the default pins
+
+  //this is the styling for the map that gives it its color and removes the default pins
   //provided by using https://mapstyle.withgoogle.com
   const visibleStyle = [
     {
@@ -328,7 +322,7 @@ const MapView = () => {
       {isLoaded ? (
         <GoogleMap
           mapContainerStyle={mapStyle}
-          center={determineCenter()}
+          center={userGeo}
           zoom={17}
           options={{
             streetViewControl: false,
@@ -340,15 +334,17 @@ const MapView = () => {
           }}
         >
           {/* Render Markers */}
-          {markers.map((marker, index) => (
+          {showMarkers ? (markers.map((marker, index) => (
             <MarkerF
               key={index}
               position={marker.position}
               label={marker.lable}
             />
-          ))}
+          ))): null}
         </GoogleMap>
-      ) : null}
+      ) : (
+        <Error></Error>
+      )}
     </div>
   );
 };

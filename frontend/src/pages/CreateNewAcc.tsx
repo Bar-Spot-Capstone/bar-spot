@@ -165,10 +165,15 @@ const CreateNewAcc = () => {
           </Col>
         </Row>
         <Row className="justify-content-lg-center mx-lg-5 my-2">
-          <Col lg="6">
+          <Col lg={5}>
             <Button variant="success" type="submit" onClick={handleRegister}>
               Sign-Up
             </Button>
+          </Col>
+          <Col lg={1}>
+            <Link to={"/"}>
+              <Button variant="outline-danger">Cancel</Button>
+            </Link>
           </Col>
         </Row>
       </Container>

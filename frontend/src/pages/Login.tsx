@@ -8,7 +8,6 @@ import { useDispatch } from "react-redux";
 import { login, setUsername, setUserID } from "../state/slices/userSlice";
 import AlertBadge from "../components/AlertBadge";
 
-
 interface loginData {
   email: string;
   password: string;
@@ -99,7 +98,7 @@ const Login = () => {
     <div className="vh-100 ">
       <Container className="my-5">
         <Logo />
-        
+
         <AlertBadge
           text="ALERT! Incorrect Password or E-mail!"
           active={error}
@@ -149,6 +148,15 @@ const Login = () => {
             >
               Login
             </Button>
+          </Col>
+        </Row>
+        <Row className="justify-content-lg-center mx-lg-5 my-2">
+          <Col lg="6">
+            <Link to={"/"}>
+              <Button variant="outline-danger" className="w-25">
+                Cancel
+              </Button>
+            </Link>
           </Col>
         </Row>
       </Container>
