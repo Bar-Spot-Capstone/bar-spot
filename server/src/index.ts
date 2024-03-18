@@ -4,25 +4,24 @@ import sequelize from "./config/connection";
 import userRouter from "./routes/User";
 import groupRouter from "./routes/Group";
 import favoriteRouter from "./routes/Favorites";
-import userGroupRouter from "./routes/UserGroup"
-import visitedRouter from "./routes/Visited"
-import preferencesRouter from "./routes/Preferences"
+import userGroupRouter from "./routes/UserGroup";
+import visitedRouter from "./routes/Visited";
 
-import 'dotenv/config';
+import "dotenv/config";
 
 const app: express.Application = express();
 const PORT: number = Number(process.env.PORT) | 3001;
 const API_URL: string = "http://localhost:5173";
 const options: cors.CorsOptions = {
-    allowedHeaders: [
-        'Origin',
-        'X-Requested-With',
-        'Content-Type',
-        'Accept',
-        'X-Access-Token',
-    ],
-    credentials: true,
-    origin: API_URL
+  allowedHeaders: [
+    "Origin",
+    "X-Requested-With",
+    "Content-Type",
+    "Accept",
+    "X-Access-Token",
+  ],
+  credentials: true,
+  origin: API_URL,
 };
 
 //Middleware
@@ -35,13 +34,14 @@ app.use('/group', groupRouter);
 app.use('/visit', visitedRouter);
 app.use('/favorite', favoriteRouter);
 app.use('/party', userGroupRouter);
-app.use('/preferences', preferencesRouter);
 
-sequelize.sync().then((): void => {
+sequelize
+  .sync()
+  .then((): void => {
     app.listen(PORT, (): void => {
-        console.log(`Server is running on port ${PORT}`);
+      console.log(`Server is running on port ${PORT}`);
     });
-})
-    .catch((error: Error): void => {
-        console.error('Error synchronizing database:', error);
-    });
+  })
+  .catch((error: Error): void => {
+    console.error("Error synchronizing database:", error);
+  });

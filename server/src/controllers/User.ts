@@ -31,9 +31,9 @@ const userRegister = async (req: Request, res: Response): Promise<Response> => {
         // Create preferences entry for the new user
         await Preferences.create({
             userId: newUser.id,
-            timerSetting: 10,
-            shareLocation: false,
-            shareVisitedBars: false
+            timerSetting: 60,
+            shareLocation: true,
+            shareVisitedBars: true
         });
 
         res.status(200)

@@ -5,9 +5,8 @@ import FormInput from "../components/FormInput";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { login, setUsername, setUserID } from "../state/slices/userSlice";
+import { login, setUsername, setUserID, setEmail } from "../state/slices/userSlice";
 import AlertBadge from "../components/AlertBadge";
-
 
 interface loginData {
   email: string;
@@ -81,7 +80,7 @@ const Login = () => {
           //console.log("Data: ", userInfo);
 
           dispatch(setUsername(userInfo.username));
-
+          dispatch(setEmail(userInfo.email));
           dispatch(setUserID(userInfo.user_id));
         });
 
@@ -99,7 +98,7 @@ const Login = () => {
     <div className="vh-100 ">
       <Container className="my-5">
         <Logo />
-        
+
         <AlertBadge
           text="ALERT! Incorrect Password or E-mail!"
           active={error}
@@ -149,6 +148,15 @@ const Login = () => {
             >
               Login
             </Button>
+          </Col>
+        </Row>
+        <Row className="justify-content-lg-center mx-lg-5 my-2">
+          <Col lg="6">
+            <Link to={"/"}>
+              <Button variant="outline-danger" className="w-25">
+                Cancel
+              </Button>
+            </Link>
           </Col>
         </Row>
       </Container>

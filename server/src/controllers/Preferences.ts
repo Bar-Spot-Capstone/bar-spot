@@ -62,7 +62,7 @@ const setVisitedShare = async (req: Request, res: Response): Promise<Response> =
     // Check if shareVisitedBars is not a boolean
     if (typeof shareVisitedBars !== 'boolean') {
         res.status(400);
-        return res.json({ error: `Failed to change location share, 'shareLocation' must be a boolean` });
+        return res.json({ error: `Failed to change visited share, 'shareVisitedBars' must be a boolean` });
     };
 
     // Check which params are missing
@@ -71,7 +71,7 @@ const setVisitedShare = async (req: Request, res: Response): Promise<Response> =
 
     if (handleEmpty) {
         res.status(400);
-        return res.json({ error: `Failed to change location share, missing field: ${handleEmpty}` });
+        return res.json({ error: `Failed to change visited share, missing field: ${handleEmpty}` });
     };
 
     // check if user exists
