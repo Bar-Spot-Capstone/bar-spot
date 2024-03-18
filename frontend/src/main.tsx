@@ -1,18 +1,32 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./pages/App.tsx";
+import Home from "./pages/Home.tsx";
 import Login from "./pages/Login.tsx";
 import CreateNewAcc from "./pages/CreateNewAcc.tsx";
+import Profile from "./pages/Profile.tsx";
 import "bootstrap/dist/css/bootstrap.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { store } from "./state/store";
+import { Provider } from "react-redux";
+import MapView from "./pages/MapView.tsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App/>,
+    element: <Home />,
+    children: [
+      {
+        path: "/",
+        element:<MapView/>,
+      },
+      {
+        path: "/profile",
+        element: <Profile />,
+      }
+    ],
   },
   {
-    path: "/login",
+    path: "login",
     element: <Login />,
   },
   {
@@ -20,8 +34,11 @@ const router = createBrowserRouter([
     element: <CreateNewAcc />,
   },
 ]);
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <RouterProvider router={router} />
-  </React.StrictMode>
+  <Provider store={store}>
+    <React.StrictMode>
+      <RouterProvider router={router} />
+    </React.StrictMode>
+  </Provider>
 );

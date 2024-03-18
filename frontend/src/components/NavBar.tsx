@@ -1,13 +1,19 @@
 import Container from "react-bootstrap/Container";
 import Navbar from "react-bootstrap/Navbar";
-import NavDropdown from "react-bootstrap/NavDropdown";
 import Logo from "../assets/Bar-Spot-Translucent-Logo.png";
 import { Link } from "react-router-dom";
+import NavBadge from "./NavBadge";
+import { useSelector } from "react-redux";
+import { Rootstate } from "../state/store";
+import { Button, NavDropdown } from "react-bootstrap";
+
 
 const NavBar = () => {
+  const isLoggedIn: boolean = useSelector(
+    (state: Rootstate) => state.user.isLoggedIn
+  );
   return (
-    // bg color subject to change
-    <Navbar expand="md" className="bg-secondary-subtle"> 
+    <Navbar expand="md" className="bg-secondary-subtle">
       <Container>
         <Link to="/">
           <Navbar.Brand>
@@ -23,27 +29,19 @@ const NavBar = () => {
 
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse className="justify-content-end me-3">
-
-        <NavDropdown title="Dropdown" id="basic-nav-dropdown" className="me-3">
-            <NavDropdown.Item href="#action/3.1">Action</NavDropdown.Item>
-            <NavDropdown.Item href="#action/3.2">
-              Another action
-            </NavDropdown.Item>
-            <NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>
+          <NavDropdown
+            title="Dropdown"
+            id="basic-nav-dropdown"
+            className="me-3"
+          >
+            
             <NavDropdown.Divider />
-            <NavDropdown.Item>
-            <Link to={"/login"}>
-            Test
+            <Link to="/profile">
+              <Button variant="link">Profile</Button>
             </Link>
-            </NavDropdown.Item>
           </NavDropdown>
 
-          <Navbar.Text>
-            Signed in as: <Link to="/login">Oscar Comunidad</Link>
-          </Navbar.Text>
-
-          
-
+          <NavBadge isLoggedIn={isLoggedIn} />
         </Navbar.Collapse>
       </Container>
     </Navbar>

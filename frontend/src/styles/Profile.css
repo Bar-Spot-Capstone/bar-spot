@@ -1,0 +1,39 @@
+.header-bar {
+    border-top: 3px solid #8c8b8b;
+    width: 100%;
+}
+
+.card-orientation {
+    height: 28rem;
+}
+
+.list-element {
+    list-style: none;
+    margin-top: 2rem;
+}
+
+.list-element:hover {
+    color: rgb(52, 52, 190);
+}
+
+.btn-txt:focus {
+    background-color: rgba(20, 71, 238, 0.788);
+}
+
+.icon-style {
+    font-size: 2rem;
+}
+
+.btn-style {
+    margin-left: 7rem;
+}
+
+.tracking-setting {
+    flex-wrap: wrap;
+}
+
+@media (max-width: 1023px) {
+    .btn-style {
+        margin-left: 1rem;
+    }
+}
