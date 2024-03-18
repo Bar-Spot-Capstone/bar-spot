@@ -104,7 +104,7 @@ const MapView = () => {
           </MarkerF>
         </GoogleMap>
       ) : (
-        <Error></Error>
+        <Error/>
       )}
     </div>
   );

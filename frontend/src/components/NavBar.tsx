@@ -7,16 +7,12 @@ import { useSelector } from "react-redux";
 import { Rootstate } from "../state/store";
 import { Button, NavDropdown } from "react-bootstrap";
 
-// interface Props {
-//   isLoggedIn: boolean;
-// }
+
 const NavBar = () => {
-  //global value
   const isLoggedIn: boolean = useSelector(
     (state: Rootstate) => state.user.isLoggedIn
   );
   return (
-    // bg color subject to change
     <Navbar expand="md" className="bg-secondary-subtle">
       <Container>
         <Link to="/">
