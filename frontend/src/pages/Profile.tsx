@@ -48,10 +48,10 @@ const Profile = () => {
                     <div className="header-bar"></div>
                     <div className="pt-3 d-flex flex-column user-info">
                         <div className="p-2 fs-5">Username: </div>
-                        <input className="form-control mb-2" type="text" value={username ? username : "Not logged in"} aria-label="readonly input example" readonly />
+                        <input className="form-control mb-2" type="text" value={username ? username : "Not logged in"} aria-label="readonly input example" readOnly />
 
                         <div className="p-2 fs-5">Email: </div>
-                        <input className="form-control mb-2" type="text" value={email ? email : "Not logged in"} aria-label="readonly input example" readonly />
+                        <input className="form-control mb-2" type="text" value={email ? email : "Not logged in"} aria-label="readonly input example" readOnly />
 
                         <div className="p-2 fs-5">Change Username:</div>
                         <input type="text" className="form-control mb-2" id="exampleFormControlInput1" placeholder="Current Username" />

@@ -1,7 +1,6 @@
-
 import NavBar from "../components/NavBar";
 import { Outlet } from "react-router-dom";
-import {  useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 import { Rootstate } from "../state/store";
 
@@ -10,11 +9,10 @@ const Home = () => {
 
   return (
     <>
-      
       <NavBar isLoggedIn={login} />
-        <div id="view">
-          <Outlet />
-        </div>
+      <div id="view">
+        <Outlet />
+      </div>
     </>
   );
 };
