@@ -6,6 +6,7 @@ import groupRouter from "./routes/Group";
 import favoriteRouter from "./routes/Favorites";
 import userGroupRouter from "./routes/UserGroup"
 import visitedRouter from "./routes/Visited"
+import preferencesRouter from "./routes/Preferences"
 
 import 'dotenv/config';
 
@@ -31,9 +32,10 @@ app.use(cors(options));
 //Routers
 app.use('/user', userRouter);
 app.use('/group', groupRouter);
-app.use('/visit', visitedRouter);;
-app.use('/favorite', favoriteRouter);;
+app.use('/visit', visitedRouter);
+app.use('/favorite', favoriteRouter);
 app.use('/party', userGroupRouter);
+app.use('/preferences', preferencesRouter);
 
 sequelize.sync().then((): void => {
     app.listen(PORT, (): void => {
