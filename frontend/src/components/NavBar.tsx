@@ -1,17 +1,23 @@
 import Container from "react-bootstrap/Container";
 import Navbar from "react-bootstrap/Navbar";
-import NavDropdown from "react-bootstrap/NavDropdown";
 import Logo from "../assets/Bar-Spot-Translucent-Logo.png";
 import { Link } from "react-router-dom";
 import NavBadge from "./NavBadge";
+import { useSelector } from "react-redux";
+import { Rootstate } from "../state/store";
+import { Button, NavDropdown } from "react-bootstrap";
 
-interface Props {
-  isLoggedIn: boolean;
-}
-const NavBar = ({isLoggedIn}:Props) => {
+// interface Props {
+//   isLoggedIn: boolean;
+// }
+const NavBar = () => {
+  //global value
+  const isLoggedIn: boolean = useSelector(
+    (state: Rootstate) => state.user.isLoggedIn
+  );
   return (
     // bg color subject to change
-    <Navbar expand="md" className="bg-secondary-subtle"> 
+    <Navbar expand="md" className="bg-secondary-subtle">
       <Container>
         <Link to="/">
           <Navbar.Brand>
@@ -27,27 +33,19 @@ const NavBar = ({isLoggedIn}:Props) => {
 
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse className="justify-content-end me-3">
-
-        <NavDropdown title="Dropdown" id="basic-nav-dropdown" className="me-3">
-            <NavDropdown.Item>
-              <Link to="/profile">Profile</Link>
-              </NavDropdown.Item>
-            <NavDropdown.Item href="#action/3.2">
-              Another action
-            </NavDropdown.Item>
-            <NavDropdown.Item href="#action/3.3">Something</NavDropdown.Item>
+          <NavDropdown
+            title="Dropdown"
+            id="basic-nav-dropdown"
+            className="me-3"
+          >
+            
             <NavDropdown.Divider />
-            <NavDropdown.Item>
-            {/* <Link to={"/login"}>
-            Test
-            </Link> */}
-            </NavDropdown.Item>
+            <Link to="/profile">
+              <Button variant="link">Profile</Button>
+            </Link>
           </NavDropdown>
 
-          <NavBadge isLoggedIn = {isLoggedIn}/>
-
-          
-
+          <NavBadge isLoggedIn={isLoggedIn} />
         </Navbar.Collapse>
       </Container>
     </Navbar>
