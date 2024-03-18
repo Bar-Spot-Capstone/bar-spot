@@ -5,7 +5,7 @@ import FormInput from "../components/FormInput";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { login, setUsername, setUserID } from "../state/slices/userSlice";
+import { login, setUsername, setUserID, setEmail } from "../state/slices/userSlice";
 import AlertBadge from "../components/AlertBadge";
 
 interface loginData {
@@ -80,7 +80,7 @@ const Login = () => {
           //console.log("Data: ", userInfo);
 
           dispatch(setUsername(userInfo.username));
-
+          dispatch(setEmail(userInfo.email));
           dispatch(setUserID(userInfo.user_id));
         });
 
