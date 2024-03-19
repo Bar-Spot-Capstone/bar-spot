@@ -6,7 +6,8 @@ const getPubs = async (req: Request, res: Response): Promise<void> => {
     const lat: string = req.params.lat;
     const lon: string = req.params.lon;
 
-    const missingField: string = lat ? '' : 'lat' || lon ? '' : 'lon';
+    const missingField: string = !lat ? 'lat' : '' || !lon ? 'lon' : '';
+    
     if (missingField) {
         res.status(400).json({ error: `Failed to fetch bars missing ${missingField}` });
         return;
