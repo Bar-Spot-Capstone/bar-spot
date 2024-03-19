@@ -59,6 +59,24 @@ describe('On invaild favorite creation', () => {
         expect(res.json).toHaveBeenCalledWith({ error: "Failed to create favorite, missing field: userId" });
     });
 
+    it('should return a status code of 400 and error if user doesnt exist', async (): Promise<void> => {
+        const req: any = {
+            body: {
+                userId: Number.MAX_SAFE_INTEGER,
+                barName: "Test Bar",
+                address: "test",
+                note: "test",
+                imageURL: "test.png"
+            }
+        };
+
+        (User as any).findOne.mockResolvedValueOnce(false);
+
+        await addFavorite(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "User not found" });
+    });
+
     it("should return a status code of 400 and error if the bar is already in favorites", async (): Promise<void> => {
         const req: any = {
             body: {
@@ -70,8 +88,8 @@ describe('On invaild favorite creation', () => {
             }
         };
 
-        // Mocking findOne to return an existing favorite
         (Favorites as any).findOne.mockResolvedValue(true);
+
         await addFavorite(req, res);
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({ error: "Bar already in favorites" })
@@ -206,6 +224,35 @@ describe('On invaild delete favorite input', (): void => {
         expect(res.json).toHaveBeenCalledWith({ error: "Unable to read: userId" });
     });
 
+    it('should return a status code of 400 and error if user doesnt exist', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                id: Number.MAX_SAFE_INTEGER,
+                userId: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (User as any).findOne.mockResolvedValueOnce(false);
+
+        await deleteFavorite(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "User not found" });
+    });
+
+    it('should return a status code of 400 and error if favorite not found for user', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                id: Number.MAX_SAFE_INTEGER,
+                userId: Number.MAX_SAFE_INTEGER 
+            }
+        };
+    
+        (Favorites as any).findOne.mockResolvedValueOnce(false);
+    
+        await deleteFavorite(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Favorite not found for this user" });
+    });
 
     it('should return a status code of 400 and error message if favorite was not deleted', async (): Promise<void> => {
         const req: any = {
@@ -263,6 +310,20 @@ describe('On invalid clear favorites input', (): void => {
         expect(res.json).toHaveBeenCalledWith({ error: "No such user exist" });
     });
 
+    it('should return a status code of 400 and error if user doesnt exist', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                userId: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (User as any).findOne.mockResolvedValueOnce(false);
+
+        await clearFavorites(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "User not found" });
+    });
+
     it('should return a status code of 400 and error message if favorites were not cleared', async (): Promise<void> => {
         const req: any = {
             params: {
@@ -281,6 +342,21 @@ describe('On invalid clear favorites input', (): void => {
 describe('On vaild clear favorites input', (): void => {
     beforeEach((): void => {
         jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
+    });
+
+    it('should return a status code of 200 and success message if no favorites found for user', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                userId: Number.MAX_SAFE_INTEGER
+            }
+        };
+        
+        /* empty array */
+        (Favorites as any).findAll.mockResolvedValueOnce([]);
+    
+        await clearFavorites(req, res);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ success: "No favorites found" });
     });
 
     it('should return a status code of 200 and success message user favorites were deleted', async (): Promise<void> => {

@@ -14,6 +14,18 @@ const addFavorite = async (req: Request, res: Response): Promise<Response> => {
     };
 
     try {
+        // check if user exists
+        const user: any = await User.findOne({
+            where: {
+                id: userId
+            }
+        });
+
+        if (!user) {
+            res.status(400);
+            return res.json({error: "User not found" });
+        }
+
         const existingFavorite = await Favorites.findOne({
             where: {
                 userId: userId,
@@ -35,7 +47,7 @@ const addFavorite = async (req: Request, res: Response): Promise<Response> => {
         });
     
         res.status(200);
-        return res.json({ success: "Bar added to favorites", userId: userId, barName: barName, address: address, note: note, imageURL })
+        return res.json({ success: "Bar added to favorites", userId: userId, barName: barName, address: address, note: note, imageURL: imageURL })
 
     } catch (error: any) {
         res.status(500);
@@ -77,6 +89,7 @@ const getFavorites = async (req: Request, res: Response) => {
         for (let i = 0; i < faves.length; i++) {
             const favorite = faves[i];
             bars.push({
+                id: favorite.id,
                 barName: favorite.barName,
                 address: favorite.address,
                 note: favorite.note,
@@ -107,6 +120,31 @@ const deleteFavorite = async (req: Request, res: Response) => {
     };
 
     try {
+        // check if user exists
+        const user: any = await User.findOne({
+            where: {
+                id: userId
+            }
+        });
+
+        if (!user) {
+            res.status(400);
+            return res.json({error: "User not found" });
+        }
+
+        // Check if the favorite exists for the user
+        const favoriteExists = await Favorites.findOne({
+            where: {
+                id: id,
+                userId: userId
+            }
+        });
+
+        if (!favoriteExists) {
+            res.status(400);
+            return res.json({ error: "Favorite not found for this user" });
+        }
+
         const favoriteRemoved: number = await Favorites.destroy({
             where: {
                 id: id,
@@ -133,10 +171,34 @@ const clearFavorites = async(req: Request, res: Response) => {
 
     if (!userId) {
         res.status(400);
-        return res.json({ error: "No such user exist" });
+        return res.json({ error: "No userId provided" });
     };
 
     try {
+        // check if user exists
+        const user: any = await User.findOne({
+            where: {
+                id: userId
+            }
+        });
+
+        if (!user) {
+            res.status(400);
+            return res.json({error: "User not found" });
+        }
+
+        // Check if the user has any favorite bars
+        const userFavorites = await Favorites.findAll({
+            where: {
+                userId: userId
+            }
+        });
+
+        if (userFavorites.length === 0) {
+            res.status(200);
+            return res.json({ success: "No favorites found" });
+        }
+
         const allFavoritesRemoved: number = await Favorites.destroy({
             where: {
                 userId: userId
