@@ -1,17 +1,18 @@
-import Container from "react-bootstrap/Container";
-import Navbar from "react-bootstrap/Navbar";
-import Logo from "../assets/Bar-Spot-Translucent-Logo.png";
 import { Link } from "react-router-dom";
-import NavBadge from "./NavBadge";
 import { useSelector } from "react-redux";
 import { Rootstate } from "../state/store";
-import { Button, NavDropdown } from "react-bootstrap";
-
+import { Button, NavDropdown, Modal, Container, Navbar, Badge } from "react-bootstrap";
+import { useState } from "react";
+import Logo from "../assets/Bar-Spot-Translucent-Logo.png";
+import NavBadge from "./NavBadge";
+import "bootstrap/dist/css/bootstrap.css";
+import "bootstrap/dist/js/bootstrap.min.js";
 
 const NavBar = () => {
-  const isLoggedIn: boolean = useSelector(
-    (state: Rootstate) => state.user.isLoggedIn
-  );
+  const isLoggedIn: boolean = useSelector((state: Rootstate) => state.user.isLoggedIn);
+  const [invitation, setInvites] = useState<Number>(0);
+  const [show, setShow] = useState<boolean>(false);
+
   return (
     <Navbar expand="md" className="bg-secondary-subtle">
       <Container>
@@ -34,13 +35,46 @@ const NavBar = () => {
             id="basic-nav-dropdown"
             className="me-3"
           >
-            
+
             <NavDropdown.Divider />
             <Link to="/profile">
               <Button variant="link">Profile</Button>
             </Link>
-          </NavDropdown>
 
+            <NavDropdown.Divider />
+            <h6 className="m-1" onClick={() => setShow(true)}>
+              Group
+            </h6>
+            <Modal show={show} onHide={() => setShow(false)}>
+              <Modal.Header closeButton>
+                <Modal.Title>Group Options</Modal.Title>
+              </Modal.Header>
+              <Modal.Body className="d-flex justify-content-around">
+                <div>
+                  <button className="btn btn-primary" onClick={() => setShow(false)}>
+                    Create
+                  </button>
+                </div>
+                <div>
+                  <button className="btn btn-primary" onClick={() => setShow(false)}>
+                    Join
+                  </button>
+                </div>
+                <div>
+                  <button className="btn btn-primary" onClick={() => setInvites(invitation + 1)}>
+                    Invites <Badge bg="danger">{invitation}</Badge>
+                  </button>
+                </div>
+              </Modal.Body>
+              <Modal.Footer className="justify-content-center">
+                <div>
+                  <button className="btn btn-primary" onClick={() => setShow(false)}>
+                    Close
+                  </button>
+                </div>
+              </Modal.Footer>
+            </Modal>
+          </NavDropdown>
           <NavBadge isLoggedIn={isLoggedIn} />
         </Navbar.Collapse>
       </Container>
