@@ -38,9 +38,6 @@ const MapView = () => {
             },
             lable: "me",
           });
-          // setMarkers([
-
-          // ]);
           fetchBars(pos.coords.latitude, pos.coords.longitude);
           setShowMarkers(true);
         },
