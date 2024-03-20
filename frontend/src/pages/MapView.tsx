@@ -21,6 +21,7 @@ const MapView = () => {
 
   const [markers, setMarkers] = useState<marker[]>([]);
   const [showMarkers, setShowMarkers] = useState<boolean>(false);
+  const [userMarker, setUserMarker] = useState<marker>();
 
   const getGeoloaction = async () => {
     if (navigator.geolocation) {
@@ -30,16 +31,17 @@ const MapView = () => {
             lng: pos.coords.longitude,
             lat: pos.coords.latitude,
           });
-          
-          setMarkers([
-            {
-              position: {
-                lng: pos.coords.longitude,
-                lat: pos.coords.latitude,
-              },
-              lable: "me"
-            }
-          ]);
+          setUserMarker({
+            position: {
+              lng: pos.coords.longitude,
+              lat: pos.coords.latitude,
+            },
+            lable: "me",
+          });
+          // setMarkers([
+
+          // ]);
+          fetchBars(pos.coords.latitude, pos.coords.longitude);
           setShowMarkers(true);
         },
         (err) => {
@@ -51,6 +53,36 @@ const MapView = () => {
     }
   };
 
+  const fetchBars = async (lat: number, lng: number) => {
+    const response = await fetch(
+      "http://localhost:3001/yelp/pubs/" + lat + "/" + lng,
+      {
+        method: "GET",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    const res = response.json();
+    if (response.ok) {
+      console.log(res);
+      var newMarkers: marker[] = [];
+      res.then((bars) => {
+        bars.businesses.forEach((barObj: any) => {
+          const newMarker = {
+            position: {
+              lat: barObj.coordinates.latitude,
+              lng: barObj.coordinates.longitude,
+            },
+            lable: barObj.name,
+          };
+          newMarkers.push(newMarker);
+        });
+        setMarkers(newMarkers);
+      });
+    }
+  };
 
   useEffect(() => {
     getGeoloaction();
@@ -65,11 +97,9 @@ const MapView = () => {
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_API_KEY,
   });
 
-
-
   //this is the styling for the map that gives it its color and removes the default pins
   //provided by using https://mapstyle.withgoogle.com
-  
+
   return (
     <div style={mapStyle}>
       {isLoaded ? (
@@ -87,24 +117,24 @@ const MapView = () => {
           }}
         >
           {/* Render Markers */}
-          {showMarkers ? (markers.map((marker, index) => (
+          {showMarkers ? (
             <MarkerF
-              key={index}
-              position={marker.position}
-              label={marker.lable}
-            />
-          ))): null}
-          <MarkerF label={"Barcade"} position={
-            {
-              lat: 40.744202,
-              lng: -73.994423
-            }
-          }>
-
-          </MarkerF>
+              position={userMarker?.position || { lat: 40.7678, lng: 73.9645 }} //either it finds a users position or it will default on hunter
+              label={userMarker?.lable}
+            ></MarkerF>
+          ) : null}
+          {showMarkers
+            ? markers.map((marker, index) => (
+                <MarkerF
+                  key={index}
+                  position={marker.position}
+                  label={marker.lable}
+                />
+              ))
+            : null}
         </GoogleMap>
       ) : (
-        <Error/>
+        <Error />
       )}
     </div>
   );
