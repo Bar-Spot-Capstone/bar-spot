@@ -26,9 +26,8 @@ const getPubs = async (req: Request, res: Response): Promise<void> => {
             res.status(401).json({ error: 'Failed to fetch data from Yelp API' });
             return;
         }
-
         const data = await response.json();
-        res.json({businesses: data.businesses});
+        res.status(200).json({businesses: data.businesses});
         return
     } catch (error: any) {
         res.status(500).json({ error: `Failed to fetch pubs with unexpected error: ${error}` });
