@@ -51,34 +51,37 @@ const MapView = () => {
   };
 
   const fetchBars = async (lat: number, lng: number) => {
-    const response = await fetch(
-      "http://localhost:3001/yelp/pubs/" + lat + "/" + lng,
-      {
-        method: "GET",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-        },
+    try {
+      if (lat === 0 && lng === 0) {
+        console.log("Position is at 0 did not fetch");
+        return;
       }
-    );
-    const res = response.json();
-    if (response.ok) {
-      console.log(res);
-      var newMarkers: marker[] = [];
-      res.then((bars) => {
-        bars.businesses.forEach((barObj: any) => {
-          const newMarker = {
-            position: {
-              lat: barObj.coordinates.latitude,
-              lng: barObj.coordinates.longitude,
-            },
-            lable: barObj.name,
-          };
-          newMarkers.push(newMarker);
+      const response = await fetch(`http://localhost:3001/yelp/pubs/${lat}/${lng}`, { method: "GET" });
+      if (response.ok) {
+        const res = response.json();
+        var newMarkers: marker[] = [];
+        res.then((bars) => {
+          bars.businesses.forEach((barObj: any) => {
+            const newMarker = {
+              position: {
+                lat: barObj.coordinates.latitude,
+                lng: barObj.coordinates.longitude,
+              },
+              lable: barObj.name,
+            };
+            newMarkers.push(newMarker);
+          });
+          setMarkers(newMarkers);
         });
-        setMarkers(newMarkers);
-      });
+      }
+      else {
+        console.log("Failed to fetch response was not okay");
+        return;
+      }
     }
+    catch (error: any) {
+      console.log(`Error failed to fetch due to: ${error}`)
+    };
   };
 
   useEffect(() => {
@@ -122,12 +125,12 @@ const MapView = () => {
           ) : null}
           {showMarkers
             ? markers.map((marker, index) => (
-                <MarkerF
-                  key={index}
-                  position={marker.position}
-                  label={marker.lable}
-                />
-              ))
+              <MarkerF
+                key={index}
+                position={marker.position}
+                label={marker.lable}
+              />
+            ))
             : null}
         </GoogleMap>
       ) : (
