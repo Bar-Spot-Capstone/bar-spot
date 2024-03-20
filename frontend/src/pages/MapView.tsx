@@ -30,7 +30,7 @@ const MapView = () => {
             lng: pos.coords.longitude,
             lat: pos.coords.latitude,
           });
-          
+
           setMarkers([
             {
               position: {
@@ -65,11 +65,53 @@ const MapView = () => {
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_API_KEY,
   });
 
+  const fetchLocalBars = async (): Promise<any> => {
+    try {
+      if (userGeo.lat === 0 && userGeo.lng === 0) {
+        console.log('User location is off')
+        return;
+      }
 
+      const response: Response = await fetch(`http://localhost:3001/yelp/pubs/${userGeo.lat}/${userGeo.lng}`, { method: 'GET' });
+
+      if (response.ok) {
+        const res: any = await response.json();
+
+        let localPubs: Array<object> = res.businesses.map(Pub => {
+          const { coordinates, display_phone, distance, image_url, is_closed, location, name, price, rating, review_count, url } = Pub;
+          return {
+            coordinates,
+            display_phone,
+            distance,
+            is_closed,
+            location,
+            name,
+            price,
+            rating,
+            review_count,
+            url,
+            image_url
+          };
+        });
+
+        return localPubs;
+      }
+      else {
+        const error = await response.json();
+        console.log(`Error failed to fetch Pubs with error: ${error}`);
+        return;
+      };
+    }
+    catch (error: any) {
+      console.log(`Failed to fetch from yelp API with error: ${error}`);
+    };
+  };
+
+  fetchLocalBars();
 
   //this is the styling for the map that gives it its color and removes the default pins
   //provided by using https://mapstyle.withgoogle.com
-  
+
   return (
     <div style={mapStyle}>
       {isLoaded ? (
@@ -93,7 +135,7 @@ const MapView = () => {
               position={marker.position}
               label={marker.lable}
             />
-          ))): null}
+          ))) : null}
           <MarkerF label={"Barcade"} position={
             {
               lat: 40.744202,
@@ -104,7 +146,7 @@ const MapView = () => {
           </MarkerF>
         </GoogleMap>
       ) : (
-        <Error/>
+        <Error />
       )}
     </div>
   );
