@@ -12,13 +12,10 @@ jest.mock('../models/Favorites', (): any => ({
 
 // Mock User.create
 jest.mock('../models/Users', (): any => ({
-    create: jest.fn(),
     findOne: jest.fn(),
-    findAll: jest.fn()
 }));
 
 const res: any = {
-    /*Due to the return type, we have to return the status as a json object containing the HTTPS status and the response()*/
     status: jest.fn((x) => x),
     json: jest.fn((x) => x)
 }
@@ -88,6 +85,7 @@ describe('On invaild favorite creation', () => {
             }
         };
 
+        (User as any).findOne.mockResolvedValueOnce(true);
         (Favorites as any).findOne.mockResolvedValue(true);
 
         await addFavorite(req, res);
@@ -112,8 +110,8 @@ describe('On successful favorite creation', (): void => {
             }
         };
 
-        // Mocking findOne to return no existing favorite
-        (Favorites as any).findOne.mockResolvedValue(null);
+        (User as any).findOne.mockResolvedValueOnce(true);
+        (Favorites as any).findOne.mockResolvedValue(false);
         // Mocking create to indicate successful addition
         (Favorites as any).create.mockResolvedValue({ userId: Number.MAX_SAFE_INTEGER, barName: "Bar Example", address: "499 Capstone St", note: "Nice staff", imageURL: "barexample.png" });
         await addFavorite(req, res);
@@ -184,7 +182,7 @@ describe('On valid get favorites input', (): void => {
                 {
                     "barName": "The Salty Dog",
                     "address": "123 Test Street",
-                    "note":  "Excellent on tap selection",
+                    "note": "Excellent on tap selection",
                     "imageURL": "saltydog.png"
                 }
             ]
@@ -243,12 +241,13 @@ describe('On invaild delete favorite input', (): void => {
         const req: any = {
             params: {
                 id: Number.MAX_SAFE_INTEGER,
-                userId: Number.MAX_SAFE_INTEGER 
+                userId: Number.MAX_SAFE_INTEGER
             }
         };
-    
+
+        (User as any).findOne.mockResolvedValueOnce(true);
         (Favorites as any).findOne.mockResolvedValueOnce(false);
-    
+
         await deleteFavorite(req, res);
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({ error: "Favorite not found for this user" });
@@ -262,6 +261,8 @@ describe('On invaild delete favorite input', (): void => {
             }
         };
 
+        (User as any).findOne.mockResolvedValueOnce(true);
+        (Favorites as any).findOne.mockResolvedValueOnce(true);
         (Favorites as any).destroy.mockResolvedValueOnce(false);
 
         await deleteFavorite(req, res);
@@ -284,6 +285,8 @@ describe('On vaild delete favorite input', (): void => {
             }
         };
 
+        (User as any).findOne.mockResolvedValueOnce(true);
+        (Favorites as any).findOne.mockResolvedValueOnce(true);
         (Favorites as any).destroy.mockResolvedValueOnce(true);
 
         await deleteFavorite(req, res);
@@ -307,7 +310,7 @@ describe('On invalid clear favorites input', (): void => {
 
         await clearFavorites(req, res);
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({ error: "No such user exist" });
+        expect(res.json).toHaveBeenCalledWith({ error: "No userId provided" });
     });
 
     it('should return a status code of 400 and error if user doesnt exist', async (): Promise<void> => {
@@ -331,6 +334,8 @@ describe('On invalid clear favorites input', (): void => {
             }
         };
 
+        (User as any).findOne.mockResolvedValueOnce(true);
+        (Favorites as any).findAll.mockResolvedValueOnce([1, 2, 3]);
         (Favorites as any).destroy.mockResolvedValueOnce(false);
 
         await clearFavorites(req, res);
@@ -350,10 +355,11 @@ describe('On vaild clear favorites input', (): void => {
                 userId: Number.MAX_SAFE_INTEGER
             }
         };
-        
+
         /* empty array */
+        (User as any).findOne.mockResolvedValueOnce(true);
         (Favorites as any).findAll.mockResolvedValueOnce([]);
-    
+
         await clearFavorites(req, res);
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({ success: "No favorites found" });
@@ -366,6 +372,8 @@ describe('On vaild clear favorites input', (): void => {
             }
         };
 
+        (User as any).findOne.mockResolvedValueOnce(true);
+        (Favorites as any).findAll.mockResolvedValueOnce([1, 2, 3]);
         (Favorites as any).destroy.mockResolvedValueOnce(true);
 
         await clearFavorites(req, res);
