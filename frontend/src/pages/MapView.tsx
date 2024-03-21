@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Error from "../components/Error";
 import visibleStyle from "../styles/mapstyle";
 
+
 interface LngLat {
   lat: number;
   lng: number;
@@ -56,7 +57,11 @@ const MapView = () => {
         console.log("Position is at 0 did not fetch");
         return;
       }
-      const response = await fetch(`http://localhost:3001/yelp/pubs/${lat}/${lng}`, { method: "GET" });
+      const response = await fetch(
+        `http://localhost:3001/yelp/pubs/${lat}/${lng}`,
+        { method: "GET" }
+      );
+
       if (response.ok) {
         const res = response.json();
         var newMarkers: marker[] = [];
@@ -73,15 +78,13 @@ const MapView = () => {
           });
           setMarkers(newMarkers);
         });
-      }
-      else {
+      } else {
         console.log("Failed to fetch response was not okay");
         return;
       }
+    } catch (error: any) {
+      console.log(`Error failed to fetch due to: ${error}`);
     }
-    catch (error: any) {
-      console.log(`Error failed to fetch due to: ${error}`)
-    };
   };
 
   useEffect(() => {
@@ -125,12 +128,12 @@ const MapView = () => {
           ) : null}
           {showMarkers
             ? markers.map((marker, index) => (
-              <MarkerF
-                key={index}
-                position={marker.position}
-                label={marker.lable}
-              />
-            ))
+                <MarkerF
+                  key={index}
+                  position={marker.position}
+                  label={marker.lable}
+                />
+              ))
             : null}
         </GoogleMap>
       ) : (
