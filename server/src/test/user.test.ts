@@ -5,7 +5,7 @@ import Preferences from "../models/Preferences";
 import { userRegister, userLogin, deleteUser } from "../controllers/User";
 import { UniqueConstraintError as SequelizeUniqueConstraintError } from 'sequelize';
 
-// Mock User.create
+// Mock User
 jest.mock('../models/Users', (): any => ({
     create: jest.fn(),
     findOne: jest.fn(), //to mock the findOne function

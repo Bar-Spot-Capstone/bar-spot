@@ -3,9 +3,9 @@ import { setLocationShare, setTimerSetting, getPreferences, setVisitedShare } fr
 
 const router: express.Router = express.Router();
 
-router.post('/Location', setLocationShare);
-router.post('/Timer', setTimerSetting);
-router.post('/Visited', setVisitedShare);
+router.post('/location', setLocationShare);
+router.post('/timer', setTimerSetting);
+router.post('/visited', setVisitedShare);
 router.get('/get/:userId', getPreferences);
 
 export default router;
