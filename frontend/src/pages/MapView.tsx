@@ -2,7 +2,7 @@ import { GoogleMap, MarkerF, useLoadScript } from "@react-google-maps/api";
 import { useEffect, useState } from "react";
 import Error from "../components/Error";
 import visibleStyle from "../styles/mapstyle";
-
+import { Offcanvas } from "react-bootstrap";
 
 interface LngLat {
   lat: number;
@@ -11,6 +11,12 @@ interface LngLat {
 interface marker {
   position: LngLat;
   lable: string;
+}
+interface barMenuInfo {
+  name: string;
+  display_phone: string;
+  rating: string;
+  image_url: string;
 }
 
 const MapView = () => {
@@ -23,6 +29,20 @@ const MapView = () => {
   const [markers, setMarkers] = useState<marker[]>([]);
   const [showMarkers, setShowMarkers] = useState<boolean>(false);
   const [userMarker, setUserMarker] = useState<marker>();
+  const [offCanvas, setOffCanvas] = useState<boolean>(false);
+  const [barInfo, setBarInfo] = useState<barMenuInfo>({
+    name: "NULL",
+    display_phone: "NULL",
+    rating: "0.0",
+    image_url:
+      "https://cdn1.vectorstock.com/i/1000x1000/31/20/image-error-icon-editable-outline-vector-30393120.jpg",
+  });
+  const [yelpData, setYelpData] = useState<barMenuInfo[]>([]);
+
+
+  const handleCloseout = () => {
+    setOffCanvas(false);
+  };
 
   const getGeoloaction = async () => {
     if (navigator.geolocation) {
@@ -66,6 +86,7 @@ const MapView = () => {
         const res = response.json();
         var newMarkers: marker[] = [];
         res.then((bars) => {
+          setYelpData(bars.businesses);
           bars.businesses.forEach((barObj: any) => {
             const newMarker = {
               position: {
@@ -105,6 +126,19 @@ const MapView = () => {
 
   return (
     <div style={mapStyle}>
+      <Offcanvas show={offCanvas} onHide={handleCloseout}>
+        <Offcanvas.Header closeButton>
+          <Offcanvas.Title>{barInfo.name}</Offcanvas.Title>
+        </Offcanvas.Header>
+        <Offcanvas.Body>
+          <p>Rating: {String(barInfo.rating)}</p>
+          <p>Phone: {barInfo.display_phone}</p>
+          <p>Description: </p>
+          This is some place holder text for now where we will have the bar info
+          pop up
+          <img src={barInfo.image_url}></img>
+        </Offcanvas.Body>
+      </Offcanvas>
       {isLoaded ? (
         <GoogleMap
           mapContainerStyle={mapStyle}
@@ -132,6 +166,17 @@ const MapView = () => {
                   key={index}
                   position={marker.position}
                   label={marker.lable}
+                  onClick={() => {
+                    const index = 0
+                    setBarInfo({
+                      name: yelpData[index].name,
+                      display_phone: yelpData[index].display_phone,
+                      image_url: yelpData[index].image_url,
+                      rating: String(yelpData[index].rating)
+                    });
+                    setOffCanvas(true);
+                    console.log(yelpData);
+                  }}
                 />
               ))
             : null}
