@@ -2,7 +2,7 @@ import { GoogleMap, MarkerF, useLoadScript } from "@react-google-maps/api";
 import { useEffect, useState } from "react";
 import Error from "../components/Error";
 import visibleStyle from "../styles/mapstyle";
-import { Offcanvas } from "react-bootstrap";
+import { Offcanvas, Image } from "react-bootstrap";
 
 interface LngLat {
   lat: number;
@@ -39,6 +39,14 @@ const MapView = () => {
   });
   const [yelpData, setYelpData] = useState<barMenuInfo[]>([]);
 
+  const getIndex = (target: string): number => {
+    for (let index = 0; index < yelpData.length; index++) {
+      if (target == yelpData[index].name) {
+        return index;
+      }
+    }
+    return 0;
+  };
 
   const handleCloseout = () => {
     setOffCanvas(false);
@@ -136,7 +144,8 @@ const MapView = () => {
           <p>Description: </p>
           This is some place holder text for now where we will have the bar info
           pop up
-          <img src={barInfo.image_url}></img>
+          {/* <img src={barInfo.image_url}></img> */}
+          <Image src={barInfo.image_url} fluid></Image>
         </Offcanvas.Body>
       </Offcanvas>
       {isLoaded ? (
@@ -167,12 +176,12 @@ const MapView = () => {
                   position={marker.position}
                   label={marker.lable}
                   onClick={() => {
-                    const index = 0
+                    const index = getIndex(marker.lable);
                     setBarInfo({
                       name: yelpData[index].name,
                       display_phone: yelpData[index].display_phone,
                       image_url: yelpData[index].image_url,
-                      rating: String(yelpData[index].rating)
+                      rating: String(yelpData[index].rating),
                     });
                     setOffCanvas(true);
                     console.log(yelpData);
