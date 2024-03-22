@@ -7,6 +7,7 @@ import Logo from "../assets/Bar-Spot-Translucent-Logo.png";
 import NavBadge from "./NavBadge";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.min.js";
+import "../styles/NavBar.css"
 
 const NavBar = () => {
   const isLoggedIn: boolean = useSelector((state: Rootstate) => state.user.isLoggedIn);
@@ -68,7 +69,7 @@ const NavBar = () => {
               </Modal.Body>
               <Modal.Footer className="justify-content-center">
                 <div>
-                  <button className="btn btn-primary" onClick={() => setShow(false)}>
+                  <button className="btn btn-primary close-btn" onClick={() => setShow(false)}>
                     Close
                   </button>
                 </div>
