@@ -14,8 +14,10 @@ const NavBar = () => {
   const userId: number = useSelector((state: Rootstate) => state.user.userId);
   const [invitation, setInvites] = useState<Number>(0);
   const [show, setShow] = useState<boolean>(false);
-  const [createView, setCreateView] = useState<boolean>(false);
-  const [groupName, setGroupName] = useState<string>("");
+  const [createView, setCreateView] = useState<boolean>(false);// for switching views
+  const [groupName, setGroupName] = useState<string>("");// for group name
+  const [allOtherUsers, setAllOtherUsers] = useState<Array<Object>>([]);// for fetching all users
+  const [invitedMembers, setInvitedMembers] = useState<Array<object>>([]);// for storing invited members
 
   const handleGroupCreationSubmit = async (event: any) => {
     event.preventDefault();
@@ -26,45 +28,128 @@ const NavBar = () => {
     console.log(groupName);
 
     const test: Array<string> = [];
-    await createGroup(groupName, test);
+    await createGroup(groupName, invitedMembers);
   };
 
-  const createGroup = async (name: string, invitedUsers: Array<string>) => {
+  const createGroup = async (name: string, invitedUsers: Array<any>) => {
     try {
       if (!userId || userId < 1) {
         console.log("UserId not found");
         return;
       };
 
-      if (invitedUsers.length === 0) {
-        const options: object = {
-          method: 'POST',
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            userId: userId,
-            name: name
-          })
-        }
-
-        const response: Response = await fetch('http://localhost:3001/party/create', options);
-
-        if (!response.ok) {
-          const error: any = await response.json();
-          console.log(`Response was not okay with error: ${error}`);
-          return;
-        }
-
-        const res = await response.json();
-        console.log(res);
+      /*Create group*/
+      const options: object = {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          userId: userId,
+          name: name
+        })
       };
-      /*Else would have to add the user to the group*/
+
+      const response: Response = await fetch('http://localhost:3001/party/create', options);
+
+      if (!response.ok) {
+        const error: any = await response.json();
+        console.log(`Response was not okay with error: ${error}`);
+        return;
+      }
+
+      const group = await response.json();
+      console.log(group);
+
+      if (invitedUsers.length > 0) {
+        /*If there are members, invite each of them*/
+        for (let i = 0; i < invitedUsers.length; i++) {
+          /*Invite each member*/
+          const options: object = {
+            method: 'POST',
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              userId: invitedUsers[i].id,
+              groupId: group.groupId
+            })
+          };
+
+          const response: Response = await fetch('http://localhost:3001/party/invite', options);
+
+          if (!response.ok) {
+            const error: any = await response.json();
+            console.log(`Response was not okay with error: ${error}`);
+            return;
+          }
+
+          const res = await response.json();
+          console.log(`${res}, added multiple people to group`);
+        }
+      }
     }
     catch (error: any) {
       console.log(`Failed to fetch group API with error: ${error}`)
     };
   };
+
+  const fetchAllOtherUsers = async () => {
+    try {
+      if (!userId || userId < 1) {
+        console.log("UserId not found");
+        return;
+      };
+
+      const options: object = {
+        method: 'GET',
+        headers: {
+          "Content-Type": "application/json"
+        }
+      };
+
+      const response: Response = await fetch(`http://localhost:3001/user/all/${userId}`, options);
+
+      if (!response.ok) {
+        const res: any = await response.json();
+        console.log(`Response was not okay with message: ${res}`);
+        return;
+      };
+
+      const res: any = await response.json();
+      setAllOtherUsers(res.users_list);
+      return;
+    }
+    catch (error: any) {
+      console.log(`Error failed to get other users with error: ${error}`);
+    };
+  };
+
+  const handleUserSelect = (e: any) => {
+    if (!e.target.value || e.target.value === 'Select users to invite') {
+      return;
+    };
+
+    const userInfo: Array<string> = (e.target.value).split(':');
+    const userId = parseInt(userInfo[0]);
+
+    // Check if the user is already in invitedMembers
+    const isAlreadyInvited = invitedMembers.some((user: any) => user.id === userId);
+
+    // Find the user in allOtherUsers
+    const user = allOtherUsers.find((user: any) => user.id === userId);
+
+    if (user) {
+      if (isAlreadyInvited) {
+        // Remove the user from invitedMembers
+        setInvitedMembers(invitedMembers.filter((user: any) => user.id !== userId));
+      } else {
+        // Add the user to invitedMembers
+        setInvitedMembers([...invitedMembers, user]);
+      }
+    };
+  };
+
 
   return (
     <Navbar expand="md" className="bg-secondary-subtle">
@@ -145,12 +230,25 @@ const NavBar = () => {
                     </div>
                     <div className="form-group pb-3">
                       <label className="pb-1">Add Some People</label>
-                      <Form.Select>
-                        <option selected>Select users to invite</option>
-                        <option value="1">One</option>
-                        <option value="2">Two</option>
-                        <option value="3">Three</option>
+                      <Form.Select onClick={fetchAllOtherUsers} onChange={handleUserSelect}>
+                        <option>Select users to invite</option>
+                        {allOtherUsers && allOtherUsers.length > 0 ? (
+                          allOtherUsers.map((user: any, index) => (
+                            <option key={user.id} value={`${user.id}:${user.username}`}>{user.username}</option>
+                          ))
+                        ) : (
+                          null
+                        )}
                       </Form.Select>
+                    </div>
+                    <div className="group-members pb-4">
+                      <label className="pb-1">Selected members</label>
+                      <input
+                        className="form-control"
+                        type="text"
+                        value={invitedMembers.map((user: any) => user.username).join(', ')}
+                        readOnly
+                      />
                     </div>
                     <button type="submit" className="btn btn-primary">Submit</button>
                   </form>
