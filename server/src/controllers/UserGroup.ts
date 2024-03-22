@@ -16,6 +16,18 @@ const createUserGroup = async (req: Request, res: Response): Promise<Response> =
     };
 
     try {
+        /*Need to check if user exisits*/
+        const foundUser = await User.findOne({
+            where: {
+                id: userId
+            }
+        });
+
+        if(!foundUser){
+            res.status(400);
+            return res.json({error: 'User does not exisit'});
+        };
+
         const group: any = await Group.create({
             name: name
         });
