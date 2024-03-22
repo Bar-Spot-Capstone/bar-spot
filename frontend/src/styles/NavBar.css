@@ -1,3 +1,7 @@
-.close-btn{
+.close-btn {
     width: 16rem;
+}
+
+.btn-transition {
+    width: 6rem;
 }
