@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Rootstate } from "../state/store";
-import { Button, NavDropdown, Modal, Container, Navbar, Badge, Form } from "react-bootstrap";
+import { createGroup } from "./Group";
 import { useState } from "react";
+import { Button, NavDropdown, Modal, Container, Navbar, Badge, Form } from "react-bootstrap";
 import Logo from "../assets/Bar-Spot-Translucent-Logo.png";
 import NavBadge from "./NavBadge";
 import "bootstrap/dist/css/bootstrap.css";
@@ -14,84 +15,19 @@ const NavBar = () => {
   const userId: number = useSelector((state: Rootstate) => state.user.userId);
   const [invitation, setInvites] = useState<Number>(0);
   const [show, setShow] = useState<boolean>(false);
-  const [createView, setCreateView] = useState<boolean>(false);// for switching views
+  const [creationView, setCreateView] = useState<boolean>(false);// for switching views
   const [groupName, setGroupName] = useState<string>("");// for group name
-  const [allOtherUsers, setAllOtherUsers] = useState<Array<Object>>([]);// for fetching all users
+  const [usersList, setUsersList] = useState<Array<Object>>([]);// for fetching all users
   const [invitedMembers, setInvitedMembers] = useState<Array<object>>([]);// for storing invited members
 
   const handleGroupCreationSubmit = async (event: any) => {
+    /*Creates group based on input name and possible invited members*/
     event.preventDefault();
     if (!groupName) {
       alert('No group name');
       return;
     };
-    console.log(groupName);
-
-    const test: Array<string> = [];
-    await createGroup(groupName, invitedMembers);
-  };
-
-  const createGroup = async (name: string, invitedUsers: Array<any>) => {
-    try {
-      if (!userId || userId < 1) {
-        console.log("UserId not found");
-        return;
-      };
-
-      /*Create group*/
-      const options: object = {
-        method: 'POST',
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          userId: userId,
-          name: name
-        })
-      };
-
-      const response: Response = await fetch('http://localhost:3001/party/create', options);
-
-      if (!response.ok) {
-        const error: any = await response.json();
-        console.log(`Response was not okay with error: ${error}`);
-        return;
-      }
-
-      const group = await response.json();
-      console.log(group);
-
-      if (invitedUsers.length > 0) {
-        /*If there are members, invite each of them*/
-        for (let i = 0; i < invitedUsers.length; i++) {
-          /*Invite each member*/
-          const options: object = {
-            method: 'POST',
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              userId: invitedUsers[i].id,
-              groupId: group.groupId
-            })
-          };
-
-          const response: Response = await fetch('http://localhost:3001/party/invite', options);
-
-          if (!response.ok) {
-            const error: any = await response.json();
-            console.log(`Response was not okay with error: ${error}`);
-            return;
-          }
-
-          const res = await response.json();
-          console.log(`${res}, added multiple people to group`);
-        }
-      }
-    }
-    catch (error: any) {
-      console.log(`Failed to fetch group API with error: ${error}`)
-    };
+    await createGroup(groupName, invitedMembers, userId);
   };
 
   const fetchAllOtherUsers = async () => {
@@ -117,7 +53,7 @@ const NavBar = () => {
       };
 
       const res: any = await response.json();
-      setAllOtherUsers(res.users_list);
+      setUsersList(res.users_list);
       return;
     }
     catch (error: any) {
@@ -125,19 +61,19 @@ const NavBar = () => {
     };
   };
 
-  const handleUserSelect = (e: any) => {
-    if (!e.target.value || e.target.value === 'Select users to invite') {
+  const handleUserSelect = (event: any) => {
+    if (!event.target.value || event.target.value === 'Select users to invite') {
       return;
     };
 
-    const userInfo: Array<string> = (e.target.value).split(':');
+    const userInfo: Array<string> = (event.target.value).split(':');
     const userId = parseInt(userInfo[0]);
 
     // Check if the user is already in invitedMembers
     const isAlreadyInvited = invitedMembers.some((user: any) => user.id === userId);
 
-    // Find the user in allOtherUsers
-    const user = allOtherUsers.find((user: any) => user.id === userId);
+    // Find the user in usersList
+    const user = usersList.find((user: any) => user.id === userId);
 
     if (user) {
       if (isAlreadyInvited) {
@@ -149,7 +85,6 @@ const NavBar = () => {
       }
     };
   };
-
 
   return (
     <Navbar expand="md" className="bg-secondary-subtle">
@@ -165,7 +100,6 @@ const NavBar = () => {
             />
           </Navbar.Brand>
         </Link>
-
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse className="justify-content-end me-3">
           <NavDropdown
@@ -173,7 +107,6 @@ const NavBar = () => {
             id="basic-nav-dropdown"
             className="me-3"
           >
-
             <NavDropdown.Divider />
             <Link to="/profile">
               <Button variant="link">Profile</Button>
@@ -183,23 +116,18 @@ const NavBar = () => {
             <h6 className="m-1" onClick={() => setShow(true)}>
               Group
             </h6>
-
+            {/*Model for group options*/}
             <Modal show={show} onHide={() => setShow(false)}>
               <Modal.Header closeButton>
                 <Modal.Title>Group Options</Modal.Title>
               </Modal.Header>
-              <Modal.Body className="d-flex justify-content-around">
+              <Modal.Body className="d-flex justify-content-center gap-5">
                 <div>
                   <button className="btn btn-primary" onClick={() => {
                     setShow(!show);
-                    setCreateView(!createView);
+                    setCreateView(!creationView);
                   }}>
                     Create
-                  </button>
-                </div>
-                <div>
-                  <button className="btn btn-primary" onClick={() => setShow(false)}>
-                    Join
                   </button>
                 </div>
                 <div>
@@ -216,13 +144,14 @@ const NavBar = () => {
                 </div>
               </Modal.Footer>
             </Modal>
-
-            <Modal show={createView} onHide={() => setCreateView(false)}>
+            {/*Model for group creation*/}
+            <Modal show={creationView} onHide={() => setCreateView(false)}>
               <Modal.Header closeButton>
                 <Modal.Title>Create Group</Modal.Title>
               </Modal.Header>
-              <Modal.Body className="d-flex justify-content-around">
+              <Modal.Body className="d-flex">
                 <div className="container-fluid">
+                  {/*Options for group creation read-in as a form*/}
                   <form className="d-flex flex-column" onSubmit={handleGroupCreationSubmit}>
                     <div className="form-group pb-4">
                       <label className="pb-1">Group name</label>
@@ -232,8 +161,8 @@ const NavBar = () => {
                       <label className="pb-1">Add Some People</label>
                       <Form.Select onClick={fetchAllOtherUsers} onChange={handleUserSelect}>
                         <option>Select users to invite</option>
-                        {allOtherUsers && allOtherUsers.length > 0 ? (
-                          allOtherUsers.map((user: any, index) => (
+                        {usersList && usersList.length > 0 ? (
+                          usersList.map((user: any, index) => (
                             <option key={user.id} value={`${user.id}:${user.username}`}>{user.username}</option>
                           ))
                         ) : (
@@ -256,20 +185,17 @@ const NavBar = () => {
               </Modal.Body>
               <Modal.Footer className="justify-content-center">
                 <div className="me-5">
-                  <button className="btn btn-primary btn-transition" onClick={() => { setCreateView(false); setShow(true); }}>
+                  <button className="btn btn-primary btn-transition" onClick={() => { setCreateView(!creationView); setShow(!show); }}>
                     Back
                   </button>
                 </div>
                 <div>
-                  <button className="btn btn-primary btn-transition" onClick={() => setCreateView(false)}>
+                  <button className="btn btn-primary btn-transition" onClick={() => setCreateView(!creationView)}>
                     Cancel
                   </button>
                 </div>
               </Modal.Footer>
             </Modal>
-
-
-
           </NavDropdown>
           <NavBadge isLoggedIn={isLoggedIn} />
         </Navbar.Collapse>
