@@ -3,14 +3,14 @@ import User from "../models/Users";
 import Group from "../models/Group";
 import { inviteUser, createUserGroup, getMembers, deleteParty, removeMember } from "../controllers/UserGroup";
 
-// Mock Group.create and findOne
+// Mock Group.create, findOne, and destroy
 jest.mock('../models/Group', (): any => ({
     create: jest.fn(),
     findOne: jest.fn(), //to mock the findOne function
     destroy: jest.fn() //to mock the findAll function
 }));
 
-// Mock UserGroup.create and findOne
+// Mock UserGroup.create, findOne, findAll, and destroy
 jest.mock('../models/UserGroup', (): any => ({
     create: jest.fn(),
     findOne: jest.fn(), //to mock the findOne function
@@ -283,7 +283,6 @@ describe('On invaild get all party members input', (): void => {
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({ error: "No such group exist" });
     });
-
 });
 
 describe('On vaild get all party members input', (): void => {

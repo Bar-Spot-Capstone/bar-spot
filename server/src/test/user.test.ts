@@ -1,14 +1,20 @@
 import bcrypt from "bcrypt"
 import User from "../models/Users";
 import UserGroup from "../models/UserGroup";
+import Preferences from "../models/Preferences";
 import { userRegister, userLogin, deleteUser } from "../controllers/User";
 import { UniqueConstraintError as SequelizeUniqueConstraintError } from 'sequelize';
 
-// Mock User.create
+// Mock User
 jest.mock('../models/Users', (): any => ({
     create: jest.fn(),
     findOne: jest.fn(), //to mock the findOne function
     destroy: jest.fn()
+}));
+
+// Mock Preferences.create
+jest.mock('../models/Preferences', (): any => ({
+    create: jest.fn()
 }));
 
 // Mock UserGroup.create and findOne
@@ -96,6 +102,7 @@ describe('On successful user registeration', (): void => {
         };
 
         (User as any).create.mockResolvedValue(true);
+        (Preferences as any).create.mockResolvedValue(true);
         await userRegister(req, res);
         expect(res.status).toHaveBeenCalledWith(200);
         expect(bcrypt.hash).toHaveBeenCalledWith(req.body.password, 10);// Expect bcrypt.hash to be called with the provided password

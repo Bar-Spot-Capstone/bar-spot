@@ -2,6 +2,7 @@ import User from "../models/Users";
 import bcrypt from "bcrypt"
 import { Request, Response } from "express";
 import UserGroup from "../models/UserGroup";
+import Preferences from "../models/Preferences";
 
 const userRegister = async (req: Request, res: Response): Promise<Response> => {
     const { username, password, email }: { username: string, password: string, email: string } = req.body;
@@ -16,13 +17,23 @@ const userRegister = async (req: Request, res: Response): Promise<Response> => {
         return res.json({ error: "Failed to register username and password cannot be the same" });
     };
 
+    let newUser;
+
     const hashedPassword: string = await bcrypt.hash(password, 10);
 
     try {
-        await User.create({
+        newUser = await User.create({
             username: username,
             password: hashedPassword,
             email: email
+        });
+
+        // Create preferences entry for the new user
+        await Preferences.create({
+            userId: newUser.id,
+            timerSetting: 60,
+            shareLocation: true,
+            shareVisitedBars: true
         });
 
         res.status(200)
