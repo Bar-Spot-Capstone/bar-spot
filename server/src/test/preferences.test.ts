@@ -90,7 +90,7 @@ describe('On invaild setLocationShare', () => {
         (User as any).findOne.mockResolvedValueOnce(true);
         (Preferences as any).findOne.mockResolvedValueOnce(false);
     
-        await setVisitedShare(req, res);
+        await setLocationShare(req, res);
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({ error: "Preferences entry not found for the user" });
     });
@@ -253,7 +253,7 @@ describe('On succesful setVisitedShare', () => {
             shareVisitedBars: true 
         });
 
-        await setLocationShare(req, res);
+        await setVisitedShare(req, res);
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({ success: "Share Visited Bars changed to false"});
     });
