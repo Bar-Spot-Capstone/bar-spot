@@ -7,7 +7,7 @@ const setLocationShare = async (req: Request, res: Response): Promise<Response> 
 
     // Check which params are missing
     var handleEmpty: string = ''
-    handleEmpty = !userId ? 'userId' : '' || !shareLocation ? 'shareLocation' : ''; //find missing parm
+    handleEmpty = !userId ? 'userId' : '' || !shareLocation && shareLocation !== false ? 'shareLocation' : ''; //find missing parm
 
     if (handleEmpty) {
         res.status(400);
@@ -61,7 +61,7 @@ const setVisitedShare = async (req: Request, res: Response): Promise<Response> =
 
     // Check which params are missing
     var handleEmpty: string = ''
-    handleEmpty = !userId ? 'userId' : '' || !shareVisitedBars ? 'shareVisitedBars' : ''; //find missing parm
+    handleEmpty = !userId ? 'userId' : '' || !shareVisitedBars && shareVisitedBars !== false? 'shareVisitedBars' : ''; //find missing parm
 
     if (handleEmpty) {
         res.status(400);
@@ -90,7 +90,7 @@ const setVisitedShare = async (req: Request, res: Response): Promise<Response> =
         // Check if shareVisitedBars is already set to the desired value
         const existingPreferences = await Preferences.findOne({ where: { userId: userId } });
 
-        if (existingPreferences && existingPreferences.shareLocation === shareVisitedBars) {
+        if (existingPreferences && existingPreferences.shareVisitedBars === shareVisitedBars) {
             res.status(200);
             return res.json({ success: `Share Visited Bars is already set to ${shareVisitedBars}` });
         }
@@ -114,7 +114,7 @@ const setTimerSetting = async (req: Request, res: Response): Promise<Response> =
     const { userId, timerSetting }: { userId: string, timerSetting: number } = req.body;
 
     // Check which params are missing
-    const handleEmpty: string = !userId ? 'userId' : !timerSetting ? 'timerSetting' : '';
+    const handleEmpty: string = !userId ? 'userId' : timerSetting === undefined? 'timerSetting' : '';
 
     if (handleEmpty) {
         res.status(400);
@@ -134,7 +134,7 @@ const setTimerSetting = async (req: Request, res: Response): Promise<Response> =
     // Check if timerSetting is not a number or is not within the valid range
     if (typeof timerSetting !== 'number' || timerSetting < 1 || timerSetting >= Number.MAX_SAFE_INTEGER) {
         res.status(400);
-        return res.json({ error: 'Failed to change timer setting, timerSetting must be a number between 1 and Max Safe Int' });
+        return res.json({ error: 'Failed to change timer setting, timerSetting must be a number between 1 and Max_Safe_Int' });
     }
 
     try {
