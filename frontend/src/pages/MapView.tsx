@@ -144,7 +144,7 @@ const MapView = () => {
           <p>Description: </p>
           This is some place holder text for now where we will have the bar info
           pop up
-          {/* <img src={barInfo.image_url}></img> */}
+          
           <Image src={barInfo.image_url} fluid></Image>
         </Offcanvas.Body>
       </Offcanvas>
@@ -152,7 +152,7 @@ const MapView = () => {
         <GoogleMap
           mapContainerStyle={mapStyle}
           center={userGeo}
-          zoom={17}
+          zoom={16}
           options={{
             streetViewControl: false,
             disableDefaultUI: true,
@@ -184,7 +184,7 @@ const MapView = () => {
                       rating: String(yelpData[index].rating),
                     });
                     setOffCanvas(true);
-                    console.log(yelpData);
+                  
                   }}
                 />
               ))
