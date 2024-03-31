@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Rootstate } from "../state/store";
-import { createGroup } from "./Group";
+import { createGroup } from "./Group"; //imported from Group.tsx
 import { useState } from "react";
 import { Button, NavDropdown, Modal, Container, Navbar, Badge, Form } from "react-bootstrap";
+import { MdCheckCircle } from "react-icons/md";
+import { MdCancel } from "react-icons/md";
 import Logo from "../assets/Bar-Spot-Translucent-Logo.png";
 import NavBadge from "./NavBadge";
 import "bootstrap/dist/css/bootstrap.css";
@@ -14,6 +16,7 @@ const NavBar = () => {
   const isLoggedIn: boolean = useSelector((state: Rootstate) => state.user.isLoggedIn);
   const userId: number = useSelector((state: Rootstate) => state.user.userId);
   const [invitation, setInvites] = useState<Number>(0);
+  const [inviteShow, setInviteShow] = useState<boolean>(false);
   const [show, setShow] = useState<boolean>(false);
   const [creationView, setCreateView] = useState<boolean>(false);// for switching views
   const [groupName, setGroupName] = useState<string>("");// for group name
@@ -109,11 +112,11 @@ const NavBar = () => {
           >
             <NavDropdown.Divider />
             <Link to="/profile">
-              <Button variant="link">Profile</Button>
+              <h6 className="m-1">Profile</h6>
             </Link>
 
             <NavDropdown.Divider />
-            <h6 className="m-1" onClick={() => setShow(true)}>
+            <h6 className="m-1" onClick={() => setShow(true)} style={{ cursor: "pointer" }}>
               Group
             </h6>
             {/*Model for group options*/}
@@ -131,7 +134,7 @@ const NavBar = () => {
                   </button>
                 </div>
                 <div>
-                  <button className="btn btn-primary" onClick={() => setInvites(invitation + 1)}>
+                  <button className="btn btn-primary" onClick={() => { setShow(!show); setInviteShow(!inviteShow); }}>
                     Invites <Badge bg="danger">{invitation}</Badge>
                   </button>
                 </div>
@@ -144,6 +147,7 @@ const NavBar = () => {
                 </div>
               </Modal.Footer>
             </Modal>
+
             {/*Model for group creation*/}
             <Modal show={creationView} onHide={() => setCreateView(false)}>
               <Modal.Header closeButton>
@@ -196,6 +200,52 @@ const NavBar = () => {
                 </div>
               </Modal.Footer>
             </Modal>
+            {/*Model for invitation page*/}
+            <Modal show={inviteShow} onHide={() => setInviteShow(false)}>
+              <Modal.Header closeButton>
+                <Modal.Title>Invitations</Modal.Title>
+              </Modal.Header>
+              <Modal.Body className="d-flex">
+                <div className="container-fluid">
+                  <div className="row">
+                    <table className="table col-12 table-responsive table-hover table-sm mb-4">
+                      <thead>
+                        <tr className="table-primary">
+                          <th scope="col">Name</th>
+                          <th scope="col">Owner</th>
+                          <th scope="col"># Members</th>
+                          <th scope="col">Confirm</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>Wildest Group</td>
+                          <td>Mark</td>
+                          <td>100</td>
+                          <td className="d-flex justify-content-evenly">
+                            <button type="button" className="btn btn-success btn-sm"><MdCheckCircle /></button>
+                            <button type="button" className="btn btn-danger btn-sm"><MdCancel /></button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </Modal.Body>
+              <Modal.Footer className="justify-content-center">
+                <div className="me-5">
+                  <button className="btn btn-primary btn-transition" onClick={() => { setInviteShow(!inviteShow); setShow(!show); }}>
+                    Back
+                  </button>
+                </div>
+                <div>
+                  <button className="btn btn-primary btn-transition" onClick={() => setInviteShow(!inviteShow)}>
+                    Cancel
+                  </button>
+                </div>
+              </Modal.Footer>
+            </Modal>
+
           </NavDropdown>
           <NavBadge isLoggedIn={isLoggedIn} />
         </Navbar.Collapse>
