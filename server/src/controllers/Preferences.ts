@@ -132,7 +132,7 @@ const setTimerSetting = async (req: Request, res: Response): Promise<Response> =
     }
 
     // Check if timerSetting is not a number or is not within the valid range
-    if (typeof timerSetting !== 'number' || timerSetting < 1 || timerSetting >= Number.MAX_SAFE_INTEGER) {
+    if (isNaN(timerSetting) || timerSetting < 1 || timerSetting >= Number.MAX_SAFE_INTEGER) {
         res.status(400);
         return res.json({ error: 'Failed to change timer setting, timerSetting must be a number between 1 and Max_Safe_Int' });
     }

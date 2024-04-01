@@ -286,6 +286,8 @@ describe('On invaild setTimerSetting', () => {
             }
         };
 
+        (User as any).findOne.mockResolvedValueOnce(true);
+
         await setTimerSetting(req, res);
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({ error: "Failed to change timer setting, missing field: timerSetting" });
@@ -306,11 +308,11 @@ describe('On invaild setTimerSetting', () => {
         expect(res.json).toHaveBeenCalledWith({ error: "User not found" });
     });
 
-    it("should return a status code of 400 and error if timerSetting is not a number between 1 and 180", async (): Promise<void> => {
+    it("should return a status code of 400 and error if timerSetting is not a number between 1 and Max_Safe_Int", async (): Promise<void> => {
         const req: any = {
             body: {
                 userId: Number.MAX_SAFE_INTEGER,
-                timerSetting: 300
+                timerSetting: -5
             }
         };
 
@@ -318,7 +320,7 @@ describe('On invaild setTimerSetting', () => {
 
         await setTimerSetting(req, res);
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({ error: "Failed to change timer setting, timerSetting must be a number between 1 and 180" });
+        expect(res.json).toHaveBeenCalledWith({ error: "Failed to change timer setting, timerSetting must be a number between 1 and Max_Safe_Int" });
     });
 
     it("should return a status code of 400 and error if preferences entry not found for the user", async (): Promise<void> => {
