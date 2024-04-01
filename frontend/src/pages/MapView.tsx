@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import Error from "../components/Error";
 import visibleStyle from "../styles/mapstyle";
 import { Offcanvas, Image } from "react-bootstrap";
+import QuickInfo from "../components/QuickInfo";
+import "../styles/QuickInfo.css";
 
 interface LngLat {
   lat: number;
@@ -16,6 +18,9 @@ interface barMenuInfo {
   name: string;
   display_phone: string;
   rating: string;
+  location: {
+    address1: string;
+  };
   image_url: string;
 }
 
@@ -30,10 +35,14 @@ const MapView = () => {
   const [showMarkers, setShowMarkers] = useState<boolean>(false);
   const [userMarker, setUserMarker] = useState<marker>();
   const [offCanvas, setOffCanvas] = useState<boolean>(false);
+
   const [barInfo, setBarInfo] = useState<barMenuInfo>({
     name: "NULL",
     display_phone: "NULL",
     rating: "0.0",
+    location: {
+      address1: "NULL",
+    },
     image_url:
       "https://cdn1.vectorstock.com/i/1000x1000/31/20/image-error-icon-editable-outline-vector-30393120.jpg",
   });
@@ -125,6 +134,11 @@ const MapView = () => {
     width: "100%",
   };
 
+  const infostyle = {
+    height: "100vh",
+    width: "30%",
+  };
+
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_API_KEY,
   });
@@ -133,66 +147,82 @@ const MapView = () => {
   //provided by using https://mapstyle.withgoogle.com
 
   return (
-    <div style={mapStyle}>
-      <Offcanvas show={offCanvas} onHide={handleCloseout}>
-        <Offcanvas.Header closeButton>
-          <Offcanvas.Title>{barInfo.name}</Offcanvas.Title>
-        </Offcanvas.Header>
-        <Offcanvas.Body>
-          <p>Rating: {String(barInfo.rating)}</p>
-          <p>Phone: {barInfo.display_phone}</p>
-          <p>Description: </p>
-          This is some place holder text for now where we will have the bar info
-          pop up
-          
-          <Image src={barInfo.image_url} fluid></Image>
-        </Offcanvas.Body>
-      </Offcanvas>
-      {isLoaded ? (
-        <GoogleMap
-          mapContainerStyle={mapStyle}
-          center={userGeo}
-          zoom={16}
-          options={{
-            streetViewControl: false,
-            disableDefaultUI: true,
-            clickableIcons: true,
-            mapTypeControl: false,
-
-            styles: visibleStyle,
-          }}
-        >
-          {/* Render Markers */}
-          {showMarkers ? (
-            <MarkerF
-              position={userMarker?.position || { lat: 40.7678, lng: 73.9645 }} //either it finds a users position or it will default on hunter
-              label={userMarker?.lable}
-            ></MarkerF>
-          ) : null}
-          {showMarkers
-            ? markers.map((marker, index) => (
-                <MarkerF
-                  key={index}
-                  position={marker.position}
-                  label={marker.lable}
-                  onClick={() => {
-                    const index = getIndex(marker.lable);
-                    setBarInfo({
-                      name: yelpData[index].name,
-                      display_phone: yelpData[index].display_phone,
-                      image_url: yelpData[index].image_url,
-                      rating: String(yelpData[index].rating),
-                    });
-                    setOffCanvas(true);
-                  
-                  }}
-                />
-              ))
-            : null}
-        </GoogleMap>
+    <div className="d-flex ">
+      {/* {isLoaded ? (
+        <div style={infostyle}>
+          <QuickInfo lat={userGeo.lat} lng={userGeo.lng} />
+        </div>
       ) : (
-        <Error />
-      )}
+        <p>There was an error loading the Yelp requests</p>
+      )} */}
+      <div style={infostyle} id="infoHolder">
+          <QuickInfo lat={userGeo.lat} lng={userGeo.lng} />
+        </div>
+      <div style={mapStyle}>
+        <Offcanvas show={offCanvas} onHide={handleCloseout}>
+          <Offcanvas.Header closeButton>
+            <Offcanvas.Title>{barInfo.name}</Offcanvas.Title>
+          </Offcanvas.Header>
+          <Offcanvas.Body>
+            <p>Rating: {String(barInfo.rating)}</p>
+            <p>Phone: {barInfo.display_phone}</p>
+            <p>Description: </p>
+            This is some place holder text for now where we will have the bar
+            info pop up
+            <Image src={barInfo.image_url} fluid></Image>
+          </Offcanvas.Body>
+        </Offcanvas>
+
+        {isLoaded ? (
+          <GoogleMap
+            mapContainerStyle={mapStyle}
+            center={userGeo}
+            zoom={16}
+            options={{
+              streetViewControl: false,
+              disableDefaultUI: true,
+              clickableIcons: true,
+              mapTypeControl: false,
+
+              styles: visibleStyle,
+            }}
+          >
+            {/* Render Markers */}
+            {showMarkers ? (
+              <MarkerF
+                position={
+                  userMarker?.position || { lat: 40.7678, lng: 73.9645 }
+                } //either it finds a users position or it will default on hunter
+                label={userMarker?.lable}
+              ></MarkerF>
+            ) : null}
+            {showMarkers
+              ? markers.map((marker, index) => (
+                  <MarkerF
+                    key={index}
+                    position={marker.position}
+                    label={marker.lable}
+                    onClick={() => {
+                      const index = getIndex(marker.lable);
+                      setBarInfo({
+                        name: yelpData[index].name,
+                        display_phone: yelpData[index].display_phone,
+                        image_url: yelpData[index].image_url,
+                        rating: String(yelpData[index].rating),
+                        location: {
+                          address1: yelpData[index].location.address1,
+                        },
+                      });
+                      setOffCanvas(true);
+                    }}
+                  />
+                ))
+              : null}
+          </GoogleMap>
+        ) : (
+          <Error />
+        )}
+      </div>
     </div>
   );
 };
