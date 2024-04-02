@@ -1,7 +1,7 @@
 import Visited from "../models/Visited";
 import { getAllVisited, newVisited } from "../controllers/Visited";
 
-//Create mock request
+// Mock Visited.create and findAll
 jest.mock("../models/Visited", (): any => ({
   create: jest.fn(),
   findAll: jest.fn(),

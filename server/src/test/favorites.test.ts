@@ -2,7 +2,7 @@ import Favorites from "../models/Favorites";
 import User from "../models/Users";
 import { addFavorite, getFavorites, deleteFavorite, clearFavorites } from "../controllers/Favorites";
 
-// Mock Favorites.create
+// Mock Favorites.create, findOne, findAll, and destroy
 jest.mock('../models/Favorites', (): any => ({
     create: jest.fn(),
     findOne: jest.fn(),
@@ -10,7 +10,7 @@ jest.mock('../models/Favorites', (): any => ({
     destroy: jest.fn()
 }));
 
-// Mock User.create
+// Mock User.findOne
 jest.mock('../models/Users', (): any => ({
     findOne: jest.fn(),
 }));

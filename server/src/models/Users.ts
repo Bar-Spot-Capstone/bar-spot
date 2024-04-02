@@ -1,6 +1,5 @@
 import { DataTypes, Model } from 'sequelize';
 import sequelize from '../config/connection';
-import Favorites from './Favorites';
 
 // Define the User model
 class User extends Model {
