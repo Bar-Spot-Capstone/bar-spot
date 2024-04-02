@@ -114,7 +114,7 @@ const setTimerSetting = async (req: Request, res: Response): Promise<Response> =
     const { userId, timerSetting }: { userId: string, timerSetting: number } = req.body;
 
     // Check which params are missing
-    const handleEmpty: string = !userId ? 'userId' : timerSetting === undefined? 'timerSetting' : '';
+    const handleEmpty: string = !userId ? 'userId' : timerSetting === undefined ? 'timerSetting' : '';
 
     if (handleEmpty) {
         res.status(400);
@@ -189,7 +189,7 @@ const getPreferences = async (req: Request, res: Response) => {
 
         if (!preferences) {
             res.status(400);
-            return res.json({ error: "Preferences not found for the user" });
+            return res.json({ error: "Preferences entry not found for the user" });
         }
         
         res.status(200);

@@ -322,22 +322,6 @@ describe('On invaild setTimerSetting', () => {
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({ error: "Failed to change timer setting, timerSetting must be a number between 1 and Max_Safe_Int" });
     });
-
-    it("should return a status code of 400 and error if preferences entry not found for the user", async (): Promise<void> => {
-        const req: any = {
-            body: {
-                userId: Number.MAX_SAFE_INTEGER,
-                timerSetting: 60
-            }
-        };
-    
-        (User as any).findOne.mockResolvedValueOnce(true);
-        (Preferences as any).findOne.mockResolvedValueOnce(false);
-    
-        await setTimerSetting(req, res);
-        expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({ error: "Preferences entry not found for the user" });
-    });
 });
 
 describe('On succesful setTimerSetting', () => {
@@ -412,6 +396,21 @@ describe('On invalid getPreferences', () => {
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({ error: "User not found" });
     });
+
+    it("should return a status code of 400 and error if preferences entry not found for the user", async (): Promise<void> => {
+        const req: any = {
+            params: {
+                userId: Number.MAX_SAFE_INTEGER
+            }
+        };
+    
+        (User as any).findOne.mockResolvedValueOnce(true);
+        (Preferences as any).findOne.mockResolvedValueOnce(false);
+    
+        await getPreferences(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Preferences entry not found for the user" });
+    });
 });
 
 describe('On succesful getPreferences', () => {
@@ -426,24 +425,25 @@ describe('On succesful getPreferences', () => {
             }
         };
 
+        (User as any).findOne.mockResolvedValueOnce(true);
         (Preferences as any).findOne.mockResolvedValueOnce({
-            id: Number.MAX_SAFE_INTEGER,
-            userId: Number.MAX_SAFE_INTEGER,
-            timerSetting: 10,
-            shareLocation: true,
-            shareVisitedBars: false
-        });
+                id: Number.MAX_SAFE_INTEGER,
+                userId: Number.MAX_SAFE_INTEGER,
+                timerSetting: 10,
+                shareLocation: true,
+                shareVisitedBars: false
+            });
 
         await getPreferences(req, res);
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({
-            preferences: {
+            "preferences": {
                 id: Number.MAX_SAFE_INTEGER,
                 userId: Number.MAX_SAFE_INTEGER,
                 timerSetting: 10,
                 shareLocation: true,
                 shareVisitedBars: false
             }
-         });
+        });
     });
 });
