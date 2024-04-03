@@ -122,14 +122,10 @@ const MapView = () => {
   }, []);
 
   const mapStyle = {
-    height: "100vh",
+    height: "95vh",
     width: "100%",
   };
 
-  const infostyle = {
-    height: "100vh",
-    width: "30%",
-  };
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_API_KEY,

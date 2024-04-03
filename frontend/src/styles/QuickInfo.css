@@ -10,9 +10,13 @@
   display: flex;
   flex-wrap: row;
 }
+.mapView {
+  width: 70%;
+  height: 100vh;
+}
 #infoHolder {
   overflow: auto;
-  height: 100vh;
+  height: 95vh;
   width: 30%;
 }
 
