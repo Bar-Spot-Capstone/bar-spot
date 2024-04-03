@@ -5,6 +5,7 @@ import visibleStyle from "../styles/mapstyle";
 import { Offcanvas, Image } from "react-bootstrap";
 import QuickInfo from "../components/QuickInfo";
 import "../styles/QuickInfo.css";
+import { barMenuInfo } from "../types/types";
 
 interface LngLat {
   lat: number;
@@ -13,15 +14,6 @@ interface LngLat {
 interface marker {
   position: LngLat;
   lable: string;
-}
-interface barMenuInfo {
-  name: string;
-  display_phone: string;
-  rating: string;
-  location: {
-    address1: string;
-  };
-  image_url: string;
 }
 
 const MapView = () => {
@@ -148,16 +140,9 @@ const MapView = () => {
 
   return (
     <div className="d-flex ">
-      {/* {isLoaded ? (
-        <div style={infostyle}>
-          <QuickInfo lat={userGeo.lat} lng={userGeo.lng} />
-        </div>
-      ) : (
-        <p>There was an error loading the Yelp requests</p>
-      )} */}
       <div style={infostyle} id="infoHolder">
-          <QuickInfo lat={userGeo.lat} lng={userGeo.lng} />
-        </div>
+        <QuickInfo barData={yelpData} />
+      </div>
       <div style={mapStyle}>
         <Offcanvas show={offCanvas} onHide={handleCloseout}>
           <Offcanvas.Header closeButton>

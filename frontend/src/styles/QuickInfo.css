@@ -1,10 +1,20 @@
 .info:hover {
-  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.245);
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.245);
+  /* animation: shakeY;
+  animation-duration: 0.5s; */ 
 }
 .info {
   transition: box-shadow 0.4s ease-in-out;
+  
 }
 
 #infoHolder {
     overflow: auto;
+}
+
+.barinfo{
+  width: 80%;
+  height: fit-content;
+  max-height: 200px;
+
 }
