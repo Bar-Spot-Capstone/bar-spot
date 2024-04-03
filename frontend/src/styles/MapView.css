@@ -1,7 +1,6 @@
 .info:hover {
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.297);
-  /* animation: shakeY;
-  animation-duration: 0.5s; */
+
 }
 .info {
   transition: box-shadow 0.4s ease-in-out;

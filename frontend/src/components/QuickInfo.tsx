@@ -1,49 +1,19 @@
 import "animate.css";
-import "../styles/QuickInfo.css";
+import "../styles/MapView.css";
 import { useEffect, useState } from "react";
 import { Col, Container, Row, Image, Button } from "react-bootstrap";
 import { barMenuInfo } from "../types/types";
 
-// interface Props {
-//   lat: number;
-//   lng: number;
-// }
-interface Props { 
+interface Props {
   barData: barMenuInfo[];
 }
 
 const QuickInfo = ({ barData }: Props) => {
   const [show, setShow] = useState<boolean>(false);
-  // const [barInfo, setBarInfo] = useState<barMenuInfo[]>(barData);
-  // const fetchBarInfo = async () => {
-  //   try {
-  //     if (lat === 0 && lng === 0) {
-  //       console.log("Position is at 0 did not fetch");
-  //       return;
-  //     }
-  //     const response = await fetch(
-  //       `http://localhost:3001/yelp/pubs/${lat}/${lng}`,
-  //       { method: "GET" }
-  //     );
-
-  //     if (response.ok) {
-  //       const res = response.json();
-  //       res.then((bars: any) => {
-  //         setBarInfo(bars.businesses);
-  //       });
-  //     } else {
-  //       console.log("Failed to fetch response was not okay");
-  //       return;
-  //     }
-  //   } catch (error: any) {
-  //     console.log(`Error failed to fetch due to: ${error}`);
-  //   }
-  // };
 
   useEffect(() => {
-    setShow(true)
-
-  }, );
+    setShow(true);
+  });
 
   if (show) {
     return barData.map((bar, index) => (

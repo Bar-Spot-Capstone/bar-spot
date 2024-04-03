@@ -4,7 +4,7 @@ import Error from "../components/Error";
 import visibleStyle from "../styles/mapstyle";
 import { Offcanvas, Image } from "react-bootstrap";
 import QuickInfo from "../components/QuickInfo";
-import "../styles/QuickInfo.css";
+import "../styles/MapView.css";
 import { barMenuInfo } from "../types/types";
 
 interface LngLat {
@@ -125,7 +125,6 @@ const MapView = () => {
     height: "95vh",
     width: "100%",
   };
-
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_API_KEY,
