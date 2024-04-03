@@ -52,7 +52,7 @@ const QuickInfo = ({ barData }: Props) => {
         key={index}
       >
         <Row>
-          <Col>
+          <Col className="my-1">
             <h3 className="text-center">{bar.name}</h3>
           </Col>
         </Row>

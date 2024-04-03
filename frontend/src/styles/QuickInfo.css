@@ -1,20 +1,37 @@
 .info:hover {
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.245);
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.297);
   /* animation: shakeY;
-  animation-duration: 0.5s; */ 
+  animation-duration: 0.5s; */
 }
 .info {
   transition: box-shadow 0.4s ease-in-out;
-  
 }
-
+.totalView{
+  display: flex;
+  flex-wrap: row;
+}
 #infoHolder {
-    overflow: auto;
+  overflow: auto;
+  height: 100vh;
+  width: 30%;
 }
 
-.barinfo{
-  width: 80%;
+.barinfo {
+  width: fit-content;
   height: fit-content;
   max-height: 200px;
-
+}
+@media screen and (max-width: 768px) {
+  #infoHolder {
+    overflow: auto;
+    width: 100%;
+    height: 50vh;
+  }
+  .mapView {
+    width: 100%;
+    height: 50vh;
+  }
+  .totalView{
+    flex-direction: column-reverse;
+  }
 }

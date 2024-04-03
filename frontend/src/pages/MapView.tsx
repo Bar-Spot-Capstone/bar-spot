@@ -139,11 +139,11 @@ const MapView = () => {
   //provided by using https://mapstyle.withgoogle.com
 
   return (
-    <div className="d-flex ">
-      <div style={infostyle} id="infoHolder">
+    <div className="totalView">
+      <div id="infoHolder">
         <QuickInfo barData={yelpData} />
       </div>
-      <div style={mapStyle}>
+      <div style={mapStyle} className="mapView">
         <Offcanvas show={offCanvas} onHide={handleCloseout}>
           <Offcanvas.Header closeButton>
             <Offcanvas.Title>{barInfo.name}</Offcanvas.Title>
