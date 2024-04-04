@@ -1,13 +1,14 @@
 import bcrypt from "bcrypt"
 import User from "../models/Users";
 import UserGroup from "../models/UserGroup";
-import { userRegister, userLogin, deleteUser } from "../controllers/User";
+import { userRegister, userLogin, deleteUser, getUsers } from "../controllers/User";
 import { UniqueConstraintError as SequelizeUniqueConstraintError } from 'sequelize';
 
 // Mock User.create
 jest.mock('../models/Users', (): any => ({
     create: jest.fn(),
     findOne: jest.fn(), //to mock the findOne function
+    findAll: jest.fn(),
     destroy: jest.fn()
 }));
 
@@ -425,5 +426,78 @@ describe('On vaild user delete', (): void => {
         await deleteUser(req, res);
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({ success: "Successfully deleted user" });
+    });
+});
+
+/*Get all other user test cases*/
+describe('On invaild get users', (): void => {
+    beforeEach((): void => {
+        jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
+    });
+
+    it('should return a status code of 400 and error message if id is missing', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                id: null
+            }
+        };
+
+        await getUsers(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Failed to execute GET due to no id" });
+    });
+
+    it('should return a status code of 400 and error message if user does not exist', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                id: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (User as any).findOne.mockResolvedValueOnce(false);
+
+        await getUsers(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "User does not exist" });
+    });
+});
+
+describe('On vaild get users', (): void => {
+    beforeEach((): void => {
+        jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
+    });
+
+    it('should return a status code of 200 and success message if there are no other users', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                id: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (User as any).findOne.mockResolvedValueOnce(true);
+        (User as any).findAll.mockResolvedValueOnce(false);
+
+        await getUsers(req, res);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ success: "No other users exist" });
+    });
+
+    it('should return a status code of 200 and success message and list of all other users', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                id: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (User as any).findOne.mockResolvedValueOnce(true);
+        (User as any).findAll.mockResolvedValueOnce([{
+            "id": 1,
+            "username": "jon",
+            "email": "jon@practice.com"
+        }]);
+
+        await getUsers(req, res);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ success: "Fetched all other users", users_list: [{ "email": "jon@practice.com", "id": 1, "username": "jon", }] });
     });
 });
