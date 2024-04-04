@@ -11,24 +11,24 @@ const TimerInput: any = (props: any): any => {
 
     console.log(`The boolean value is ${readOnly}`);
 
-    const onChangeI = (event) => {
+    const onChangeI = (event:any) => {
         setValue(event.target.value);
     };
 
-    const onBlur = (event) => {
+    const onBlur = (event:any) => {
         const value: string = event.target.value;
-        const seconds: Number = Math.max(0, getSecondsFromHHMMSS(value));
+        const seconds: number = Math.max(0, getSecondsFromHHMMSS(value));
 
         const time: string = toHHMMSS(seconds);
         setValue(time);
     };
 
-    const getSecondsFromHHMMSS = (value) => {
+    const getSecondsFromHHMMSS = (value:any) => {
         const [str1, str2, str3] = value.split(":");
 
-        const val1: Number = Number(str1);
-        const val2: Number = Number(str2);
-        const val3: Number = Number(str3);
+        const val1: number = Number(str1);
+        const val2: number = Number(str2);
+        const val3: number = Number(str3);
 
         if (!isNaN(val1) && isNaN(val2) && isNaN(val3)) {
             return val1;
@@ -45,11 +45,11 @@ const TimerInput: any = (props: any): any => {
         return 0;
     };
 
-    const toHHMMSS = (secs) => {
-        const secNum: Number = parseInt(secs.toString(), 10);
-        const hours: Number = Math.floor(secNum / 3600);
-        const minutes: Number = Math.floor(secNum / 60) % 60;
-        const seconds: Number = secNum % 60;
+    const toHHMMSS = (secs:any) => {
+        const secNum: number = parseInt(secs.toString(), 10);
+        const hours: number = Math.floor(secNum / 3600);
+        const minutes: number = Math.floor(secNum / 60) % 60;
+        const seconds: number = secNum % 60;
 
         return [hours, minutes, seconds]
             .map((val) => (val < 10 ? `0${val}` : val))
@@ -61,7 +61,7 @@ const TimerInput: any = (props: any): any => {
     return (
         <div>
             {readOnly ?
-                <input className="timer-input" type="text" onBlur={onBlur} value={value} readonly />
+                <input className="timer-input" type="text" onBlur={onBlur} value={value} readOnly />
                 :
                 <input className="timer-input" type="text" onChange={onChangeI} onBlur={onBlur} value={value} />
             }

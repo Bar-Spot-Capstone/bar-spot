@@ -6,6 +6,7 @@ import { Offcanvas, Image } from "react-bootstrap";
 import QuickInfo from "../components/QuickInfo";
 import "../styles/MapView.css";
 import { barMenuInfo } from "../types/types";
+import imageUnavailable from "../assets/image_unavailable_photo.png"
 
 interface LngLat {
   lat: number;
@@ -36,7 +37,7 @@ const MapView = () => {
       address1: "NULL",
     },
     image_url:
-      "https://cdn1.vectorstock.com/i/1000x1000/31/20/image-error-icon-editable-outline-vector-30393120.jpg",
+      imageUnavailable,
   });
   const [yelpData, setYelpData] = useState<barMenuInfo[]>([]);
 
