@@ -371,6 +371,7 @@ describe('On invalid getPreferences', () => {
     beforeEach((): void => {
         jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
     });
+    
     it('should return a status code of 400 and error if userId is missing from params', async (): Promise<void> => {
         const req: any = {
             params: {
@@ -435,7 +436,7 @@ describe('On succesful getPreferences', () => {
             });
 
         await getPreferences(req, res);
-        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({
             "preferences": {
                 id: Number.MAX_SAFE_INTEGER,

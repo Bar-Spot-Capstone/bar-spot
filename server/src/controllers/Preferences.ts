@@ -14,18 +14,6 @@ const setLocationShare = async (req: Request, res: Response): Promise<Response> 
         return res.json({ error: `Failed to change location share, missing field: ${handleEmpty}` });
     };
 
-    // check if user exists
-    const user: any = await User.findOne({
-        where: {
-            id: userId
-        }
-    });
-
-    if (!user) {
-        res.status(400);
-        return res.json({error: "User not found" });
-    }
-
     // Check if shareLocation is not a boolean
     if (typeof shareLocation !== 'boolean') {
         res.status(400);
@@ -33,6 +21,18 @@ const setLocationShare = async (req: Request, res: Response): Promise<Response> 
     };
 
     try {
+        // check if user exists
+        const user: any = await User.findOne({
+            where: {
+                id: userId
+            }
+        });
+
+        if (!user) {
+            res.status(400);
+            return res.json({error: "User not found" });
+        }
+        
         // Check if shareLocation is already set to the desired value
         const existingPreferences = await Preferences.findOne({ where: { userId: userId } });
 
@@ -61,24 +61,12 @@ const setVisitedShare = async (req: Request, res: Response): Promise<Response> =
 
     // Check which params are missing
     var handleEmpty: string = ''
-    handleEmpty = !userId ? 'userId' : '' || !shareVisitedBars && shareVisitedBars !== false? 'shareVisitedBars' : ''; //find missing parm
+    handleEmpty = !userId ? 'userId' : '' || !shareVisitedBars && shareVisitedBars !== false ? 'shareVisitedBars' : ''; //find missing parm
 
     if (handleEmpty) {
         res.status(400);
         return res.json({ error: `Failed to change visited share, missing field: ${handleEmpty}` });
     };
-
-    // check if user exists
-    const user: any = await User.findOne({
-        where: {
-            id: userId
-        }
-    });
-
-    if (!user) {
-        res.status(400);
-        return res.json({error: "User not found" });
-    }
 
     // Check if shareVisitedBars is not a boolean
     if (typeof shareVisitedBars !== 'boolean') {
@@ -87,6 +75,18 @@ const setVisitedShare = async (req: Request, res: Response): Promise<Response> =
     };
 
     try {
+        // check if user exists
+        const user: any = await User.findOne({
+            where: {
+                id: userId
+            }
+        });
+
+        if (!user) {
+            res.status(400);
+            return res.json({error: "User not found" });
+        }
+        
         // Check if shareVisitedBars is already set to the desired value
         const existingPreferences = await Preferences.findOne({ where: { userId: userId } });
 
@@ -114,21 +114,13 @@ const setTimerSetting = async (req: Request, res: Response): Promise<Response> =
     const { userId, timerSetting }: { userId: string, timerSetting: number } = req.body;
 
     // Check which params are missing
-    const handleEmpty: string = !userId ? 'userId' : timerSetting === undefined ? 'timerSetting' : '';
+    var handleEmpty: string = ''
+    handleEmpty = !userId ? 'userId' : '' || !timerSetting && timerSetting !== 0 ? 'timerSetting' : '';
+
 
     if (handleEmpty) {
         res.status(400);
         return res.json({ error: `Failed to change timer setting, missing field: ${handleEmpty}` });
-    }
-
-    // Check if user exists
-    const user: any = await User.findOne({
-        where: { id: userId }
-    });
-
-    if (!user) {
-        res.status(400);
-        return res.json({ error: "User not found" });
     }
 
     // Check if timerSetting is not a number or is not within the valid range
@@ -138,6 +130,16 @@ const setTimerSetting = async (req: Request, res: Response): Promise<Response> =
     }
 
     try {
+        // Check if user exists
+        const user: any = await User.findOne({
+            where: { id: userId }
+        });
+
+        if (!user) {
+            res.status(400);
+            return res.json({ error: "User not found" });
+        }
+        
         // Check if timerSetting is already set to the desired value
         const existingPreferences = await Preferences.findOne({ where: { userId: userId } });
 
@@ -170,17 +172,17 @@ const getPreferences = async (req: Request, res: Response) => {
         return res.json({ error: "No userId provided" });
     };
 
-    // Check if user exists
-    const user: any = await User.findOne({
-        where: { id: userId }
-    });
-
-    if (!user) {
-        res.status(400);
-        return res.json({ error: "User not found" });
-    }
-
     try {
+        // Check if user exists
+        const user: any = await User.findOne({
+            where: { id: userId }
+        });
+
+        if (!user) {
+            res.status(400);
+            return res.json({ error: "User not found" });
+        }
+
         // Find preferences for the user
         const preferences = await Preferences.findOne({ 
             where: { userId: userId },
