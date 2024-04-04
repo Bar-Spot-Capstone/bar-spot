@@ -30,9 +30,9 @@ const setLocationShare = async (req: Request, res: Response): Promise<Response> 
 
         if (!user) {
             res.status(400);
-            return res.json({error: "User not found" });
+            return res.json({ error: "User not found" });
         }
-        
+
         // Check if shareLocation is already set to the desired value
         const existingPreferences = await Preferences.findOne({ where: { userId: userId } });
 
@@ -84,9 +84,9 @@ const setVisitedShare = async (req: Request, res: Response): Promise<Response> =
 
         if (!user) {
             res.status(400);
-            return res.json({error: "User not found" });
+            return res.json({ error: "User not found" });
         }
-        
+
         // Check if shareVisitedBars is already set to the desired value
         const existingPreferences = await Preferences.findOne({ where: { userId: userId } });
 
@@ -139,7 +139,7 @@ const setTimerSetting = async (req: Request, res: Response): Promise<Response> =
             res.status(400);
             return res.json({ error: "User not found" });
         }
-        
+
         // Check if timerSetting is already set to the desired value
         const existingPreferences = await Preferences.findOne({ where: { userId: userId } });
 
@@ -164,7 +164,7 @@ const setTimerSetting = async (req: Request, res: Response): Promise<Response> =
 };
 
 const getPreferences = async (req: Request, res: Response) => {
-    const {userId}: any = req.params;
+    const { userId }: any = req.params;
 
     // Check for null parameter
     if (!userId) {
@@ -184,7 +184,7 @@ const getPreferences = async (req: Request, res: Response) => {
         }
 
         // Find preferences for the user
-        const preferences = await Preferences.findOne({ 
+        const preferences = await Preferences.findOne({
             where: { userId: userId },
             attributes: ['id', 'userId', 'timerSetting', 'shareLocation', 'shareVisitedBars']
         });
@@ -193,7 +193,7 @@ const getPreferences = async (req: Request, res: Response) => {
             res.status(400);
             return res.json({ error: "Preferences entry not found for the user" });
         }
-        
+
         res.status(200);
         return res.json({ preferences: preferences });
     } catch (error: any) {

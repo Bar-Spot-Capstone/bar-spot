@@ -1,7 +1,8 @@
 import User from "../models/Users";
 import bcrypt from "bcrypt"
-import { Request, Response } from "express";
 import UserGroup from "../models/UserGroup";
+import { Op } from "sequelize";
+import { Request, Response } from "express";
 import Preferences from "../models/Preferences";
 
 const userRegister = async (req: Request, res: Response): Promise<Response> => {
@@ -163,11 +164,55 @@ const deleteUser = async (req: Request, res: Response): Promise<Response> => {
         res.status(500);
         return res.json({ error: `Unexpected error occured with error: ${error}` });
     };
+};
+
+const getUsers = async (req: Request, res: Response): Promise<Response> => {
+    const id: string = req.params.id;
+
+    if (!id) {
+        res.status(400);
+        return res.json({ error: "Failed to execute GET due to no id" });
+    };
+
+    try {
+        /*Check if requesting user exists*/
+        const user: any = await User.findOne({
+            where: {
+                id: id
+            }
+        });
+
+        if (!user) {
+            res.status(400);
+            return res.json({ error: "User does not exist" });
+        };
+
+        const findUsers = await User.findAll({
+            where: {
+                id: { [Op.notIn]: [id] }
+            },
+            // Attributes wanted
+            attributes: ['id', 'username', 'email']
+        });
+
+        if (!findUsers) {
+            res.status(200);
+            return res.json({ success: "No other users exist" });
+        };
+
+        res.status(200);
+        return res.json({ success: "Fetched all other users", users_list: findUsers });
+    }
+    catch (error: any) {
+        res.status(500);
+        return res.json({ error: `Unexpected error occured with error: ${error}` });
+    };
 
 };
 
 export {
     userRegister,
     userLogin,
-    deleteUser
+    deleteUser,
+    getUsers
 };

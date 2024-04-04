@@ -4,7 +4,8 @@ import { setLocationShare, setVisitedShare, setTimerSetting, getPreferences } fr
 
 // Mock Preferences.findOne
 jest.mock('../models/Preferences', (): any => ({
-    findOne: jest.fn()
+    findOne: jest.fn(),
+    update: jest.fn()
 }));
 
 // Mock User.findOne
@@ -86,10 +87,10 @@ describe('On invaild setLocationShare', () => {
                 shareLocation: true
             }
         };
-    
+
         (User as any).findOne.mockResolvedValueOnce(true);
         (Preferences as any).findOne.mockResolvedValueOnce(false);
-    
+
         await setLocationShare(req, res);
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({ error: "Preferences entry not found for the user" });
@@ -110,13 +111,13 @@ describe('On succesful setLocationShare', () => {
         };
 
         (User as any).findOne.mockResolvedValueOnce(true);
-        (Preferences as any).findOne.mockResolvedValueOnce({ 
-            shareLocation: true 
+        (Preferences as any).findOne.mockResolvedValueOnce({
+            shareLocation: true
         });
 
         await setLocationShare(req, res);
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({ success: "Share Location is already set to true"});
+        expect(res.json).toHaveBeenCalledWith({ success: "Share Location is already set to true" });
     });
 
     it("should return a status code of 200 and success message if the the share location is changed", async (): Promise<void> => {
@@ -128,13 +129,14 @@ describe('On succesful setLocationShare', () => {
         };
 
         (User as any).findOne.mockResolvedValueOnce(true);
-        (Preferences as any).findOne.mockResolvedValueOnce({ 
-            shareLocation: true 
+        (Preferences as any).findOne.mockResolvedValueOnce({
+            shareLocation: true
         });
+        (Preferences as any).update.mockResolvedValueOnce(true);
 
         await setLocationShare(req, res);
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({ success: "Share Location changed to false"});
+        expect(res.json).toHaveBeenCalledWith({ success: "Share Location changed to false" });
     });
 });
 
@@ -207,10 +209,10 @@ describe('On invaild setVisitedShare', () => {
                 shareVisitedBars: true
             }
         };
-    
+
         (User as any).findOne.mockResolvedValueOnce(true);
         (Preferences as any).findOne.mockResolvedValueOnce(false);
-    
+
         await setVisitedShare(req, res);
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({ error: "Preferences entry not found for the user" });
@@ -231,13 +233,13 @@ describe('On succesful setVisitedShare', () => {
         };
 
         (User as any).findOne.mockResolvedValueOnce(true);
-        (Preferences as any).findOne.mockResolvedValueOnce({ 
-            shareVisitedBars: true 
+        (Preferences as any).findOne.mockResolvedValueOnce({
+            shareVisitedBars: true
         });
 
         await setVisitedShare(req, res);
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({ success: "Share Visited Bars is already set to true"});
+        expect(res.json).toHaveBeenCalledWith({ success: "Share Visited Bars is already set to true" });
     });
 
     it("should return a status code of 200 and success message if the the share visited bars is changed", async (): Promise<void> => {
@@ -249,13 +251,14 @@ describe('On succesful setVisitedShare', () => {
         };
 
         (User as any).findOne.mockResolvedValueOnce(true);
-        (Preferences as any).findOne.mockResolvedValueOnce({ 
-            shareVisitedBars: true 
+        (Preferences as any).findOne.mockResolvedValueOnce({
+            shareVisitedBars: true
         });
+        (Preferences as any).update.mockResolvedValueOnce(true);
 
         await setVisitedShare(req, res);
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({ success: "Share Visited Bars changed to false"});
+        expect(res.json).toHaveBeenCalledWith({ success: "Share Visited Bars changed to false" });
     });
 });
 
@@ -338,13 +341,13 @@ describe('On succesful setTimerSetting', () => {
         };
 
         (User as any).findOne.mockResolvedValueOnce(true);
-        (Preferences as any).findOne.mockResolvedValueOnce({ 
-            timerSetting: 60 
+        (Preferences as any).findOne.mockResolvedValueOnce({
+            timerSetting: 60
         });
 
         await setTimerSetting(req, res);
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({ success: "Timer setting is already set to 60 minutes"});
+        expect(res.json).toHaveBeenCalledWith({ success: "Timer setting is already set to 60 minutes" });
     });
 
     it("should return a status code of 200 and success message if the the timer setting is changed", async (): Promise<void> => {
@@ -356,13 +359,14 @@ describe('On succesful setTimerSetting', () => {
         };
 
         (User as any).findOne.mockResolvedValueOnce(true);
-        (Preferences as any).findOne.mockResolvedValueOnce({ 
-            timerSetting: 60 
+        (Preferences as any).findOne.mockResolvedValueOnce({
+            timerSetting: 60
         });
+        (Preferences as any).findOne.mockResolvedValueOnce(true);
 
         await setTimerSetting(req, res);
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({ success: "Timer setting changed to 45 minutes"});
+        expect(res.json).toHaveBeenCalledWith({ success: "Timer setting changed to 45 minutes" });
     });
 });
 
@@ -371,7 +375,7 @@ describe('On invalid getPreferences', () => {
     beforeEach((): void => {
         jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
     });
-    
+
     it('should return a status code of 400 and error if userId is missing from params', async (): Promise<void> => {
         const req: any = {
             params: {
@@ -404,10 +408,10 @@ describe('On invalid getPreferences', () => {
                 userId: Number.MAX_SAFE_INTEGER
             }
         };
-    
+
         (User as any).findOne.mockResolvedValueOnce(true);
         (Preferences as any).findOne.mockResolvedValueOnce(false);
-    
+
         await getPreferences(req, res);
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({ error: "Preferences entry not found for the user" });
@@ -428,12 +432,12 @@ describe('On succesful getPreferences', () => {
 
         (User as any).findOne.mockResolvedValueOnce(true);
         (Preferences as any).findOne.mockResolvedValueOnce({
-                id: Number.MAX_SAFE_INTEGER,
-                userId: Number.MAX_SAFE_INTEGER,
-                timerSetting: 10,
-                shareLocation: true,
-                shareVisitedBars: false
-            });
+            id: Number.MAX_SAFE_INTEGER,
+            userId: Number.MAX_SAFE_INTEGER,
+            timerSetting: 10,
+            shareLocation: true,
+            shareVisitedBars: false
+        });
 
         await getPreferences(req, res);
         expect(res.status).toHaveBeenCalledWith(400);

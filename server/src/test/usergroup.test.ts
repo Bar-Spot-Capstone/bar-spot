@@ -60,7 +60,8 @@ describe('On invaild user_group input', (): void => {
         expect(res.json).toHaveBeenCalledWith({ error: "Failed to create group missing field: userId" });
     });
 
-    it('should return a status code of 400 and error if user_group has missing userId', async (): Promise<void> => {
+
+    it('should return a status code of 400 and error if user does not exist', async (): Promise<void> => {
         const req: any = {
             body: {
                 name: "Capstone",
@@ -68,13 +69,29 @@ describe('On invaild user_group input', (): void => {
             }
         };
 
+        (User as any).findOne.mockResolvedValue(false);
+        await createUserGroup(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "User does not exisit" });
+    });
+
+
+    it('should return a status code of 400 and error if failed to create group', async (): Promise<void> => {
+        const req: any = {
+            body: {
+                name: "Capstone",
+                userId: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (User as any).findOne.mockResolvedValue(true);
         (Group as any).create.mockResolvedValue(false);
         await createUserGroup(req, res);
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({ error: "Failed to create group for user_group" });
     });
 
-    it('should return a status code of 400 and error if user_group has missing userId', async (): Promise<void> => {
+    it('should return a status code of 400 and error if failed to create user_group', async (): Promise<void> => {
         const req: any = {
             body: {
                 name: "Capstone",
@@ -82,6 +99,7 @@ describe('On invaild user_group input', (): void => {
             }
         };
 
+        (User as any).findOne.mockResolvedValue(true);
         (Group as any).create.mockResolvedValue(true);
         (UserGroup as any).create.mockResolvedValue(false);
 
@@ -98,6 +116,7 @@ describe('On invaild user_group input', (): void => {
             }
         };
 
+        (User as any).findOne.mockResolvedValue(true);
         // Mock Group.create to throw an error
         (Group as any).create.mockRejectedValue(new Error("Unexpected error"));
 
@@ -116,6 +135,7 @@ describe('On vaild user_group input', (): void => {
             }
         };
 
+        (User as any).findOne.mockResolvedValue(true);
         (Group as any).create.mockResolvedValue(true);
         (UserGroup as any).create.mockResolvedValue({
             userId: Number.MAX_SAFE_INTEGER,
