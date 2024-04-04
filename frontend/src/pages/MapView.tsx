@@ -2,7 +2,11 @@ import { GoogleMap, MarkerF, useLoadScript } from "@react-google-maps/api";
 import { useEffect, useState } from "react";
 import Error from "../components/Error";
 import visibleStyle from "../styles/mapstyle";
-
+import { Offcanvas, Image } from "react-bootstrap";
+import QuickInfo from "../components/QuickInfo";
+import "../styles/MapView.css";
+import { barMenuInfo } from "../types/types";
+import imageUnavailable from "../assets/image_unavailable_photo.png"
 
 interface LngLat {
   lat: number;
@@ -23,6 +27,32 @@ const MapView = () => {
   const [markers, setMarkers] = useState<marker[]>([]);
   const [showMarkers, setShowMarkers] = useState<boolean>(false);
   const [userMarker, setUserMarker] = useState<marker>();
+  const [offCanvas, setOffCanvas] = useState<boolean>(false);
+
+  const [barInfo, setBarInfo] = useState<barMenuInfo>({
+    name: "NULL",
+    display_phone: "NULL",
+    rating: "0.0",
+    location: {
+      address1: "NULL",
+    },
+    image_url:
+      imageUnavailable,
+  });
+  const [yelpData, setYelpData] = useState<barMenuInfo[]>([]);
+
+  const getIndex = (target: string): number => {
+    for (let index = 0; index < yelpData.length; index++) {
+      if (target == yelpData[index].name) {
+        return index;
+      }
+    }
+    return 0;
+  };
+
+  const handleCloseout = () => {
+    setOffCanvas(false);
+  };
 
   const getGeoloaction = async () => {
     if (navigator.geolocation) {
@@ -66,6 +96,7 @@ const MapView = () => {
         const res = response.json();
         var newMarkers: marker[] = [];
         res.then((bars) => {
+          setYelpData(bars.businesses);
           bars.businesses.forEach((barObj: any) => {
             const newMarker = {
               position: {
@@ -92,7 +123,7 @@ const MapView = () => {
   }, []);
 
   const mapStyle = {
-    height: "100vh",
+    height: "95vh",
     width: "100%",
   };
 
@@ -104,41 +135,75 @@ const MapView = () => {
   //provided by using https://mapstyle.withgoogle.com
 
   return (
-    <div style={mapStyle}>
-      {isLoaded ? (
-        <GoogleMap
-          mapContainerStyle={mapStyle}
-          center={userGeo}
-          zoom={17}
-          options={{
-            streetViewControl: false,
-            disableDefaultUI: true,
-            clickableIcons: true,
-            mapTypeControl: false,
+    <div className="totalView">
+      <div id="infoHolder">
+        <QuickInfo barData={yelpData} />
+      </div>
+      <div style={mapStyle} className="mapView">
+        <Offcanvas show={offCanvas} onHide={handleCloseout}>
+          <Offcanvas.Header closeButton>
+            <Offcanvas.Title>{barInfo.name}</Offcanvas.Title>
+          </Offcanvas.Header>
+          <Offcanvas.Body>
+            <p>Rating: {String(barInfo.rating)}</p>
+            <p>Phone: {barInfo.display_phone}</p>
+            <p>Description: </p>
+            This is some place holder text for now where we will have the bar
+            info pop up
+            <Image src={barInfo.image_url} fluid></Image>
+          </Offcanvas.Body>
+        </Offcanvas>
 
-            styles: visibleStyle,
-          }}
-        >
-          {/* Render Markers */}
-          {showMarkers ? (
-            <MarkerF
-              position={userMarker?.position || { lat: 40.7678, lng: 73.9645 }} //either it finds a users position or it will default on hunter
-              label={userMarker?.lable}
-            ></MarkerF>
-          ) : null}
-          {showMarkers
-            ? markers.map((marker, index) => (
-                <MarkerF
-                  key={index}
-                  position={marker.position}
-                  label={marker.lable}
-                />
-              ))
-            : null}
-        </GoogleMap>
-      ) : (
-        <Error />
-      )}
+        {isLoaded ? (
+          <GoogleMap
+            mapContainerStyle={mapStyle}
+            center={userGeo}
+            zoom={16}
+            options={{
+              streetViewControl: false,
+              disableDefaultUI: true,
+              clickableIcons: true,
+              mapTypeControl: false,
+
+              styles: visibleStyle,
+            }}
+          >
+            {/* Render Markers */}
+            {showMarkers ? (
+              <MarkerF
+                position={
+                  userMarker?.position || { lat: 40.7678, lng: 73.9645 }
+                } //either it finds a users position or it will default on hunter
+                label={userMarker?.lable}
+              ></MarkerF>
+            ) : null}
+            {showMarkers
+              ? markers.map((marker, index) => (
+                  <MarkerF
+                    key={index}
+                    position={marker.position}
+                    label={marker.lable}
+                    onClick={() => {
+                      const index = getIndex(marker.lable);
+                      setBarInfo({
+                        name: yelpData[index].name,
+                        display_phone: yelpData[index].display_phone,
+                        image_url: yelpData[index].image_url,
+                        rating: String(yelpData[index].rating),
+                        location: {
+                          address1: yelpData[index].location.address1,
+                        },
+                      });
+                      setOffCanvas(true);
+                    }}
+                  />
+                ))
+              : null}
+          </GoogleMap>
+        ) : (
+          <Error />
+        )}
+      </div>
     </div>
   );
 };

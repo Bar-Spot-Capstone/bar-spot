@@ -71,7 +71,7 @@ const Login = () => {
         setError(false);
 
         const res = response.json();
-        //console.log(res);
+
         loadPage(response.status);
 
         dispatch(login());
