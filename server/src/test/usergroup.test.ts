@@ -8,14 +8,14 @@ import { inviteMember, createUserGroup, getMembers, deleteParty, leaveParty } fr
 jest.mock('../models/Group', (): any => ({
     create: jest.fn(),
     findOne: jest.fn(), //to mock the findOne function
-    destroy: jest.fn() //to mock the findAll function
+    destroy: jest.fn() //to mock the destroy function
 }));
 
-// Mock Group.create and findOne
+// Mock Invites.create and findOne
 jest.mock('../models/Invitations', (): any => ({
     create: jest.fn(),
     findOne: jest.fn(), //to mock the findOne function
-    destroy: jest.fn() //to mock the findAll function
+    destroy: jest.fn() //to mock the destroy function
 }));
 
 // Mock UserGroup.create and findOne
@@ -23,7 +23,7 @@ jest.mock('../models/UserGroup', (): any => ({
     create: jest.fn(),
     findOne: jest.fn(), //to mock the findOne function
     findAll: jest.fn(), //to mock the findAll function
-    destroy: jest.fn() //to mock the findAll function
+    destroy: jest.fn() //to mock the destroy function
 }));
 
 // Mock User.findOne
