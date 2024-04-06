@@ -440,7 +440,7 @@ describe('On vaild get all party members input', (): void => {
         });
     });
 });
-/*
+
 //UserGroup test delete party methods
 describe('On invaild delete party input', (): void => {
     beforeEach((): void => {
@@ -466,7 +466,9 @@ describe('On invaild delete party input', (): void => {
             }
         };
 
+        (Invitation as any).destroy.mockResolvedValue(true);
         (UserGroup as any).destroy.mockResolvedValueOnce(false);
+        (Group as any).destroy.mockResolvedValueOnce(true);
 
         await deleteParty(req, res);
         expect(res.status).toHaveBeenCalledWith(400);
@@ -480,6 +482,7 @@ describe('On invaild delete party input', (): void => {
             }
         };
 
+        (Invitation as any).destroy.mockResolvedValue(true);
         (UserGroup as any).destroy.mockResolvedValueOnce(true);
         (Group as any).destroy.mockResolvedValueOnce(false);
 
@@ -502,6 +505,7 @@ describe('On vaild delete party input', (): void => {
             }
         };
 
+        (Invitation as any).destroy.mockResolvedValue(true);
         (UserGroup as any).destroy.mockResolvedValueOnce(true);
         (Group as any).destroy.mockResolvedValueOnce(true);
 
@@ -525,7 +529,7 @@ describe('On invaild delete party member input', (): void => {
             }
         };
 
-        await removeMember(req, res);
+        await leaveParty(req, res);
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({ error: "Unable to read: userId" });
     });
@@ -538,12 +542,12 @@ describe('On invaild delete party member input', (): void => {
             }
         };
 
-        await removeMember(req, res);
+        await leaveParty(req, res);
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({ error: "Unable to read: groupId" });
     });
 
-    it('should return a status code of 400 and error message if owner of large group tries to leave', async (): Promise<void> => {
+    it('should return a status code of 400 and error message if owner tries to leave', async (): Promise<void> => {
         const req: any = {
             params: {
                 userId: Number.MAX_SAFE_INTEGER - 1,
@@ -555,19 +559,9 @@ describe('On invaild delete party member input', (): void => {
             role: "Owner"
         });
 
-        (UserGroup as any).findAll.mockResolvedValueOnce([
-            {
-                role: 'Owner',
-                userId: Number.MAX_SAFE_INTEGER - 1,
-            },
-            {
-                role: 'member', userId: Number.MAX_SAFE_INTEGER
-            }
-        ]);
-
-        await removeMember(req, res);
+        await leaveParty(req, res);
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({ error: "Cannot leave party as the owner while there are other memebers" });
+        expect(res.json).toHaveBeenCalledWith({ error: "Cannot leave party as the owner please delete party" });
     });
 
     it('should return a status code of 400 and error message if member was not deleted', async (): Promise<void> => {
@@ -579,19 +573,12 @@ describe('On invaild delete party member input', (): void => {
         };
 
         (UserGroup as any).findOne.mockResolvedValueOnce({
-            role: "Owner"
+            role: "member"
         });
-
-        (UserGroup as any).findAll.mockResolvedValueOnce([
-            {
-                role: 'Owner',
-                userId: Number.MAX_SAFE_INTEGER,
-            }
-        ]);
 
         (UserGroup as any).destroy.mockResolvedValueOnce(false);
 
-        await removeMember(req, res);
+        await leaveParty(req, res);
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({ error: "Error in deleting member, please try again" });
     });
@@ -612,21 +599,12 @@ describe('On vaild delete party member input', (): void => {
         };
 
         (UserGroup as any).findOne.mockResolvedValueOnce({
-            role: "Owner"
+            role: "member"
         });
-
-        (UserGroup as any).findAll.mockResolvedValueOnce([
-            {
-                role: 'Owner',
-                userId: Number.MAX_SAFE_INTEGER,
-            }
-        ]);
-
         (UserGroup as any).destroy.mockResolvedValueOnce(true);
 
-        await removeMember(req, res);
+        await leaveParty(req, res);
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({ success: "Successfully removed member" });
     });
 });
-*/
