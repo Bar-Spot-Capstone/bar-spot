@@ -91,6 +91,17 @@ const respondToInvite = async (req: Request, res: Response): Promise<Response> =
             return res.json({ success: "Rejected invite" });
         }
         //if true add to the group and destroy all invites for the user     
+        const alreadyInGroup: any = await UserGroup.findOne({
+            where: {
+                userId: userId
+            }
+        });
+
+        if (alreadyInGroup) {
+            res.status(400);
+            return res.json({ error: "Failed to join group user is already in a group" });
+        };
+
         const joinUserGroup: any = await UserGroup.create({
             userId: userId,
             groupId: groupId,
