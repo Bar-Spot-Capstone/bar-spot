@@ -148,7 +148,11 @@ const createUserGroup = async (req: Request, res: Response): Promise<Response> =
         return res.json({ error: `Unexpected error occured with error: ${error}` });
     };
 };
-
+/*
+@param: groupdId -> id of group to send invite to
+@param: ownerId -> id of owner of the group whose sending invite
+@param: invitedUsers -> Object containing userIds to invite
+*/
 const inviteMember = async (req: Request, res: Response): Promise<Response> => {
     const { groupId, ownerId, invitedUsers }: { groupId: number, ownerId: number, invitedUsers: Object } = req.body;
 
@@ -237,7 +241,9 @@ const inviteMember = async (req: Request, res: Response): Promise<Response> => {
         return res.json({ error: `Unexpected error occured with error: ${error}` });
     };
 };
-
+/*
+@param: groupId -> id of group to get members from
+*/
 const getMembers = async (req: Request, res: Response): Promise<Response> => {
     const groupId: string = req.params.groupId;
 
@@ -287,9 +293,105 @@ const getMembers = async (req: Request, res: Response): Promise<Response> => {
         return res.json({ error: `Unexpected error occured with error: ${error}` });
     };
 };
+/*
+@param: groupId -> id of group to delete
+*/
+const deleteParty = async (req: Request, res: Response): Promise<Response> => {
+    const groupId: string = req.params.groupId;
+
+    if (!groupId) {
+        res.status(400);
+        return res.json({ error: "No such group exist" });
+    };
+
+    try {
+        /*Need to destroy all invites assoicated with groupId  -   Need to destroy group - destroying Invites may lead to null if there are no invites*/
+        const destroyInvites = await Invitation.destroy({
+            where: {
+                groupId: groupId
+            }
+        });
+
+        const partyDeleted: number = await UserGroup.destroy({
+            where: {
+                groupId: groupId
+            }
+        });
+
+        const groupDeleted: number = await Group.destroy({
+            where: {
+                id: groupId
+            }
+        });
+
+        if (!partyDeleted || !groupDeleted) {
+            res.status(400);
+            return res.json({ error: "Party is unabled to be destroyed at this moment" });
+        }
+
+        res.status(200);
+        return res.json({ success: "Successfully deleted party" });
+    }
+    catch (error: any) {
+        res.status(500);
+        return res.json({ error: `Unexpected error occured with error: ${error}` });
+    };
+};
+/*
+@param: userId -> Id of user to delete
+@param: groupId -> groupId to remove user from
+*/
+const leaveParty = async (req: Request, res: Response): Promise<Response> => {
+    const userId: string = req.params.userId
+    const groupId: string = req.params.groupId
+
+    var handleEmpty: string = ''
+    handleEmpty = !userId ? 'userId' : '' || !groupId ? 'groupId' : '' //find missing parm
+
+    if (handleEmpty) {
+        res.status(400);
+        return res.json({ error: `Unable to read: ${handleEmpty}` })
+    };
+
+    try {
+        const member: any = await UserGroup.findOne({
+            where: {
+                groupId: groupId,
+                userId: userId
+            },
+            attributes: ['role']
+        });
+
+        if (member.role.toLowerCase() === 'owner') {
+            /*Owner has to delete party instead of leaving*/
+            res.status(400);
+            return res.json({ error: "Cannot leave party as the owner please delete party" });
+        };
+
+        const memberRemoved: number = await UserGroup.destroy({
+            where: {
+                groupId: groupId,
+                userId: userId
+            }
+        });
+
+        if (!memberRemoved) {
+            res.status(400);
+            return res.json({ error: "Error in deleting member, please try again" });
+        };
+        res.status(200);
+        return res.json({ success: "Successfully removed member" });
+    }
+    catch (error: any) {
+        res.status(500);
+        return res.json({ error: `Unexpected error occured with error: ${error}` });
+    };
+};
 
 export {
     createUserGroup,
     inviteMember,
-    getMembers
+    getMembers,
+    deleteParty,
+    leaveParty
 };
