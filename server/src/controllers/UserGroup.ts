@@ -149,6 +149,147 @@ const createUserGroup = async (req: Request, res: Response): Promise<Response> =
     };
 };
 
+const inviteMember = async (req: Request, res: Response): Promise<Response> => {
+    const { groupId, ownerId, invitedUsers }: { groupId: number, ownerId: number, invitedUsers: Object } = req.body;
+
+    //Should return status 400 if Ids or invites are empty
+    var handleEmpty: string = ''
+    handleEmpty = !groupId ? 'groupId' : '' || !ownerId ? 'ownerId' : '' || !invitedUsers ? 'invited Users' : '';
+
+    if (handleEmpty) {
+        res.status(400);
+        return res.json({ error: `Failed to invite user to group, missing field: ${handleEmpty}` });
+    };
+
+    try {
+        if (invitedUsers && Object.keys(invitedUsers).length !== 0) {
+            /*User is attempting to invite members*/
+            let usersInGroup: Array<any> = [];
+
+            for (const [key, value] of Object.entries(invitedUsers)) {
+                //Expecting invitedUsers[key] to be userId - Checks is users are already in group
+                const foundGroup: any = await UserGroup.findOne({
+                    where: {
+                        userId: value
+                    }
+                });
+
+                if (foundGroup) {
+                    usersInGroup.push(value);
+                };
+            };
+
+            if (usersInGroup.length !== 0) {
+                /*If there are users already in a group*/
+                const users: Array<string> = [];
+
+                for (var ids of usersInGroup) {
+                    const res: any = await User.findOne({
+                        where: {
+                            id: ids
+                        },
+                        attributes: ['username']
+                    });
+
+                    users.push(res.username);
+                };
+
+                res.status(200);
+                return res.json({ message: `Users already in group`, users: users })
+            };
+            //Else all the invited users are not in a group - Create invites
+            //Check if invite already sent
+            let inviteCount: number = 0;
+
+            for (const [key, value] of Object.entries(invitedUsers)) {
+                //Expecting invitedUsers[key] to be userId - Creates a invite to each user
+                const alreadyInvited = await Invitation.findOne({
+                    where: {
+                        groupId: groupId,
+                        invited_by: ownerId,
+                        invited_user: value
+                    }
+                });
+
+                if (!alreadyInvited) {
+                    inviteCount++;
+                    await Invitation.create({
+                        status: "Pending",
+                        groupId: groupId,
+                        invited_by: ownerId,
+                        invited_user: value
+                    });
+                };
+            };
+            if (inviteCount === 0) {
+                res.status(400);
+                return res.json({ error: "Invitation has already been sent to users" });
+            };
+
+            res.status(200);
+            return res.json({ success: "Invitation sent successfully" });
+        }
+        res.status(200);
+        return res.json({ message: "No users indicated to invite" });
+    }
+    catch (error: any) {
+        res.status(500);
+        return res.json({ error: `Unexpected error occured with error: ${error}` });
+    };
+};
+
+const getMembers = async (req: Request, res: Response): Promise<Response> => {
+    const groupId: string = req.params.groupId;
+
+    if (!groupId) {
+        res.status(400);
+        return res.json({ error: "No groupId provided" });
+    };
+
+    try {
+        //Check if group exist in the table 
+        const group: any = await UserGroup.findOne({
+            where: {
+                groupId: groupId
+            }
+        });
+
+        if (!group) {
+            res.status(400);
+            return res.json({ error: "No such group exist" });
+        };
+
+        const party: any = await UserGroup.findAll({
+            where: {
+                groupId: parseInt(groupId)
+            },
+            // Attributes wanted
+            attributes: ['id', 'role', 'userId', 'groupId']
+        });
+
+        const members: Array<Array<any>> = [];
+
+        for (let i = 0; i < party.length; i++) {
+            const userId: number = party[i].dataValues.userId;
+            const user: any = await User.findOne({
+                where: {
+                    id: userId
+                }
+            });
+            members.push([user.username, party[i].dataValues.role, user.id]);
+        };
+
+        res.status(200);
+        return res.json({ members });
+    }
+    catch (error: any) {
+        res.status(500);
+        return res.json({ error: `Unexpected error occured with error: ${error}` });
+    };
+};
+
 export {
-    createUserGroup
+    createUserGroup,
+    inviteMember,
+    getMembers
 };
