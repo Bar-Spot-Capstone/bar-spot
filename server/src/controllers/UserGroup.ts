@@ -149,7 +149,7 @@ const createUserGroup = async (req: Request, res: Response): Promise<Response> =
     };
 };
 /*
-@param: groupdId -> id of group to send invite to
+@param: groupId -> id of group to send invite to
 @param: ownerId -> id of owner of the group whose sending invite
 @param: invitedUsers -> Object containing userIds to invite
 */
@@ -233,6 +233,7 @@ const inviteMember = async (req: Request, res: Response): Promise<Response> => {
             res.status(200);
             return res.json({ success: "Invitation sent successfully" });
         }
+
         res.status(200);
         return res.json({ message: "No users indicated to invite" });
     }
