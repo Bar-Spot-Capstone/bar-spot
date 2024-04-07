@@ -1,11 +1,10 @@
 .info:hover {
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.297);
-
 }
 .info {
   transition: box-shadow 0.4s ease-in-out;
 }
-.totalView{
+.totalView {
   display: flex;
   flex-wrap: row;
 }
@@ -19,7 +18,7 @@
   width: 30%;
 }
 
-.barinfo {
+.barImg {
   width: fit-content;
   height: fit-content;
   max-height: 200px;
@@ -34,7 +33,7 @@
     width: 100%;
     height: 50vh;
   }
-  .totalView{
+  .totalView {
     flex-direction: column-reverse;
   }
 }

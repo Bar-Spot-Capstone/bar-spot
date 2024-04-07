@@ -6,7 +6,7 @@ import { Offcanvas, Image } from "react-bootstrap";
 import QuickInfo from "../components/QuickInfo";
 import "../styles/MapView.css";
 import { barMenuInfo } from "../types/types";
-import imageUnavailable from "../assets/image_unavailable_photo.png"
+import imageUnavailable from "../assets/image_unavailable_photo.png";
 
 interface LngLat {
   lat: number;
@@ -36,8 +36,7 @@ const MapView = () => {
     location: {
       address1: "NULL",
     },
-    image_url:
-      imageUnavailable,
+    image_url: imageUnavailable,
   });
   const [yelpData, setYelpData] = useState<barMenuInfo[]>([]);
 
