@@ -5,6 +5,7 @@ import { IoRibbon } from "react-icons/io5";
 import { useSelector } from "react-redux";
 import { Rootstate } from "../state/store";
 import { useState } from "react";
+import { useEffect } from "react";
 import TimerInput from "../components/TimerInput";
 import unavailableImage from "../assets/image_unavailable_photo.png"
 import "../styles/Profile.css"
@@ -14,31 +15,34 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 const Profile = () => {
     const username: string = useSelector((state: Rootstate) => state.user.username);
     const email: string = useSelector((state: Rootstate) => state.user.email);
+    const userId: number = useSelector((state: Rootstate) => state.user.userId);
+
     const [renderOption, setOption]: any = useState('accountSetting');
     const [trackLocation, setLocationOption] = useState(true);
     const [trackBars, setTrackedBars] = useState(true);
+    const [favoriteBars, setFavoriteBars] = useState<{ favorites: any[] }>({ favorites: [] });
 
-    /*
-        Will show favorite bars and the option to delete. No adding from here
-        Sample response from get favorite. Not complete, need to also store bar image url.
-    */
-    const [favoriteBars, setFavoriteBars] = useState({
-        favorites: [
-            {
-                barName: "O'Flannigans",
-                address: "123 Test St",
-                note: "Great mocktail menu!",
-                image_url: null
-            },
-            {
-                barName: "Hillarys Bar",
-                address: null,
-                note: null,
-                image_url: null
+    useEffect(() => {
+        const fetchFavorites = async () => {
+            try {
+                const response = await fetch(`http://localhost:3001/favorite/get/${userId}`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setFavoriteBars(data);
+                } else {
+                    console.error("Failed to fetch favorites");
+                }
+            } catch (error) {
+                console.error("Error fetching favorites:", error);
             }
-        ]
-    });
-
+        };
+        fetchFavorites();
+    }, [userId]);
 
     const renderSelection = () => {
         if (renderOption == 'accountSetting') {
@@ -128,6 +132,10 @@ const Profile = () => {
             )
         }
         else if (renderOption == 'favoriteBars') {
+            console.log('favoriteBars:', favoriteBars);
+            console.log('favoriteBars.favorites:', favoriteBars && favoriteBars.favorites);
+            console.log('favoriteBars.favorites.length:', favoriteBars && favoriteBars.favorites && favoriteBars.favorites.length);
+
             return (
                 <div className="favorite-bars">
                     <h5>Favorite Bars</h5>
