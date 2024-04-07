@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Rootstate } from "../state/store";
 import { createGroup } from "./Group"; //imported from Group.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button, NavDropdown, Modal, Container, Navbar, Badge, Form } from "react-bootstrap";
 import { MdCheckCircle } from "react-icons/md";
 import { MdCancel } from "react-icons/md";
@@ -23,8 +23,49 @@ const NavBar = () => {
   const [usersList, setUsersList] = useState<Array<Object>>([]);// for fetching all users
   const [invitedMembers, setInvitedMembers] = useState<Array<object>>([]);// for storing invited members
 
+  /*Used to refresh upon new invites*/
+  useEffect(() => {
+    fetchInvites();
+  }, []);
+
+  /*
+  @params: userId -> fetchs the invites that a user has
+  */
+  //Need to edit invite to also return group name AND number of members
+  const fetchInvites = async () => {
+    try {
+      if (!userId) {
+        console.log("No userId provided");
+      }
+
+      const options: object = {
+        method: 'GET',
+        headers: {
+          "Content-Type": "application/json"
+        }
+      };
+
+      const response: Response = await fetch(`http://localhost:3001/invite/${userId}`, options);
+
+      if (!response.ok) {
+        const res: any = await response.json();
+        console.log(`Response was not okay with message: ${res.error}`);
+        return;
+      };
+
+      const res: any = await response.json();
+      setInvites(res.invitesFormatted.length);
+      console.log(res);
+      return;
+    }
+    catch (error: any) {
+      console.log(`Failed to fetch invites for user with error: ${error}`);
+    };
+  };
+
   const handleGroupCreationSubmit = async (event: any) => {
     /*Creates group based on input name and possible invited members*/
+    //invited members is a list of user information
     event.preventDefault();
     if (!groupName) {
       alert('No group name');
@@ -51,7 +92,7 @@ const NavBar = () => {
 
       if (!response.ok) {
         const res: any = await response.json();
-        console.log(`Response was not okay with message: ${res}`);
+        console.log(`Response was not okay with message: ${res.error}`);
         return;
       };
 
