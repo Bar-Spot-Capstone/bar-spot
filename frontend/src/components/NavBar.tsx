@@ -22,6 +22,7 @@ const NavBar = () => {
   const [groupName, setGroupName] = useState<string>("");// for group name
   const [usersList, setUsersList] = useState<Array<Object>>([]);// for fetching all users
   const [invitedMembers, setInvitedMembers] = useState<Array<object>>([]);// for storing invited members
+  const [invitationsFetched, setInvitationsFetched] = useState<Array<any>>([]);// for storing invites that were fetched 
 
   /*Used to refresh upon new invites*/
   useEffect(() => {
@@ -31,7 +32,6 @@ const NavBar = () => {
   /*
   @params: userId -> fetchs the invites that a user has
   */
-  //Need to edit invite to also return group name AND number of members
   const fetchInvites = async () => {
     try {
       if (!userId) {
@@ -55,7 +55,19 @@ const NavBar = () => {
 
       const res: any = await response.json();
       setInvites(res.invitesFormatted.length);
-      console.log(res);
+      //Now need to store all invites into useState
+      let filterInvites: Array<Object> = []
+      for (let i = 0; i < res.invitesFormatted.length; i++) {
+        filterInvites.push({
+          ownerName: res.invitesFormatted[i].ownerName,
+          id: res.invitesFormatted[i].id,
+          status: res.invitesFormatted[i].status,
+          groupId: res.invitesFormatted[i].groupId,
+          groupName: res.invitesFormatted[i].groupName,
+          numberOfMembers: res.invitesFormatted[i].numberOfMembers
+        });
+      };
+      setInvitationsFetched(filterInvites);//update
       return;
     }
     catch (error: any) {
@@ -259,15 +271,17 @@ const NavBar = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        <tr>
-                          <td>Wildest Group</td>
-                          <td>Mark</td>
-                          <td>100</td>
-                          <td className="d-flex justify-content-evenly">
-                            <button type="button" className="btn btn-success btn-sm"><MdCheckCircle /></button>
-                            <button type="button" className="btn btn-danger btn-sm"><MdCancel /></button>
-                          </td>
-                        </tr>
+                        {invitationsFetched.map(invite => (
+                          <tr key={invite.id}>
+                            <td>{invite.groupName}</td>
+                            <td>{invite.ownerName}</td>
+                            <td>{invite.numberOfMembers}</td>
+                            <td className="d-flex justify-content-evenly">
+                              <button type="button" className="btn btn-success btn-sm"><MdCheckCircle /></button>
+                              <button type="button" className="btn btn-danger btn-sm"><MdCancel /></button>
+                            </td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>
