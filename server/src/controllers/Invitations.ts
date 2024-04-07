@@ -66,7 +66,7 @@ const respondToInvite = async (req: Request, res: Response): Promise<Response> =
 
     //Should return status 400 if fields are missing
     var handleEmpty: string = ''
-    handleEmpty = !groupId ? 'groupId' : '' || !userId ? 'ownerId' : '' || response === null ? 'response' : '';
+    handleEmpty = !groupId ? 'groupId' : '' || !userId ? 'userId' : '' || response === null ? 'response' : '';
 
     if (handleEmpty) {
         res.status(400);

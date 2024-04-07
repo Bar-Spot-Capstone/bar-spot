@@ -101,3 +101,142 @@ describe('On vaild get invites input', (): void => {
         });
     });
 });
+/*Invite response test cases*/
+describe('On invaild get respond to invite input', (): void => {
+    beforeEach((): void => {
+        jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
+    });
+
+    it('should return a status code of 400 and error message if missing groupId', async (): Promise<void> => {
+        const req: any = {
+            body: {
+                groupId: "",
+                userId: Number.MAX_SAFE_INTEGER,
+                response: false
+            }
+        };
+
+        await respondToInvite(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Failed to invite user to group, missing field: groupId" });
+    });
+
+    it('should return a status code of 400 and error message if missing userId', async (): Promise<void> => {
+        const req: any = {
+            body: {
+                groupId: Number.MAX_SAFE_INTEGER,
+                userId: null,
+                response: false
+            }
+        };
+
+        await respondToInvite(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Failed to invite user to group, missing field: userId" });
+    });
+
+    it('should return a status code of 400 and error message if missing response', async (): Promise<void> => {
+        const req: any = {
+            body: {
+                groupId: Number.MAX_SAFE_INTEGER,
+                userId: Number.MAX_SAFE_INTEGER,
+                response: null
+            }
+        };
+
+        await respondToInvite(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Failed to invite user to group, missing field: response" });
+    });
+
+    it('should return a status code of 400 and error message if fail to reject invite', async (): Promise<void> => {
+        const req: any = {
+            body: {
+                groupId: Number.MAX_SAFE_INTEGER,
+                userId: Number.MAX_SAFE_INTEGER,
+                response: false
+            }
+        };
+
+        (Invitation as any).destroy.mockResolvedValueOnce(false);
+
+        await respondToInvite(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Failed to reject invitation" });
+    });
+
+    it('should return a status code of 400 and error message if invitee is already in a group', async (): Promise<void> => {
+        const req: any = {
+            body: {
+                groupId: Number.MAX_SAFE_INTEGER,
+                userId: Number.MAX_SAFE_INTEGER,
+                response: true
+            }
+        };
+
+        (UserGroup as any).findOne.mockResolvedValueOnce(true);
+
+        await respondToInvite(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Failed to join group user is already in a group" });
+    });
+
+    it('should return a status code of 400 and error message if error occured in joing group', async (): Promise<void> => {
+        const req: any = {
+            body: {
+                groupId: Number.MAX_SAFE_INTEGER,
+                userId: Number.MAX_SAFE_INTEGER,
+                response: true
+            }
+        };
+
+        (UserGroup as any).findOne.mockResolvedValueOnce(false);
+        (UserGroup as any).create.mockResolvedValueOnce(false);
+
+        await respondToInvite(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Failed to join group" });
+    });
+
+});
+
+describe('On vaild get respond to invite input', (): void => {
+    beforeEach((): void => {
+        jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
+    });
+
+    it('should return a status code of 200 and success message if invite was rejected', async (): Promise<void> => {
+        const req: any = {
+            body: {
+                groupId: Number.MAX_SAFE_INTEGER,
+                userId: Number.MAX_SAFE_INTEGER,
+                response: false
+            }
+        };
+
+        (Invitation as any).destroy.mockResolvedValueOnce(true);
+
+        await respondToInvite(req, res);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ success: "Rejected invite" });
+    });
+
+    it('should return a status code of 200 and success message if invite was accpeted', async (): Promise<void> => {
+        const req: any = {
+            body: {
+                groupId: Number.MAX_SAFE_INTEGER,
+                userId: Number.MAX_SAFE_INTEGER,
+                response: true
+            }
+        };
+
+        (UserGroup as any).findOne.mockResolvedValueOnce(false);
+        (UserGroup as any).create.mockResolvedValueOnce(true);
+        (Invitation as any).destroy.mockResolvedValueOnce(true);
+
+        await respondToInvite(req, res);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ success: "Joined group" });
+    });
+
+});
