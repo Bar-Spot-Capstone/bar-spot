@@ -1,6 +1,7 @@
 import Invitation from "../models/Invitations";
 import User from "../models/Users";
 import UserGroup from "../models/UserGroup";
+import Group from "../models/Group";
 import { getAllInvites, respondToInvite } from "../controllers/Invitations";
 
 // Mock Invites.create and findOne
@@ -22,6 +23,11 @@ jest.mock('../models/UserGroup', (): any => ({
 // Mock User.findOne
 jest.mock('../models/Users', (): any => ({
     findOne: jest.fn() //to mock the findOne function
+}));
+
+// Mock Group.findAll
+jest.mock('../models/Group', (): any => ({
+    findAll: jest.fn() //to mock the findOne function
 }));
 
 const res: any = {
@@ -88,6 +94,11 @@ describe('On vaild get invites input', (): void => {
         (User as any).findOne.mockResolvedValueOnce({
             username: "Dev"
         });
+        (Group as any).findAll.mockResolvedValueOnce([{
+            dataValues: {
+                name: 'Front-end Test Integration',
+            }
+        }]);
 
         await getAllInvites(req, res);
         expect(res.status).toHaveBeenCalledWith(200);
@@ -97,6 +108,8 @@ describe('On vaild get invites input', (): void => {
                 "id": Number.MAX_SAFE_INTEGER,
                 "ownerName": "Dev",
                 "status": "Pending",
+                "groupName": "Front-end Test Integration",
+                "numberOfMembers": 1
             }]
         });
     });

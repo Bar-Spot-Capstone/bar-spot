@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import Invitation from "../models/Invitations";
 import User from "../models/Users";
 import UserGroup from "../models/UserGroup";
+import Group from "../models/Group";
 
 /*
 @param: userId -> retrieves invites based on the userid
@@ -44,11 +45,22 @@ const getAllInvites = async (req: Request, res: Response): Promise<Response> => 
                 attributes: ['username']
             });
 
+            const groupInfo: any = await Group.findAll({
+                where: {
+                    id: invites[key].dataValues.groupId
+                }
+            });
+
+            const groupName: string = groupInfo[0].dataValues.name;
+            const numberOfMembers: number = groupInfo.length;
+
             invitesFormatted.push({
                 ownerName: ownerName.username,
                 id: invites[key].dataValues.id,
                 status: invites[key].dataValues.status,
-                groupId: invites[key].dataValues.groupId
+                groupId: invites[key].dataValues.groupId,
+                groupName: groupName,
+                numberOfMembers: numberOfMembers
             });
         };
 
