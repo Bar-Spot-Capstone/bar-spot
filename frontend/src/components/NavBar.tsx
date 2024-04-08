@@ -11,9 +11,16 @@ import NavBadge from "./NavBadge";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.min.js";
 import "../styles/NavBar.css"
+import { useDispatch } from "react-redux";
+import { registerGroup, setGroupId } from "../state/slices/groupSlice";
+
+//Need to conditionally render group section when a user is in a group
 
 const NavBar = () => {
   const isLoggedIn: boolean = useSelector((state: Rootstate) => state.user.isLoggedIn);
+  const isInGroup: boolean = useSelector((state: Rootstate) => state.group.isInGroup);//Checks if user is in a group
+  const registeredGroupId: number = useSelector((state: Rootstate) => state.group.groupId);
+  const dispatch: any = useDispatch();
   const userId: number = useSelector((state: Rootstate) => state.user.userId);
   const [invitation, setInvites] = useState<number>(0);
   const [inviteShow, setInviteShow] = useState<boolean>(false);
@@ -80,7 +87,7 @@ const NavBar = () => {
   @param: user response -> true === accept invite || false === reject invite
   @param: groupId -> id of group to respond to
   */
-  const inviteResponse = async (userRes: boolean, groupdId: number) => {
+  const inviteResponse = async (userRes: boolean, groupId: number) => {
     if (!userId || userId < 1) {
       console.log("UserId not found");
       return;
@@ -96,7 +103,7 @@ const NavBar = () => {
           },
           body: JSON.stringify({
             userId: userId,
-            groupId: groupdId,
+            groupId: groupId,
             response: userRes
           })
         };
@@ -113,8 +120,10 @@ const NavBar = () => {
         const res: any = await response.json();
         console.log(res);
         fetchInvites();//refresh invites page
+        //Sets the groupId assoicated with the user and marks them in a group
+        dispatch(registerGroup());
+        dispatch(setGroupId(groupId));//sets the groupId to the group Id
         return;
-
       }
       //Else the user wants to reject invite
       const options: object = {
@@ -124,7 +133,7 @@ const NavBar = () => {
         },
         body: JSON.stringify({
           userId: userId,
-          groupId: groupdId,
+          groupId: groupId,
           response: userRes
         })
       };
@@ -155,7 +164,7 @@ const NavBar = () => {
       alert('No group name');
       return;
     };
-    await createGroup(groupName, invitedMembers, userId);
+    await createGroup(dispatch, groupName, invitedMembers, userId);
   };
 
   const fetchAllOtherUsers = async () => {

@@ -1,4 +1,6 @@
-const createGroup = async (name: string, invitedUsers: Array<any>, userId: number) => {
+import { registerGroup, setGroupId } from "../state/slices/groupSlice";
+
+const createGroup = async (dispatch: any, name: string, invitedUsers: Array<any>, userId: number) => {
     try {
         if (!userId || userId < 1) {
             console.log("UserId not found");
@@ -35,6 +37,10 @@ const createGroup = async (name: string, invitedUsers: Array<any>, userId: numbe
 
             const res = await response.json();
             console.log(`${res}, added multiple people to group`);
+            /*Update user as being in a group with the group id*/
+            dispatch(registerGroup());
+            dispatch(setGroupId(res.groupId));
+
             return;
         }
         //Else no invited users
@@ -59,6 +65,9 @@ const createGroup = async (name: string, invitedUsers: Array<any>, userId: numbe
 
         const group = await response.json();
         console.log(group);
+        /*Update user as being in a group with the group id*/
+        dispatch(registerGroup());
+        dispatch(setGroupId(group.groupId));
         return;
     }
     catch (error: any) {
