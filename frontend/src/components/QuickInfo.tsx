@@ -22,27 +22,40 @@ const QuickInfo = ({ barData }: Props) => {
   const [show, setShow] = useState<boolean>(false);
   const [sort, setSort] = useState<boolean>(false);
 
-  const handleDsc = () => {
+  const handleDscName = () => {
     sortByName("dsc");
   };
 
   const handleAscName = () => {
     sortByName("asc");
-  }
+  };
+
+  const handleAscRating = () => {
+    sortByRating("asc");
+  };
+
+  const handleDscRating = () => {
+    sortByRating("dsc");
+  };
 
   const sortByName = (direction: string) => {
-   
-    mergeSort(barData, 0, barData.length - 1, direction);
+    mergeSort(barData, 0, barData.length - 1, direction, "name");
     setSort(true);
   };
+
+  const sortByRating = (direction: string) => {
+    mergeSort(barData, 0, barData.length - 1, direction, "rating");
+    setSort(true);
+  };
+
   const merge = (
     arr: barMenuInfo[],
     left: number,
     middle: number,
     right: number,
-    direction: string
+    direction: string,
+    factor: string
   ) => {
-   
     let size1: number = middle - left + 1;
     let size2: number = right - middle;
 
@@ -60,68 +73,118 @@ const QuickInfo = ({ barData }: Props) => {
     let index2 = 0;
     let mergedIndex = left;
 
-    if (direction == "asc") {
-      while (index1 < size1 && index2 < size2) {
-        if (array1[index1].name <= array2[index2].name) {
+    if (factor == "name") {
+      if (direction == "asc") {
+        while (index1 < size1 && index2 < size2) {
+          if (array1[index1].name <= array2[index2].name) {
+            arr[mergedIndex] = array1[index1];
+            index1++;
+          } else {
+            arr[mergedIndex] = array2[index2];
+            index2++;
+          }
+          mergedIndex++;
+        }
+        while (index1 < size1) {
           arr[mergedIndex] = array1[index1];
           index1++;
-        } else {
+          mergedIndex++;
+        }
+        while (index2 < size2) {
           arr[mergedIndex] = array2[index2];
           index2++;
+          mergedIndex++;
         }
-        mergedIndex++;
-      }
-      while (index1 < size1) {
-        arr[mergedIndex] = array1[index1];
-        index1++;
-        mergedIndex++;
-      }
-      while (index2 < size2) {
-        arr[mergedIndex] = array2[index2];
-        index2++;
-        mergedIndex++;
-      }
-    }else{
-      while (index1 < size1 && index2 < size2) {
-        if (array1[index1].name >= array2[index2].name) {
+      } else {
+        while (index1 < size1 && index2 < size2) {
+          if (array1[index1].name >= array2[index2].name) {
+            arr[mergedIndex] = array1[index1];
+            index1++;
+          } else {
+            arr[mergedIndex] = array2[index2];
+            index2++;
+          }
+          mergedIndex++;
+        }
+        while (index1 < size1) {
           arr[mergedIndex] = array1[index1];
           index1++;
-        } else {
+          mergedIndex++;
+        }
+        while (index2 < size2) {
           arr[mergedIndex] = array2[index2];
           index2++;
+          mergedIndex++;
         }
-        mergedIndex++;
       }
-      while (index1 < size1) {
-        arr[mergedIndex] = array1[index1];
-        index1++;
-        mergedIndex++;
-      }
-      while (index2 < size2) {
-        arr[mergedIndex] = array2[index2];
-        index2++;
-        mergedIndex++;
+    } else if (factor == "rating") {
+      if (direction == "asc") {
+        while (index1 < size1 && index2 < size2) {
+          if (Number(array1[index1].rating) <= Number(array2[index2].rating)) {
+            arr[mergedIndex] = array1[index1];
+            index1++;
+          } else {
+            arr[mergedIndex] = array2[index2];
+            index2++;
+          }
+          mergedIndex++;
+        }
+        while (index1 < size1) {
+          arr[mergedIndex] = array1[index1];
+          index1++;
+          mergedIndex++;
+        }
+        while (index2 < size2) {
+          arr[mergedIndex] = array2[index2];
+          index2++;
+          mergedIndex++;
+        }
+      } else {
+        while (index1 < size1 && index2 < size2) {
+          if (Number(array1[index1].rating) >= Number(array2[index2].rating)) {
+            arr[mergedIndex] = array1[index1];
+            index1++;
+          } else {
+            arr[mergedIndex] = array2[index2];
+            index2++;
+          }
+          mergedIndex++;
+        }
+        while (index1 < size1) {
+          arr[mergedIndex] = array1[index1];
+          index1++;
+          mergedIndex++;
+        }
+        while (index2 < size2) {
+          arr[mergedIndex] = array2[index2];
+          index2++;
+          mergedIndex++;
+        }
       }
     }
-
-    
   };
 
-  const mergeSort = (arr: barMenuInfo[], left: number, right: number, direction: string) => {
+  const mergeSort = (
+    arr: barMenuInfo[],
+    left: number,
+    right: number,
+    direction: string,
+    factor: string
+  ) => {
     if (left >= right) {
       return;
     }
 
     let middle: number = left + Math.floor((right - left) / 2);
 
-    mergeSort(arr, left, middle, direction);
-    mergeSort(arr, middle + 1, right, direction);
-    merge(arr, left, middle, right, direction);
+    mergeSort(arr, left, middle, direction, factor);
+    mergeSort(arr, middle + 1, right, direction, factor);
+    merge(arr, left, middle, right, direction, factor);
   };
 
   useEffect(() => {
     setShow(true);
-    setSort(false)
+    setSort(false);
   }, [sort, setSort]);
 
   if (show) {
@@ -139,11 +202,14 @@ const QuickInfo = ({ barData }: Props) => {
                       id="name-radio-1"
                       value={1}
                       onClick={handleAscName}
-                     
                     >
                       Asc
                     </ToggleButton>
-                    <ToggleButton id="name-radio-2" value={2} onClick={handleDsc}>
+                    <ToggleButton
+                      id="name-radio-2"
+                      value={2}
+                      onClick={handleDscName}
+                    >
                       Desc
                     </ToggleButton>
                   </ToggleButtonGroup>
@@ -151,12 +217,7 @@ const QuickInfo = ({ barData }: Props) => {
                 <ListGroup.Item className="d-flex justify-content-between  align-items-center">
                   Distance:{" "}
                   <ToggleButtonGroup type="radio" name="distanceSort">
-                    <ToggleButton
-                      id="distance-radio-1"
-                      value={1}
-                      onClick={handleDsc}
-                      
-                    >
+                    <ToggleButton id="distance-radio-1" value={1}>
                       Asc
                     </ToggleButton>
                     <ToggleButton id="distance-radio-2" value={2}>
@@ -165,16 +226,12 @@ const QuickInfo = ({ barData }: Props) => {
                   </ToggleButtonGroup>
                 </ListGroup.Item>
                 <ListGroup.Item className="d-flex justify-content-between  align-items-center">
-                  Price:{" "}
-                  <ToggleButtonGroup type="radio" name="priceSort">
-                    <ToggleButton
-                      id="price-radio-1"
-                      value={1}
-                      
-                    >
+                  Rating:{" "}
+                  <ToggleButtonGroup type="radio" name="ratingSort">
+                    <ToggleButton id="price-radio-1" value={1} onClick={handleAscRating}>
                       Asc
                     </ToggleButton>
-                    <ToggleButton id="price-radio-2" value={2}>
+                    <ToggleButton id="price-radio-2" value={2} onClick={handleDscRating}>
                       Desc
                     </ToggleButton>
                   </ToggleButtonGroup>
