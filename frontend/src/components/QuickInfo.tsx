@@ -228,10 +228,18 @@ const QuickInfo = ({ barData }: Props) => {
                 <ListGroup.Item className="d-flex justify-content-between  align-items-center">
                   Rating:{" "}
                   <ToggleButtonGroup type="radio" name="ratingSort">
-                    <ToggleButton id="price-radio-1" value={1} onClick={handleAscRating}>
+                    <ToggleButton
+                      id="price-radio-1"
+                      value={1}
+                      onClick={handleAscRating}
+                    >
                       Asc
                     </ToggleButton>
-                    <ToggleButton id="price-radio-2" value={2} onClick={handleDscRating}>
+                    <ToggleButton
+                      id="price-radio-2"
+                      value={2}
+                      onClick={handleDscRating}
+                    >
                       Desc
                     </ToggleButton>
                   </ToggleButtonGroup>
@@ -242,7 +250,7 @@ const QuickInfo = ({ barData }: Props) => {
         </Accordion>
         {barData.map((bar, index) => (
           <Container
-            className="d-flex flex-column bg-body-secondary m-2 p-2 rounded info w-auto "
+            className="d-flex flex-column m-2 p-2 rounded info w-auto "
             key={index}
           >
             <Row>
@@ -251,11 +259,21 @@ const QuickInfo = ({ barData }: Props) => {
               </Col>
             </Row>
             <Row>
-              <Col className="w-50">
-                <p>Rating: {bar.rating}/5 Stars</p>
-                <p>Address: {bar.location.address1}</p>
-                <p>Phone: {bar.display_phone}</p>
-                <Button>More Info</Button>
+              <Col className="w-50 m-0">
+                <ListGroup>
+                  <ListGroup.Item className="p-1 d-flex justify-content-between align-items-center">
+                    <p>Rating: {bar.rating}/5 Stars</p>
+                  </ListGroup.Item>
+                  <ListGroup.Item className="p-1 d-flex justify-content-between  align-items-center">
+                    <p>Address: {bar.location.address1}</p>
+                  </ListGroup.Item>
+                  <ListGroup.Item className="p-1 d-flex justify-content-between  align-items-center">
+                    <p>Phone: {bar.display_phone}</p>
+                  </ListGroup.Item>
+                  <ListGroup.Item className="p-2 d-flex justify-content-center align-items-center">
+                    <Button>More Info</Button>
+                  </ListGroup.Item>
+                </ListGroup>
               </Col>
               <Col className="w-50 d-flex justify-content-center align-items-center">
                 <Image src={bar.image_url} thumbnail className="barImg"></Image>
