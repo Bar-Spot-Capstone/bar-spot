@@ -17,8 +17,8 @@ const CardInfo = ({rating, name, address, phone, image, description}:Props) => {
             <Card.Title>
                 {name}
             </Card.Title>
-            <Card.Text>
-                <ListGroup>
+        </Card.Body>
+        <ListGroup>
                     <ListGroup.Item>
                         Rating: {rating}/5 Stars
                     </ListGroup.Item>
@@ -32,9 +32,9 @@ const CardInfo = ({rating, name, address, phone, image, description}:Props) => {
                         Description: {description}
                     </ListGroup.Item>
                 </ListGroup>
-                <Button variant="success" className="my-3">Start Hopping</Button>
-                <Button variant="outline-success" className="my-3 mx-2">Add to Favorites</Button>
-            </Card.Text>
+        <Card.Body>
+        <Button variant="success" className="my-3 me-2">Start Hopping</Button>
+                <Button variant="outline-success" className="my-3">Add to Favorites</Button>
         </Card.Body>
     </Card>
   )
