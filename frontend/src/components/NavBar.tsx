@@ -30,11 +30,17 @@ const NavBar = () => {
   const [usersList, setUsersList] = useState<Array<Object>>([]);// for fetching all users
   const [invitedMembers, setInvitedMembers] = useState<Array<object>>([]);// for storing invited members
   const [invitationsFetched, setInvitationsFetched] = useState<Array<any>>([]);// for storing invites that were fetched 
+  const [groupShow, setGroupShow] = useState<boolean>(false);
+
+  //Most likely have to change in the useEffect when 
+  const [inGroupBool, setIsInGroup] = useState<boolean>(false);//Used for rendering if the user is in group
 
   /*Used to refresh upon new invites*/
   useEffect(() => {
     fetchInvites();
-  }, []);
+    setIsInGroup(isInGroup);//updates if user is in group and changes on the groupId changing
+    //Could add a back-end feature that fetchs the and checks user group
+  }, [registeredGroupId, isInGroup]);
 
   /*
   @params: userId -> fetchs the invites that a user has
@@ -222,7 +228,6 @@ const NavBar = () => {
       }
     };
   };
-
   return (
     <Navbar expand="md" className="bg-secondary-subtle">
       <Container>
@@ -259,19 +264,42 @@ const NavBar = () => {
                 <Modal.Title>Group Options</Modal.Title>
               </Modal.Header>
               <Modal.Body className="d-flex justify-content-center gap-5">
-                <div>
-                  <button className="btn btn-primary" onClick={() => {
-                    setShow(!show);
-                    setCreateView(!creationView);
-                  }}>
-                    Create
-                  </button>
-                </div>
-                <div>
-                  <button className="btn btn-primary" onClick={() => { setShow(!show); setInviteShow(!inviteShow); }}>
-                    Invites <Badge bg="danger">{invitation}</Badge>
-                  </button>
-                </div>
+                {true ? (
+                  <>
+                    {/*User is in group display group button*/}
+                    <div>
+                      <button className="btn btn-primary" onClick={() => {
+                        setShow(!show);
+                        setGroupShow(!groupShow);
+                      }}> View Group </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div>
+                      <button
+                        className="btn btn-primary"
+                        onClick={() => {
+                          setShow(!show);
+                          setCreateView(!creationView);
+                        }}
+                      >
+                        Create
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        className="btn btn-primary"
+                        onClick={() => {
+                          setShow(!show);
+                          setInviteShow(!inviteShow);
+                        }}
+                      >
+                        Invites <Badge bg="danger">{invitation}</Badge>
+                      </button>
+                    </div>
+                  </>
+                )}
               </Modal.Body>
               <Modal.Footer className="justify-content-center">
                 <div>
@@ -381,6 +409,56 @@ const NavBar = () => {
                 </div>
               </Modal.Footer>
             </Modal>
+
+
+
+            {/*Model for Group info page*/}
+            <Modal show={groupShow} onHide={() => setGroupShow(false)}>
+              <Modal.Header closeButton>
+                <Modal.Title>Group</Modal.Title>
+              </Modal.Header>
+              <Modal.Body className="d-flex">
+                <div className="container-fluid">
+                  <div className="row">
+                    <table className="table col-12 table-responsive table-hover table-sm mb-4">
+                      <thead>
+                        <tr className="table-primary">
+                          <th scope="col">Name</th>
+                          <th scope="col">Role</th>
+                          <th scope="col">Leave</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {invitationsFetched.map(invite => (
+                          <tr key={invite.id}>
+                            <td>{invite.groupName}</td>
+                            <td>{invite.ownerName}</td>
+                            <td className="d-flex justify-content-evenly">
+                              <button onClick={() => { inviteResponse(true, invite.groupId) }} type="button" className="btn btn-success btn-sm"><MdCheckCircle /></button>
+                              <button onClick={() => { inviteResponse(false, invite.groupId) }} type="button" className="btn btn-danger btn-sm"><MdCancel /></button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </Modal.Body>
+              <Modal.Footer className="justify-content-center">
+                <div className="me-5">
+                  <button className="btn btn-primary btn-transition" onClick={() => { setInviteShow(!inviteShow); setShow(!show); }}>
+                    Back
+                  </button>
+                </div>
+                <div>
+                  <button className="btn btn-primary btn-transition" onClick={() => setInviteShow(!inviteShow)}>
+                    Cancel
+                  </button>
+                </div>
+              </Modal.Footer>
+            </Modal>
+
+
 
           </NavDropdown>
           <NavBadge isLoggedIn={isLoggedIn} />
