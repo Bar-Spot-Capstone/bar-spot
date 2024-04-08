@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { Rootstate } from "../state/store";
 import { createGroup } from "./Group"; //imported from Group.tsx
 import { useState, useEffect } from "react";
-import { Button, NavDropdown, Modal, Container, Navbar, Badge, Form } from "react-bootstrap";
+import { NavDropdown, Modal, Container, Navbar, Badge, Form } from "react-bootstrap";
 import { MdCheckCircle } from "react-icons/md";
 import { MdCancel } from "react-icons/md";
 import Logo from "../assets/Bar-Spot-Translucent-Logo.png";
@@ -15,7 +15,7 @@ import "../styles/NavBar.css"
 const NavBar = () => {
   const isLoggedIn: boolean = useSelector((state: Rootstate) => state.user.isLoggedIn);
   const userId: number = useSelector((state: Rootstate) => state.user.userId);
-  const [invitation, setInvites] = useState<Number>(0);
+  const [invitation, setInvites] = useState<number>(0);
   const [inviteShow, setInviteShow] = useState<boolean>(false);
   const [show, setShow] = useState<boolean>(false);
   const [creationView, setCreateView] = useState<boolean>(false);// for switching views
@@ -68,6 +68,78 @@ const NavBar = () => {
         });
       };
       setInvitationsFetched(filterInvites);//update
+      return;
+    }
+    catch (error: any) {
+      console.log(`Failed to fetch invites for user with error: ${error}`);
+    };
+  };
+
+  /*
+  @breif: Rejects the invite to the user or accepts the invite to the user, making the user join a group and removes all other invites
+  @param: user response -> true === accept invite || false === reject invite
+  @param: groupId -> id of group to respond to
+  */
+  const inviteResponse = async (userRes: boolean, groupdId: number) => {
+    if (!userId || userId < 1) {
+      console.log("UserId not found");
+      return;
+    };
+
+    try {
+      if (userRes) {
+        //User accepts the invite - Most likely have to update the slice
+        const options: object = {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            userId: userId,
+            groupId: groupdId,
+            response: userRes
+          })
+        };
+
+        const response: Response = await fetch('http://localhost:3001/invite/respond', options);
+
+        if (!response.ok) {
+          const res: any = await response.json();
+          console.log(`Response was not okay with message: ${res.error}`);
+          return;
+        };
+
+        //Invite has been accepted -> Most like have to update the slice to update this groupId
+        const res: any = await response.json();
+        console.log(res);
+        fetchInvites();//refresh invites page
+        return;
+
+      }
+      //Else the user wants to reject invite
+      const options: object = {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          userId: userId,
+          groupId: groupdId,
+          response: userRes
+        })
+      };
+
+      const response: Response = await fetch('http://localhost:3001/invite/respond', options);
+
+      if (!response.ok) {
+        const res: any = await response.json();
+        console.log(`Response was not okay with message: ${res.error}`);
+        return;
+      };
+
+      const res: any = await response.json();
+      console.log(res);
+      fetchInvites();//refresh invites page
       return;
     }
     catch (error: any) {
@@ -277,8 +349,8 @@ const NavBar = () => {
                             <td>{invite.ownerName}</td>
                             <td>{invite.numberOfMembers}</td>
                             <td className="d-flex justify-content-evenly">
-                              <button type="button" className="btn btn-success btn-sm"><MdCheckCircle /></button>
-                              <button type="button" className="btn btn-danger btn-sm"><MdCancel /></button>
+                              <button onClick={() => { inviteResponse(true, invite.groupId) }} type="button" className="btn btn-success btn-sm"><MdCheckCircle /></button>
+                              <button onClick={() => { inviteResponse(false, invite.groupId) }} type="button" className="btn btn-danger btn-sm"><MdCancel /></button>
                             </td>
                           </tr>
                         ))}
