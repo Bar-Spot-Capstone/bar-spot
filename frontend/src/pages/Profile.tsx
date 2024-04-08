@@ -22,27 +22,45 @@ const Profile = () => {
     const [trackBars, setTrackedBars] = useState(true);
     const [favoriteBars, setFavoriteBars] = useState<{ favorites: any[] }>({ favorites: [] });
 
-    useEffect(() => {
-        const fetchFavorites = async () => {
-            try {
-                const response = await fetch(`http://localhost:3001/favorite/get/${userId}`, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    setFavoriteBars(data);
-                } else {
-                    console.error("Failed to fetch favorites");
-                }
-            } catch (error) {
-                console.error("Error fetching favorites:", error);
+    const fetchFavorites = async () => {
+        try {
+            const response = await fetch(`http://localhost:3001/favorite/get/${userId}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setFavoriteBars(data);
+            } else {
+                console.error("Failed to fetch favorites");
             }
-        };
+        } catch (error) {
+            console.error("Error fetching favorites:", error);
+        }
+    };
+    
+    useEffect(() => {
         fetchFavorites();
     }, [userId]);
+
+    const handleDeleteFavorite = async (barId: number) => {
+        try {
+            const response = await fetch(`http://localhost:3001/favorite/delete/${userId}/${barId}`, {
+                method: "DELETE",
+            });
+            if (response.ok) {
+                // Refetch favorites after successful deletion
+                fetchFavorites();
+            } else {
+                console.error("Failed to delete favorite");
+            }
+        } catch (error) {
+            console.error("Error deleting favorite:", error);
+        }
+
+    };
 
     const renderSelection = () => {
         if (renderOption == 'accountSetting') {
@@ -132,10 +150,6 @@ const Profile = () => {
             )
         }
         else if (renderOption == 'favoriteBars') {
-            console.log('favoriteBars:', favoriteBars);
-            console.log('favoriteBars.favorites:', favoriteBars && favoriteBars.favorites);
-            console.log('favoriteBars.favorites.length:', favoriteBars && favoriteBars.favorites && favoriteBars.favorites.length);
-
             return (
                 <div className="favorite-bars">
                     <h5>Favorite Bars</h5>
@@ -147,19 +161,26 @@ const Profile = () => {
                                 favoriteBars.favorites.map((bar, index) => (
                                     <div key={index} className="col-md-4 mb-3">
                                         {/* Render the image if available, or a placeholder */}
-                                        {bar.image_url ? (
-                                            <img src={bar.image_url} alt={bar.barName} className="img-fluid" />
+                                        {bar.imageURL ? (
+                                            <img src={bar.imageURL} alt={bar.barName} className="img-fluid" />
                                         ) : (
                                             <img src={unavailableImage} alt={bar.barName} className="img-fluid" />
                                         )}
-                                        <div className="bar-details">
-                                            <h6>{bar.barName}</h6>
+                                        <div className="bar-details d-flex flex-column align-items-center">
+                                            <h6 className="text-center">{bar.barName}</h6>
+                                             {/* Delete button */}
+                                             <button 
+                                                className="btn btn-danger btn-sm mt-2"
+                                                onClick={() => handleDeleteFavorite(bar.id)}
+                                            >
+                                                Delete
+                                            </button>
                                         </div>
                                     </div>
                                 ))
                             ) : (
                                 <div className="col-12">
-                                    <h6>No favorites</h6>
+                                    <h6 className="text-center">No favorites</h6>
                                 </div>
                             )}
                         </div>
