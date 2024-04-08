@@ -7,6 +7,7 @@ import favoriteRouter from "./routes/Favorites";
 import userGroupRouter from "./routes/UserGroup";
 import visitedRouter from "./routes/Visited";
 import yelpRouter from "./routes/YelpFetch"
+import inviteRouter from "./routes/Invitations"
 
 import "dotenv/config";
 
@@ -36,6 +37,7 @@ app.use("/visit", visitedRouter);
 app.use("/favorite", favoriteRouter);
 app.use("/party", userGroupRouter);
 app.use("/yelp", yelpRouter);
+app.use('/invite', inviteRouter);
 
 sequelize
   .sync()

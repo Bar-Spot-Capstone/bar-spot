@@ -1,13 +1,21 @@
 import UserGroup from "../models/UserGroup";
 import User from "../models/Users";
 import Group from "../models/Group";
-import { inviteUser, createUserGroup, getMembers, deleteParty, removeMember } from "../controllers/UserGroup";
+import Invitation from "../models/Invitations";
+import { inviteMember, createUserGroup, getMembers, deleteParty, leaveParty } from "../controllers/UserGroup";
 
 // Mock Group.create and findOne
 jest.mock('../models/Group', (): any => ({
     create: jest.fn(),
     findOne: jest.fn(), //to mock the findOne function
-    destroy: jest.fn() //to mock the findAll function
+    destroy: jest.fn() //to mock the destroy function
+}));
+
+// Mock Invites.create and findOne
+jest.mock('../models/Invitations', (): any => ({
+    create: jest.fn(),
+    findOne: jest.fn(), //to mock the findOne function
+    destroy: jest.fn() //to mock the destroy function
 }));
 
 // Mock UserGroup.create and findOne
@@ -15,7 +23,7 @@ jest.mock('../models/UserGroup', (): any => ({
     create: jest.fn(),
     findOne: jest.fn(), //to mock the findOne function
     findAll: jest.fn(), //to mock the findAll function
-    destroy: jest.fn() //to mock the findAll function
+    destroy: jest.fn() //to mock the destroy function
 }));
 
 // Mock User.findOne
@@ -28,7 +36,7 @@ const res: any = {
     json: jest.fn((x) => x)
 };
 
-/*UserGroup creation test*/
+/*UserGroup createUserGroup test*/
 describe('On invaild user_group input', (): void => {
     beforeEach((): void => {
         jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
@@ -69,12 +77,27 @@ describe('On invaild user_group input', (): void => {
             }
         };
 
-        (User as any).findOne.mockResolvedValue(false);
+        (User as any).findOne.mockResolvedValueOnce(false);
         await createUserGroup(req, res);
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({ error: "User does not exisit" });
     });
 
+    it('should return a status code of 400 and error if user is already in a group', async (): Promise<void> => {
+        const req: any = {
+            body: {
+                name: "Capstone",
+                userId: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (User as any).findOne.mockResolvedValueOnce(true);
+        (UserGroup as any).findOne.mockResolvedValueOnce(true);
+
+        await createUserGroup(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "User is already in group" });
+    });
 
     it('should return a status code of 400 and error if failed to create group', async (): Promise<void> => {
         const req: any = {
@@ -84,11 +107,15 @@ describe('On invaild user_group input', (): void => {
             }
         };
 
-        (User as any).findOne.mockResolvedValue(true);
-        (Group as any).create.mockResolvedValue(false);
+        (User as any).findOne.mockResolvedValueOnce({
+            username: 'Dev',
+            id: req.userId
+        });
+        (UserGroup as any).findOne.mockResolvedValueOnce(false);
+        (Group as any).create.mockResolvedValueOnce(false);
         await createUserGroup(req, res);
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({ error: "Failed to create group for user_group" });
+        expect(res.json).toHaveBeenCalledWith({ error: "Failed to create group for Dev" });
     });
 
     it('should return a status code of 400 and error if failed to create user_group', async (): Promise<void> => {
@@ -99,9 +126,13 @@ describe('On invaild user_group input', (): void => {
             }
         };
 
-        (User as any).findOne.mockResolvedValue(true);
-        (Group as any).create.mockResolvedValue(true);
-        (UserGroup as any).create.mockResolvedValue(false);
+        (User as any).findOne.mockResolvedValueOnce({
+            username: 'Dev',
+            id: req.userId
+        });
+        (UserGroup as any).findOne.mockResolvedValueOnce(false);
+        (Group as any).create.mockResolvedValueOnce(true);
+        (UserGroup as any).create.mockResolvedValueOnce(false);
 
         await createUserGroup(req, res);
         expect(res.status).toHaveBeenCalledWith(400);
@@ -117,8 +148,8 @@ describe('On invaild user_group input', (): void => {
         };
 
         (User as any).findOne.mockResolvedValue(true);
-        // Mock Group.create to throw an error
-        (Group as any).create.mockRejectedValue(new Error("Unexpected error"));
+        // Mock UserGroup.findOne to throw an error
+        (UserGroup as any).findOne.mockRejectedValue(new Error("Unexpected error"));
 
         await createUserGroup(req, res);
         expect(res.status).toHaveBeenCalledWith(500);
@@ -127,7 +158,7 @@ describe('On invaild user_group input', (): void => {
 });
 
 describe('On vaild user_group input', (): void => {
-    it('should return a status code of 200 and confirmation message if user_group was created', async (): Promise<void> => {
+    it('should return a status code of 200 and confirmation message if user_group was created with no invites', async (): Promise<void> => {
         const req: any = {
             body: {
                 name: "Capstone",
@@ -135,7 +166,11 @@ describe('On vaild user_group input', (): void => {
             }
         };
 
-        (User as any).findOne.mockResolvedValue(true);
+        (User as any).findOne.mockResolvedValueOnce({
+            username: 'Dev',
+            id: req.userId
+        });
+        (UserGroup as any).findOne.mockResolvedValueOnce(false);
         (Group as any).create.mockResolvedValue(true);
         (UserGroup as any).create.mockResolvedValue({
             userId: Number.MAX_SAFE_INTEGER,
@@ -147,105 +182,122 @@ describe('On vaild user_group input', (): void => {
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({ success: "Group creation successful", groupId: Number.MAX_SAFE_INTEGER });
     });
+
+    it('should return a status code of 200 and message if invited users are already in a group', async (): Promise<void> => {
+        const req: any = {
+            body: {
+                name: "Capstone",
+                userId: Number.MAX_SAFE_INTEGER,
+                invitedUsers: {
+                    id: Number.MAX_SAFE_INTEGER
+                }
+            }
+        };
+
+        (User as any).findOne.mockResolvedValueOnce({
+            username: 'Dev',
+            id: req.userId
+        });
+        (UserGroup as any).findOne.mockResolvedValueOnce(false);
+        (UserGroup as any).findOne.mockResolvedValueOnce(true);
+        (User as any).findOne.mockResolvedValueOnce({
+            username: "DevsFriend"
+        });
+
+        await createUserGroup(req, res);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ message: "Users already in group", users: ["DevsFriend"] });
+
+    });
+
+    it('should return a status code of 200 and success message if group created with invites', async (): Promise<void> => {
+        const req: any = {
+            body: {
+                name: "Capstone",
+                userId: Number.MAX_SAFE_INTEGER,
+                invitedUsers: {
+                    id: Number.MAX_SAFE_INTEGER
+                }
+            }
+        };
+
+        (User as any).findOne.mockResolvedValueOnce({
+            username: 'Dev',
+            id: req.userId
+        });
+        (UserGroup as any).findOne.mockResolvedValueOnce(false);
+        (UserGroup as any).findOne.mockResolvedValue(false);
+        (Group as any).create.mockResolvedValueOnce(true);
+        (UserGroup as any).create.mockResolvedValueOnce({
+            userId: Number.MAX_SAFE_INTEGER,
+            groupId: Number.MAX_SAFE_INTEGER,
+            role: "Owner"
+        });
+        (Invitation as any).create.mockResolvedValue(true);
+
+        await createUserGroup(req, res);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ success: "Group creation and invitation creation successful", groupId: Number.MAX_SAFE_INTEGER });
+    });
+
 });
 
-/*UserGroup invitation test case*/
+
+//UserGroup invitation test case
 describe('On invaild user_group invitation input', (): void => {
     beforeEach((): void => {
         jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
     });
 
-    it('should return a status code of 400 and error if user_group has missing userId', async (): Promise<void> => {
+    it('should return a status code of 400 and error if user_group has missing ownerId', async (): Promise<void> => {
         const req: any = {
             body: {
                 groupId: Number.MAX_SAFE_INTEGER,
-                userId: ""
+                ownerId: "",
+                invitedUsers: {
+                    id: Number.MAX_SAFE_INTEGER
+                }
             }
         };
 
-        await inviteUser(req, res);
+        await inviteMember(req, res);
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({ error: "Failed to invite user missing field: userId" });
+        expect(res.json).toHaveBeenCalledWith({ error: "Failed to invite user to group, missing field: ownerId" });
     });
 
     it('should return a status code of 400 and error if user_group has missing groupId', async (): Promise<void> => {
         const req: any = {
             body: {
                 groupId: "",
-                userId: Number.MAX_SAFE_INTEGER
+                ownerId: Number.MAX_SAFE_INTEGER,
+                invitedUsers: {
+                    id: Number.MAX_SAFE_INTEGER
+                }
             }
         };
 
-        await inviteUser(req, res);
+        await inviteMember(req, res);
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({ error: "Failed to invite user missing field: groupId" });
+        expect(res.json).toHaveBeenCalledWith({ error: "Failed to invite user to group, missing field: groupId" });
     });
 
-    it('should return a status code of 400 and error if user is already in the group', async (): Promise<void> => {
+    it('should return a status code of 400 and error if invited members have already been invited to group', async (): Promise<void> => {
         const req: any = {
             body: {
                 groupId: Number.MAX_SAFE_INTEGER,
-                userId: Number.MAX_SAFE_INTEGER
+                ownerId: Number.MAX_SAFE_INTEGER,
+                invitedUsers: {
+                    id: Number.MAX_SAFE_INTEGER
+                }
             }
         };
 
-        (UserGroup as any).findOne.mockResolvedValueOnce(true);
-        (User as any).findOne.mockResolvedValue(true);
-        (UserGroup as any).findOne.mockResolvedValueOnce(true);
+        (UserGroup as any).findOne.mockResolvedValue(false);
+        (Invitation as any).findOne.mockResolvedValue(true);//Mock when each user has a pre-existing invite to group
 
-        await inviteUser(req, res);
+        await inviteMember(req, res);
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({ error: `Already in this group` });
-    });
-
-    it('should return a status code of 400 and error if user doesnt exisit', async (): Promise<void> => {
-        const req: any = {
-            body: {
-                groupId: Number.MAX_SAFE_INTEGER,
-                userId: Number.MAX_SAFE_INTEGER
-            }
-        };
-
-        (UserGroup as any).findOne.mockResolvedValueOnce(true);
-        (User as any).findOne.mockResolvedValue(false);
-        (UserGroup as any).findOne.mockResolvedValueOnce(false);
-
-        await inviteUser(req, res);
-        expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({ error: "No such user exisit" });
-    });
-
-    it('should return a status code of 400 and error if group doesnt exisit', async (): Promise<void> => {
-        const req: any = {
-            body: {
-                groupId: Number.MAX_SAFE_INTEGER,
-                userId: Number.MAX_SAFE_INTEGER
-            }
-        };
-
-        (UserGroup as any).findOne.mockResolvedValueOnce(false);
-        (User as any).findOne.mockResolvedValue(true);
-        (UserGroup as any).findOne.mockResolvedValueOnce(false);
-
-        await inviteUser(req, res);
-        expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({ error: "No such group exisit" });
-    });
-
-    it('should return a status code of 500 and error if an unexpected error occurs', async (): Promise<void> => {
-        const req: any = {
-            body: {
-                groupId: Number.MAX_SAFE_INTEGER,
-                userId: Number.MAX_SAFE_INTEGER
-            }
-        };
-
-        // Mock Group.create to throw an error
-        (UserGroup as any).findOne.mockRejectedValue(new Error("Unexpected error"));
-
-        await inviteUser(req, res);
-        expect(res.status).toHaveBeenCalledWith(500);
-        expect(res.json).toHaveBeenCalledWith({ error: "Unexpected error occured with error: Error: Unexpected error" });
+        expect(res.json).toHaveBeenCalledWith({ error: "Invitation has already been sent to users" });
     });
 });
 
@@ -254,25 +306,63 @@ describe('On vaild user_group invitation input', (): void => {
         jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
     });
 
-    it('should return a status code of 200 and confirmation message if user was added to group', async (): Promise<void> => {
+    it('should return a status code of 200 and message if no user was invited', async (): Promise<void> => {
         const req: any = {
             body: {
                 groupId: Number.MAX_SAFE_INTEGER,
-                userId: Number.MAX_SAFE_INTEGER
+                ownerId: Number.MAX_SAFE_INTEGER,
+                invitedUsers: {}
+            }
+        };
+
+        await inviteMember(req, res);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ message: "No users indicated to invite" });
+    });
+
+    it('should return a status code of 200 and message if some invited users are in a group', async (): Promise<void> => {
+        const req: any = {
+            body: {
+                groupId: Number.MAX_SAFE_INTEGER,
+                ownerId: Number.MAX_SAFE_INTEGER,
+                invitedUsers: {
+                    id: Number.MAX_SAFE_INTEGER
+                }
             }
         };
 
         (UserGroup as any).findOne.mockResolvedValueOnce(true);
-        (User as any).findOne.mockResolvedValueOnce(true);
-        (UserGroup as any).findOne.mockResolvedValueOnce(false);
+        (User as any).findOne.mockResolvedValueOnce({
+            username: "DevsFriend"
+        })
 
-        await inviteUser(req, res);
+        await inviteMember(req, res);
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({ success: "Successfully added to group" });
+        expect(res.json).toHaveBeenCalledWith({ message: `Users already in group`, users: ["DevsFriend"] });
+    });
+
+    it('should return a status code of 200 and success message if invites were sent succesfully', async (): Promise<void> => {
+        const req: any = {
+            body: {
+                groupId: Number.MAX_SAFE_INTEGER,
+                ownerId: Number.MAX_SAFE_INTEGER,
+                invitedUsers: {
+                    id: Number.MAX_SAFE_INTEGER,
+                }
+            }
+        };
+
+        (UserGroup as any).findOne.mockResolvedValue(false);
+        (Invitation as any).findOne.mockResolvedValue(false);
+        (Invitation as any).create.mockResolvedValue(true);
+
+        await inviteMember(req, res);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ success: "Invitation sent successfully" });
     });
 });
 
-/*UserGroup get all party members test*/
+//UserGroup get all party members test
 describe('On invaild get all party members input', (): void => {
     beforeEach((): void => {
         jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
@@ -351,7 +441,7 @@ describe('On vaild get all party members input', (): void => {
     });
 });
 
-/*UserGroup test delete party methods*/
+//UserGroup test delete party methods
 describe('On invaild delete party input', (): void => {
     beforeEach((): void => {
         jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
@@ -376,7 +466,9 @@ describe('On invaild delete party input', (): void => {
             }
         };
 
+        (Invitation as any).destroy.mockResolvedValue(true);
         (UserGroup as any).destroy.mockResolvedValueOnce(false);
+        (Group as any).destroy.mockResolvedValueOnce(true);
 
         await deleteParty(req, res);
         expect(res.status).toHaveBeenCalledWith(400);
@@ -390,6 +482,7 @@ describe('On invaild delete party input', (): void => {
             }
         };
 
+        (Invitation as any).destroy.mockResolvedValue(true);
         (UserGroup as any).destroy.mockResolvedValueOnce(true);
         (Group as any).destroy.mockResolvedValueOnce(false);
 
@@ -412,6 +505,7 @@ describe('On vaild delete party input', (): void => {
             }
         };
 
+        (Invitation as any).destroy.mockResolvedValue(true);
         (UserGroup as any).destroy.mockResolvedValueOnce(true);
         (Group as any).destroy.mockResolvedValueOnce(true);
 
@@ -421,7 +515,7 @@ describe('On vaild delete party input', (): void => {
     });
 });
 
-/*UserGroup test delete members methods*/
+//UserGroup test delete members methods
 describe('On invaild delete party member input', (): void => {
     beforeEach((): void => {
         jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
@@ -435,7 +529,7 @@ describe('On invaild delete party member input', (): void => {
             }
         };
 
-        await removeMember(req, res);
+        await leaveParty(req, res);
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({ error: "Unable to read: userId" });
     });
@@ -448,12 +542,12 @@ describe('On invaild delete party member input', (): void => {
             }
         };
 
-        await removeMember(req, res);
+        await leaveParty(req, res);
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({ error: "Unable to read: groupId" });
     });
 
-    it('should return a status code of 400 and error message if owner of large group tries to leave', async (): Promise<void> => {
+    it('should return a status code of 400 and error message if owner tries to leave', async (): Promise<void> => {
         const req: any = {
             params: {
                 userId: Number.MAX_SAFE_INTEGER - 1,
@@ -465,19 +559,9 @@ describe('On invaild delete party member input', (): void => {
             role: "Owner"
         });
 
-        (UserGroup as any).findAll.mockResolvedValueOnce([
-            {
-                role: 'Owner',
-                userId: Number.MAX_SAFE_INTEGER - 1,
-            },
-            {
-                role: 'member', userId: Number.MAX_SAFE_INTEGER
-            }
-        ]);
-
-        await removeMember(req, res);
+        await leaveParty(req, res);
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({ error: "Cannot leave party as the owner while there are other memebers" });
+        expect(res.json).toHaveBeenCalledWith({ error: "Cannot leave party as the owner please delete party" });
     });
 
     it('should return a status code of 400 and error message if member was not deleted', async (): Promise<void> => {
@@ -489,19 +573,12 @@ describe('On invaild delete party member input', (): void => {
         };
 
         (UserGroup as any).findOne.mockResolvedValueOnce({
-            role: "Owner"
+            role: "member"
         });
-
-        (UserGroup as any).findAll.mockResolvedValueOnce([
-            {
-                role: 'Owner',
-                userId: Number.MAX_SAFE_INTEGER,
-            }
-        ]);
 
         (UserGroup as any).destroy.mockResolvedValueOnce(false);
 
-        await removeMember(req, res);
+        await leaveParty(req, res);
         expect(res.status).toHaveBeenCalledWith(400);
         expect(res.json).toHaveBeenCalledWith({ error: "Error in deleting member, please try again" });
     });
@@ -522,19 +599,11 @@ describe('On vaild delete party member input', (): void => {
         };
 
         (UserGroup as any).findOne.mockResolvedValueOnce({
-            role: "Owner"
+            role: "member"
         });
-
-        (UserGroup as any).findAll.mockResolvedValueOnce([
-            {
-                role: 'Owner',
-                userId: Number.MAX_SAFE_INTEGER,
-            }
-        ]);
-
         (UserGroup as any).destroy.mockResolvedValueOnce(true);
 
-        await removeMember(req, res);
+        await leaveParty(req, res);
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({ success: "Successfully removed member" });
     });
