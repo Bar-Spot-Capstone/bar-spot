@@ -9,7 +9,8 @@ import {
   Button,
   Accordion,
   ListGroup,
-  ButtonGroup,
+  ToggleButton,
+  ToggleButtonGroup,
 } from "react-bootstrap";
 import { barMenuInfo } from "../types/types";
 
@@ -21,28 +22,27 @@ const QuickInfo = ({ barData }: Props) => {
   const [show, setShow] = useState<boolean>(false);
   const [sort, setSort] = useState<boolean>(false);
 
-  const handleTestClick = () => {
-    sortByName("ascending");
+  const handleDsc = () => {
+    sortByName("dsc");
   };
 
+  const handleAscName = () => {
+    sortByName("asc");
+  }
+
   const sortByName = (direction: string) => {
-    if (direction == "ascending") {
-      // let sortingArr: barMenuInfo[] = barData;
-      console.log(barData);
-      // let initialI: number = 0;
-      // console.log(barData.length);
-      mergeSort(barData, 0, barData.length - 1);
-      setSort(true);
-      console.log(barData);
-    }
+   
+    mergeSort(barData, 0, barData.length - 1, direction);
+    setSort(true);
   };
   const merge = (
     arr: barMenuInfo[],
     left: number,
     middle: number,
-    right: number
+    right: number,
+    direction: string
   ) => {
-    console.log(arr.length);
+   
     let size1: number = middle - left + 1;
     let size2: number = right - middle;
 
@@ -60,44 +60,69 @@ const QuickInfo = ({ barData }: Props) => {
     let index2 = 0;
     let mergedIndex = left;
 
-    while (index1 < size1 && index2 < size2) {
-      if (array1[index1].name <= array2[index2].name) {
+    if (direction == "asc") {
+      while (index1 < size1 && index2 < size2) {
+        if (array1[index1].name <= array2[index2].name) {
+          arr[mergedIndex] = array1[index1];
+          index1++;
+        } else {
+          arr[mergedIndex] = array2[index2];
+          index2++;
+        }
+        mergedIndex++;
+      }
+      while (index1 < size1) {
         arr[mergedIndex] = array1[index1];
         index1++;
-      } else {
+        mergedIndex++;
+      }
+      while (index2 < size2) {
         arr[mergedIndex] = array2[index2];
         index2++;
+        mergedIndex++;
       }
-      mergedIndex++;
+    }else{
+      while (index1 < size1 && index2 < size2) {
+        if (array1[index1].name >= array2[index2].name) {
+          arr[mergedIndex] = array1[index1];
+          index1++;
+        } else {
+          arr[mergedIndex] = array2[index2];
+          index2++;
+        }
+        mergedIndex++;
+      }
+      while (index1 < size1) {
+        arr[mergedIndex] = array1[index1];
+        index1++;
+        mergedIndex++;
+      }
+      while (index2 < size2) {
+        arr[mergedIndex] = array2[index2];
+        index2++;
+        mergedIndex++;
+      }
     }
 
-    while (index1 < size1) {
-      arr[mergedIndex] = array1[index1];
-      index1++;
-      mergedIndex++;
-    }
-    while (index2 < size2) {
-      arr[mergedIndex] = array2[index2];
-      index2++;
-      mergedIndex++;
-    }
+    
   };
 
-  const mergeSort = (arr: barMenuInfo[], left: number, right: number) => {
+  const mergeSort = (arr: barMenuInfo[], left: number, right: number, direction: string) => {
     if (left >= right) {
       return;
     }
 
     let middle: number = left + Math.floor((right - left) / 2);
 
-    mergeSort(arr, left, middle);
-    mergeSort(arr, middle + 1, right);
-    merge(arr, left, middle, right);
+    mergeSort(arr, left, middle, direction);
+    mergeSort(arr, middle + 1, right, direction);
+    merge(arr, left, middle, right, direction);
   };
 
   useEffect(() => {
     setShow(true);
-  }, [sort]);
+    setSort(false)
+  }, [sort, setSort]);
 
   if (show) {
     return (
@@ -107,31 +132,52 @@ const QuickInfo = ({ barData }: Props) => {
             <Accordion.Header>Sort/Filter</Accordion.Header>
             <Accordion.Body>
               <ListGroup>
-                <ListGroup.Item className="d-flex justify-content-around align-items-center">
+                <ListGroup.Item className="d-flex justify-content-between align-items-center">
                   Sort By Name:
-                  <ButtonGroup>
-                    <Button
-                      variant="outline-secondary"
-                      onClick={handleTestClick}
+                  <ToggleButtonGroup type="radio" name="nameSort">
+                    <ToggleButton
+                      id="name-radio-1"
+                      value={1}
+                      onClick={handleAscName}
+                     
                     >
-                      A-Z
-                    </Button>
-                    <Button variant="outline-secondary">Z-A</Button>
-                  </ButtonGroup>
+                      Asc
+                    </ToggleButton>
+                    <ToggleButton id="name-radio-2" value={2} onClick={handleDsc}>
+                      Desc
+                    </ToggleButton>
+                  </ToggleButtonGroup>
                 </ListGroup.Item>
-                <ListGroup.Item className="d-flex justify-content-around align-items-center">
+                <ListGroup.Item className="d-flex justify-content-between  align-items-center">
                   Distance:{" "}
-                  <ButtonGroup>
-                    <Button variant="outline-secondary">Closest</Button>
-                    <Button variant="outline-secondary">Farthest</Button>
-                  </ButtonGroup>
+                  <ToggleButtonGroup type="radio" name="distanceSort">
+                    <ToggleButton
+                      id="distance-radio-1"
+                      value={1}
+                      onClick={handleDsc}
+                      
+                    >
+                      Asc
+                    </ToggleButton>
+                    <ToggleButton id="distance-radio-2" value={2}>
+                      Desc
+                    </ToggleButton>
+                  </ToggleButtonGroup>
                 </ListGroup.Item>
-                <ListGroup.Item className="d-flex justify-content-around align-items-center">
+                <ListGroup.Item className="d-flex justify-content-between  align-items-center">
                   Price:{" "}
-                  <ButtonGroup>
-                    <Button variant="outline-secondary">Ascending</Button>
-                    <Button variant="outline-secondary">Descending</Button>
-                  </ButtonGroup>
+                  <ToggleButtonGroup type="radio" name="priceSort">
+                    <ToggleButton
+                      id="price-radio-1"
+                      value={1}
+                      
+                    >
+                      Asc
+                    </ToggleButton>
+                    <ToggleButton id="price-radio-2" value={2}>
+                      Desc
+                    </ToggleButton>
+                  </ToggleButtonGroup>
                 </ListGroup.Item>
               </ListGroup>
             </Accordion.Body>
