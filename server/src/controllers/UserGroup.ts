@@ -410,10 +410,40 @@ const leaveParty = async (req: Request, res: Response): Promise<Response> => {
     };
 };
 
+const getGroupInformation = async (req: Request, res: Response): Promise<Response> => {
+    const userId: string = req.params.userId
+
+    if (!userId) {
+        res.status(400);
+        return res.json({ error: "Unable to read: userId" })
+    };
+
+    try {
+        const group: any = await UserGroup.findOne({
+            where: {
+                userId: userId
+            }
+        });
+
+        if(!group){
+            res.status(400);
+            return res.json({ error: "User is not in group" });
+        }
+
+        res.status(200);
+        return res.json({ success: "User is in group", groupId: group.groupId });
+    }
+    catch (error: any) {
+        res.status(500);
+        return res.json({ error: `Unexpected error occured with error: ${error}` });
+    };
+};
+
 export {
     createUserGroup,
     inviteMember,
     getMembers,
     deleteParty,
-    leaveParty
+    leaveParty,
+    getGroupInformation
 };

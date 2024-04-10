@@ -2,7 +2,7 @@ import UserGroup from "../models/UserGroup";
 import User from "../models/Users";
 import Group from "../models/Group";
 import Invitation from "../models/Invitations";
-import { inviteMember, createUserGroup, getMembers, deleteParty, leaveParty } from "../controllers/UserGroup";
+import { inviteMember, createUserGroup, getMembers, deleteParty, leaveParty, getGroupInformation } from "../controllers/UserGroup";
 
 // Mock Group.create and findOne
 jest.mock('../models/Group', (): any => ({
@@ -665,5 +665,60 @@ describe('On vaild delete party member input', (): void => {
         await leaveParty(req, res);
         expect(res.status).toHaveBeenCalledWith(200);
         expect(res.json).toHaveBeenCalledWith({ success: "Successfully removed member" });
+    });
+});
+
+//UserGroup test getGroupInformation method
+describe('On invaild get user party', (): void => {
+    beforeEach((): void => {
+        jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
+    });
+
+    it('should return a status code of 400 and if userId is not provided', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                userId: null
+            }
+        };
+
+        await getGroupInformation(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Unable to read: userId" });
+    });
+
+    it('should return a status code of 400 and if not group information is found for user', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                userId: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (UserGroup as any).findOne.mockResolvedValueOnce(false);
+
+        await getGroupInformation(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "User is not in group" });
+    });
+});
+
+describe('On vaild get user party', (): void => {
+    beforeEach((): void => {
+        jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
+    });
+
+    it('should return a status code of 200 and groupId if user is in group', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                userId: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (UserGroup as any).findOne.mockResolvedValueOnce({
+            groupId: Number.MAX_SAFE_INTEGER
+        });
+
+        await getGroupInformation(req, res);
+        expect(res.status).toHaveBeenCalledWith(200);
+        expect(res.json).toHaveBeenCalledWith({ success: "User is in group", groupId: Number.MAX_SAFE_INTEGER });
     });
 });
