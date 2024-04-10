@@ -2,8 +2,8 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Rootstate } from "../state/store";
 import { createGroup } from "./Group"; //imported from Group.tsx
-import { useState } from "react";
-import { Button, NavDropdown, Modal, Container, Navbar, Badge, Form } from "react-bootstrap";
+import { useState, useEffect } from "react";
+import { NavDropdown, Modal, Container, Navbar, Badge, Form } from "react-bootstrap";
 import { MdCheckCircle } from "react-icons/md";
 import { MdCancel } from "react-icons/md";
 import Logo from "../assets/Bar-Spot-Translucent-Logo.png";
@@ -11,28 +11,238 @@ import NavBadge from "./NavBadge";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.min.js";
 import "../styles/NavBar.css"
+import { useDispatch } from "react-redux";
+import { registerGroup, setGroupId } from "../state/slices/groupSlice";
 
 const NavBar = () => {
   const isLoggedIn: boolean = useSelector((state: Rootstate) => state.user.isLoggedIn);
+  const isInGroup: boolean = useSelector((state: Rootstate) => state.group.isInGroup);//Checks if user is in a group
+  const registeredGroupId: number = useSelector((state: Rootstate) => state.group.groupId);
+  const dispatch: any = useDispatch();
   const userId: number = useSelector((state: Rootstate) => state.user.userId);
-  const [invitation, setInvites] = useState<Number>(0);
+
+  const [invitation, setInvites] = useState<number>(0);
   const [inviteShow, setInviteShow] = useState<boolean>(false);
   const [show, setShow] = useState<boolean>(false);
   const [creationView, setCreateView] = useState<boolean>(false);// for switching views
   const [groupName, setGroupName] = useState<string>("");// for group name
   const [usersList, setUsersList] = useState<Array<Object>>([]);// for fetching all users
   const [invitedMembers, setInvitedMembers] = useState<Array<object>>([]);// for storing invited members
+  const [invitationsFetched, setInvitationsFetched] = useState<Array<any>>([]);// for storing invites that were fetched 
+  const [groupShow, setGroupShow] = useState<boolean>(false);
+  const [groupMembers, setGroupMembers] = useState<Array<Array<any>>>([]);//Come back to this
+  const [trackLocation, setLocationOption] = useState(true);
+  const [inGroupBool, setIsInGroup] = useState<boolean>(false);//Used for rendering if the user is in group
 
+  /*Used to refresh upon new invites*/
+  useEffect(() => {
+    fetchUserGroupInfo();
+    fetchInvites();
+    fetchGroupMembers();
+    setIsInGroup(isInGroup);
+  }, [registeredGroupId]);
+
+  const fetchUserGroupInfo = async () => {
+    try {
+      const options: object = {
+        method: 'GET',
+        headers: {
+          "Content-Type": "application/json"
+        }
+      };
+
+      const response: Response = await fetch(`http://localhost:3001/party/group/info/${userId}`, options);
+
+      if (!response.ok) {
+        const res: any = await response.json();
+        console.log(`Response was not okay with message: ${res.error}`);
+        return;
+      };
+
+      //Update groupId and isIngroup
+      const res: any = await response.json();
+      dispatch(registerGroup());
+      dispatch(setGroupId(res.groupId));
+      return;
+    }
+    catch (error: any) {
+      console.log(`Failed to fetch invites for user with error: ${error}`);
+      return;
+    };
+  };
+
+  const fetchGroupMembers = async () => {
+    //User is not in a group or cannot find there groupId
+    if (!isInGroup || !registeredGroupId) {
+      return;
+    };
+
+    try {
+
+      const options: object = {
+        method: 'GET',
+        headers: {
+          "Content-Type": "application/json"
+        }
+      };
+
+      const response: Response = await fetch(`http://localhost:3001/party/members/${registeredGroupId}`, options);
+
+      if (!response.ok) {
+        const res: any = await response.json();
+        console.log(`Response was not okay with message: ${res.error}`);
+        return;
+      };
+
+      //Update groupMembers to be the group members
+      const res: any = await response.json();
+      setGroupMembers(res.members);//updates setGroupMembers to be the group members
+      return;
+    }
+    catch (error: any) {
+      console.log(`Failed to fetch invites for user with error: ${error}`);
+      return;
+    };
+  };
+
+  /*
+  @params: userId -> fetchs the invites that a user has
+  */
+  const fetchInvites = async () => {
+    try {
+      if (!userId) {
+        console.log("No userId provided");
+      }
+
+      const options: object = {
+        method: 'GET',
+        headers: {
+          "Content-Type": "application/json"
+        }
+      };
+
+      const response: Response = await fetch(`http://localhost:3001/invite/${userId}`, options);
+
+      if (!response.ok) {
+        const res: any = await response.json();
+        console.log(`Response was not okay with message: ${res.error}`);
+        return;
+      };
+
+      const res: any = await response.json();
+      setInvites(res.invitesFormatted.length);
+      //Now need to store all invites into useState
+      let filterInvites: Array<Object> = []
+      for (let i = 0; i < res.invitesFormatted.length; i++) {
+        filterInvites.push({
+          ownerName: res.invitesFormatted[i].ownerName,
+          id: res.invitesFormatted[i].id,
+          status: res.invitesFormatted[i].status,
+          groupId: res.invitesFormatted[i].groupId,
+          groupName: res.invitesFormatted[i].groupName,
+          numberOfMembers: res.invitesFormatted[i].numberOfMembers
+        });
+      };
+      setInvitationsFetched(filterInvites);//update
+      return;
+    }
+    catch (error: any) {
+      console.log(`Failed to fetch invites for user with error: ${error}`);
+    };
+  };
+
+  /*
+  @breif: Rejects the invite to the user or accepts the invite to the user, making the user join a group and removes all other invites
+  @param: user response -> true === accept invite || false === reject invite
+  @param: groupId -> id of group to respond to
+  */
+  const inviteResponse = async (userRes: boolean, groupId: number) => {
+    if (!userId || userId < 1) {
+      console.log("UserId not found");
+      return;
+    };
+
+    try {
+      if (userRes) {
+        //User accepts the invite - Most likely have to update the slice
+        const options: object = {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            userId: userId,
+            groupId: groupId,
+            response: userRes
+          })
+        };
+
+        const response: Response = await fetch('http://localhost:3001/invite/respond', options);
+
+        if (!response.ok) {
+          const res: any = await response.json();
+          console.log(`Response was not okay with message: ${res.error}`);
+          return;
+        };
+
+        //Invite has been accepted -> Most like have to update the slice to update this groupId
+        const res: any = await response.json();
+        console.log(res);
+        fetchInvites();//refresh invites page
+        //Sets the groupId assoicated with the user and marks them in a group
+        dispatch(registerGroup());//sets isInGroupTrue
+        dispatch(setGroupId(groupId));//sets the groupId to the group Id
+        return;
+      }
+      //Else the user wants to reject invite
+      const options: object = {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          userId: userId,
+          groupId: groupId,
+          response: userRes
+        })
+      };
+
+      const response: Response = await fetch('http://localhost:3001/invite/respond', options);
+
+      if (!response.ok) {
+        const res: any = await response.json();
+        console.log(`Response was not okay with message: ${res.error}`);
+        return;
+      };
+
+      const res: any = await response.json();
+      console.log(res);
+      fetchInvites();//refresh invites page
+      return;
+    }
+    catch (error: any) {
+      console.log(`Failed to fetch invites for user with error: ${error}`);
+    };
+  };
+
+  /*
+  @breif: On form submission, creates the group using a helper function
+  @param: event -> form submission
+  */
   const handleGroupCreationSubmit = async (event: any) => {
     /*Creates group based on input name and possible invited members*/
+    //invited members is a list of user information
     event.preventDefault();
     if (!groupName) {
       alert('No group name');
       return;
     };
-    await createGroup(groupName, invitedMembers, userId);
+    await createGroup(dispatch, groupName, invitedMembers, userId);
   };
 
+  /*
+  @param: userId 
+  */
   const fetchAllOtherUsers = async () => {
     try {
       if (!userId || userId < 1) {
@@ -51,7 +261,7 @@ const NavBar = () => {
 
       if (!response.ok) {
         const res: any = await response.json();
-        console.log(`Response was not okay with message: ${res}`);
+        console.log(`Response was not okay with message: ${res.error}`);
         return;
       };
 
@@ -64,6 +274,10 @@ const NavBar = () => {
     };
   };
 
+  /*
+  @breif: Adds users to the list of invited users if selected
+  @param: event -> form submission
+  */
   const handleUserSelect = (event: any) => {
     if (!event.target.value || event.target.value === 'Select users to invite') {
       return;
@@ -86,6 +300,68 @@ const NavBar = () => {
         // Add the user to invitedMembers
         setInvitedMembers([...invitedMembers, user]);
       }
+    };
+  };
+
+  const leaveGroup = async () => {
+    if (!isInGroup || !registeredGroupId) {
+      return;
+    }
+    try {
+      const options: object = {
+        method: 'DELETE',
+        headers: {
+          "Content-Type": "application/json"
+        }
+      };
+
+      const response: Response = await fetch(`http://localhost:3001/party/leave/${userId}/${registeredGroupId}`, options);
+
+      if (!response.ok) {
+        const res: any = await response.json();
+        console.log(`Response was not okay with message: ${res.error}`);
+        return;
+      };
+      /*User is no longer in group*/
+      dispatch(leaveGroup());//leaves group
+      dispatch(setGroupId(-Infinity));//resets groupId
+      fetchInvites();//search for invites
+      return;
+    }
+    catch (error: any) {
+      console.log(`Failed to fetch invites for user with error: ${error}`);
+      return;
+    };
+  };
+
+  const deleteGroup = async () => {
+    if (!isInGroup || !registeredGroupId) {
+      return;
+    }
+    try {
+      const options: object = {
+        method: 'DELETE',
+        headers: {
+          "Content-Type": "application/json"
+        }
+      };
+
+      const response: Response = await fetch(`http://localhost:3001/party/delete/${userId}/${registeredGroupId}`, options);
+
+      if (!response.ok) {
+        const res: any = await response.json();
+        console.log(`Response was not okay with message: ${res.error}`);
+        return;
+      };
+      /*User is no longer in group*/
+      dispatch(leaveGroup());//leaves group
+      dispatch(setGroupId(-Infinity));//resets groupId
+      setGroupMembers([]);
+      return;
+    }
+    catch (error: any) {
+      console.log(`Failed to fetch invites for user with error: ${error}`);
+      return;
     };
   };
 
@@ -125,19 +401,42 @@ const NavBar = () => {
                 <Modal.Title>Group Options</Modal.Title>
               </Modal.Header>
               <Modal.Body className="d-flex justify-content-center gap-5">
-                <div>
-                  <button className="btn btn-primary" onClick={() => {
-                    setShow(!show);
-                    setCreateView(!creationView);
-                  }}>
-                    Create
-                  </button>
-                </div>
-                <div>
-                  <button className="btn btn-primary" onClick={() => { setShow(!show); setInviteShow(!inviteShow); }}>
-                    Invites <Badge bg="danger">{invitation}</Badge>
-                  </button>
-                </div>
+                {inGroupBool ? (
+                  <>
+                    {/*User is in group display group button*/}
+                    <div>
+                      <button className="btn btn-primary" onClick={() => {
+                        setShow(!show);
+                        setGroupShow(!groupShow);
+                      }}> View Group </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div>
+                      <button
+                        className="btn btn-primary"
+                        onClick={() => {
+                          setShow(!show);
+                          setCreateView(!creationView);
+                        }}
+                      >
+                        Create
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        className="btn btn-primary"
+                        onClick={() => {
+                          setShow(!show);
+                          setInviteShow(!inviteShow);
+                        }}
+                      >
+                        Invites <Badge bg="danger">{invitation}</Badge>
+                      </button>
+                    </div>
+                  </>
+                )}
               </Modal.Body>
               <Modal.Footer className="justify-content-center">
                 <div>
@@ -218,15 +517,17 @@ const NavBar = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        <tr>
-                          <td>Wildest Group</td>
-                          <td>Mark</td>
-                          <td>100</td>
-                          <td className="d-flex justify-content-evenly">
-                            <button type="button" className="btn btn-success btn-sm"><MdCheckCircle /></button>
-                            <button type="button" className="btn btn-danger btn-sm"><MdCancel /></button>
-                          </td>
-                        </tr>
+                        {invitationsFetched.map(invite => (
+                          <tr key={invite.id}>
+                            <td>{invite.groupName}</td>
+                            <td>{invite.ownerName}</td>
+                            <td>{invite.numberOfMembers}</td>
+                            <td className="d-flex justify-content-evenly">
+                              <button onClick={() => { inviteResponse(true, invite.groupId) }} type="button" className="btn btn-success btn-sm"><MdCheckCircle /></button>
+                              <button onClick={() => { inviteResponse(false, invite.groupId) }} type="button" className="btn btn-danger btn-sm"><MdCancel /></button>
+                            </td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>
@@ -246,6 +547,63 @@ const NavBar = () => {
               </Modal.Footer>
             </Modal>
 
+            {/*Model for Group info page*/}
+            <Modal show={groupShow} onHide={() => setGroupShow(false)}>
+              <Modal.Header closeButton>
+                <Modal.Title>Group Information</Modal.Title>
+              </Modal.Header>
+              <Modal.Body className="d-flex">
+                <div className="container-fluid">
+                  <div className="row">
+                    <table className="table col-12 table-responsive table-hover table-sm mb-4">
+                      <thead>
+                        <tr className="table-primary">
+                          <th scope="col">Name</th>
+                          <th scope="col">Role</th>
+                          <th scope="col">Location</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {groupMembers.map(memberArray => (
+                          <tr key={memberArray[2]}>
+                            <td>{memberArray[0]}</td>
+                            <td>{memberArray[1]}</td>
+                            <td className="">
+                              <div className="form-check form-switch">
+                                <input className="form-check-input" type="checkbox" id="flexSwitchCheckChecked" checked={trackLocation} />
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  {/*Render leave or delete group*/}
+                  <div className="row">
+                    <div className="d-flex justify-content-around">
+                      <button className="btn btn-danger btn-transition" onClick={deleteGroup}>
+                        Delete
+                      </button>
+                      <button className="btn btn-danger btn-transition" onClick={leaveGroup}>
+                        Leave
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </Modal.Body>
+              <Modal.Footer className="justify-content-center">
+                <div className="me-5">
+                  <button className="btn btn-primary btn-transition" onClick={() => { setGroupShow(!groupShow); setShow(!show); }}>
+                    Back
+                  </button>
+                </div>
+                <div>
+                  <button className="btn btn-primary btn-transition" onClick={() => setGroupShow(!groupShow)}>
+                    Cancel
+                  </button>
+                </div>
+              </Modal.Footer>
+            </Modal>
           </NavDropdown>
           <NavBadge isLoggedIn={isLoggedIn} />
         </Navbar.Collapse>

@@ -298,14 +298,35 @@ const getMembers = async (req: Request, res: Response): Promise<Response> => {
 @param: groupId -> id of group to delete
 */
 const deleteParty = async (req: Request, res: Response): Promise<Response> => {
-    const groupId: string = req.params.groupId;
+    const userId: string = req.params.userId
+    const groupId: string = req.params.groupId
 
-    if (!groupId) {
+    var handleEmpty: string = ''
+    handleEmpty = !userId ? 'userId' : '' || !groupId ? 'groupId' : '' //find missing parm
+
+    if (handleEmpty) {
         res.status(400);
-        return res.json({ error: "No such group exist" });
+        return res.json({ error: `Unable to read: ${handleEmpty}` })
     };
 
     try {
+        const requesterStatus: any = await UserGroup.findOne({
+            where: {
+                groupId: groupId,
+                userId: userId
+            }
+        });
+
+        if(!requesterStatus){
+            res.status(400);
+            return res.json({ error: "User or group does not exist" });
+        }
+
+        if(requesterStatus.role !== "Owner"){
+            res.status(400);
+            return res.json({ error: "User is not the owner" });
+        };
+
         /*Need to destroy all invites assoicated with groupId  -   Need to destroy group - destroying Invites may lead to null if there are no invites*/
         const destroyInvites = await Invitation.destroy({
             where: {
@@ -389,10 +410,40 @@ const leaveParty = async (req: Request, res: Response): Promise<Response> => {
     };
 };
 
+const getGroupInformation = async (req: Request, res: Response): Promise<Response> => {
+    const userId: string = req.params.userId
+
+    if (!userId) {
+        res.status(400);
+        return res.json({ error: "Unable to read: userId" })
+    };
+
+    try {
+        const group: any = await UserGroup.findOne({
+            where: {
+                userId: userId
+            }
+        });
+
+        if(!group){
+            res.status(400);
+            return res.json({ error: "User is not in group" });
+        }
+
+        res.status(200);
+        return res.json({ success: "User is in group", groupId: group.groupId });
+    }
+    catch (error: any) {
+        res.status(500);
+        return res.json({ error: `Unexpected error occured with error: ${error}` });
+    };
+};
+
 export {
     createUserGroup,
     inviteMember,
     getMembers,
     deleteParty,
-    leaveParty
+    leaveParty,
+    getGroupInformation
 };
