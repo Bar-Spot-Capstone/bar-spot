@@ -36,11 +36,40 @@ const NavBar = () => {
 
   /*Used to refresh upon new invites*/
   useEffect(() => {
+    fetchUserGroupInfo();
     fetchInvites();
     fetchGroupMembers();
-    setIsInGroup(isInGroup);//updates if user is in group and changes on the groupId changing
-    //Could add a back-end feature that fetchs the and checks user group and returns groupId
-  }, [registeredGroupId, groupMembers]);
+    setIsInGroup(isInGroup);
+  }, [registeredGroupId]);
+
+  const fetchUserGroupInfo = async () => {
+    try {
+      const options: object = {
+        method: 'GET',
+        headers: {
+          "Content-Type": "application/json"
+        }
+      };
+
+      const response: Response = await fetch(`http://localhost:3001/party/group/info/${userId}`, options);
+
+      if (!response.ok) {
+        const res: any = await response.json();
+        console.log(`Response was not okay with message: ${res.error}`);
+        return;
+      };
+
+      //Update groupId and isIngroup
+      const res: any = await response.json();
+      dispatch(registerGroup());
+      dispatch(setGroupId(res.groupId));
+      return;
+    }
+    catch (error: any) {
+      console.log(`Failed to fetch invites for user with error: ${error}`);
+      return;
+    };
+  };
 
   const fetchGroupMembers = async () => {
     //User is not in a group or cannot find there groupId
