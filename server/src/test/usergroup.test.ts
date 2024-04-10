@@ -447,25 +447,76 @@ describe('On invaild delete party input', (): void => {
         jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
     });
 
-    it('should return a status code of 400 and error message if id is missing in the request', async (): Promise<void> => {
+    it('should return a status code of 400 and error message if groupid is missing in the request', async (): Promise<void> => {
         const req: any = {
             params: {
-                groupId: null
+                groupId: null,
+                userId: Number.MAX_SAFE_INTEGER
             }
         };
 
         await deleteParty(req, res);
         expect(res.status).toHaveBeenCalledWith(400);
-        expect(res.json).toHaveBeenCalledWith({ error: "No such group exist" });
+        expect(res.json).toHaveBeenCalledWith({ error: "Unable to read: groupId" });
     });
+
+    it('should return a status code of 400 and error message if userId is missing in the request', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                groupId: Number.MAX_SAFE_INTEGER,
+                userId: null
+            }
+        };
+
+        await deleteParty(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "Unable to read: userId" });
+    });
+
+    it('should return a status code of 400 and error message if the group or user does not exist', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                groupId: Number.MAX_SAFE_INTEGER,
+                userId: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (UserGroup as any).findOne.mockResolvedValueOnce(false);
+
+        await deleteParty(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "User or group does not exist" });
+    });
+
+    it('should return a status code of 400 and error message if the user is not the owner', async (): Promise<void> => {
+        const req: any = {
+            params: {
+                groupId: Number.MAX_SAFE_INTEGER,
+                userId: Number.MAX_SAFE_INTEGER
+            }
+        };
+
+        (UserGroup as any).findOne.mockResolvedValueOnce({
+            role: "member"
+        });
+
+        await deleteParty(req, res);
+        expect(res.status).toHaveBeenCalledWith(400);
+        expect(res.json).toHaveBeenCalledWith({ error: "User is not the owner" });
+    });
+
 
     it('should return a status code of 400 and error message if the party couldnt be deleted', async (): Promise<void> => {
         const req: any = {
             params: {
-                groupId: Number.MAX_SAFE_INTEGER
+                groupId: Number.MAX_SAFE_INTEGER,
+                userId: Number.MAX_SAFE_INTEGER
             }
         };
 
+        (UserGroup as any).findOne.mockResolvedValueOnce({
+            role: "Owner"
+        });
         (Invitation as any).destroy.mockResolvedValue(true);
         (UserGroup as any).destroy.mockResolvedValueOnce(false);
         (Group as any).destroy.mockResolvedValueOnce(true);
@@ -478,10 +529,14 @@ describe('On invaild delete party input', (): void => {
     it('should return a status code of 400 and error message if the group couldnt be deleted', async (): Promise<void> => {
         const req: any = {
             params: {
-                groupId: Number.MAX_SAFE_INTEGER
+                groupId: Number.MAX_SAFE_INTEGER,
+                userId: Number.MAX_SAFE_INTEGER
             }
         };
 
+        (UserGroup as any).findOne.mockResolvedValueOnce({
+            role: "Owner"
+        });
         (Invitation as any).destroy.mockResolvedValue(true);
         (UserGroup as any).destroy.mockResolvedValueOnce(true);
         (Group as any).destroy.mockResolvedValueOnce(false);
@@ -501,10 +556,14 @@ describe('On vaild delete party input', (): void => {
     it('should return a status code of 200 and success message if party was deleted', async (): Promise<void> => {
         const req: any = {
             params: {
-                groupId: Number.MAX_SAFE_INTEGER
+                groupId: Number.MAX_SAFE_INTEGER,
+                userId: Number.MAX_SAFE_INTEGER
             }
         };
 
+        (UserGroup as any).findOne.mockResolvedValueOnce({
+            role: "Owner"
+        });
         (Invitation as any).destroy.mockResolvedValue(true);
         (UserGroup as any).destroy.mockResolvedValueOnce(true);
         (Group as any).destroy.mockResolvedValueOnce(true);

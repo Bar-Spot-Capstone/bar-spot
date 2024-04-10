@@ -298,14 +298,35 @@ const getMembers = async (req: Request, res: Response): Promise<Response> => {
 @param: groupId -> id of group to delete
 */
 const deleteParty = async (req: Request, res: Response): Promise<Response> => {
-    const groupId: string = req.params.groupId;
+    const userId: string = req.params.userId
+    const groupId: string = req.params.groupId
 
-    if (!groupId) {
+    var handleEmpty: string = ''
+    handleEmpty = !userId ? 'userId' : '' || !groupId ? 'groupId' : '' //find missing parm
+
+    if (handleEmpty) {
         res.status(400);
-        return res.json({ error: "No such group exist" });
+        return res.json({ error: `Unable to read: ${handleEmpty}` })
     };
 
     try {
+        const requesterStatus: any = await UserGroup.findOne({
+            where: {
+                groupId: groupId,
+                userId: userId
+            }
+        });
+
+        if(!requesterStatus){
+            res.status(400);
+            return res.json({ error: "User or group does not exist" });
+        }
+
+        if(requesterStatus.role !== "Owner"){
+            res.status(400);
+            return res.json({ error: "User is not the owner" });
+        };
+
         /*Need to destroy all invites assoicated with groupId  -   Need to destroy group - destroying Invites may lead to null if there are no invites*/
         const destroyInvites = await Invitation.destroy({
             where: {
