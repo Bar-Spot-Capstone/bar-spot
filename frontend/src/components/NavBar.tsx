@@ -16,8 +16,8 @@ import { registerGroup, setGroupId } from "../state/slices/groupSlice";
 
 const NavBar = () => {
   const isLoggedIn: boolean = useSelector((state: Rootstate) => state.user.isLoggedIn);
-  const isInGroup: boolean = true//useSelector((state: Rootstate) => state.group.isInGroup);//Checks if user is in a group
-  const registeredGroupId: number = 21//useSelector((state: Rootstate) => state.group.groupId);
+  const isInGroup: boolean = useSelector((state: Rootstate) => state.group.isInGroup);//Checks if user is in a group
+  const registeredGroupId: number = useSelector((state: Rootstate) => state.group.groupId);
   const dispatch: any = useDispatch();
   const userId: number = useSelector((state: Rootstate) => state.user.userId);
 
@@ -40,7 +40,7 @@ const NavBar = () => {
     fetchGroupMembers();
     setIsInGroup(isInGroup);//updates if user is in group and changes on the groupId changing
     //Could add a back-end feature that fetchs the and checks user group and returns groupId
-  }, [registeredGroupId]);
+  }, [registeredGroupId, groupMembers]);
 
   const fetchGroupMembers = async () => {
     //User is not in a group or cannot find there groupId
@@ -305,7 +305,36 @@ const NavBar = () => {
     };
   };
 
-  const deleteGroup = async () => { };
+  const deleteGroup = async () => {
+    if (!isInGroup || !registeredGroupId) {
+      return;
+    }
+    try {
+      const options: object = {
+        method: 'DELETE',
+        headers: {
+          "Content-Type": "application/json"
+        }
+      };
+
+      const response: Response = await fetch(`http://localhost:3001/party/delete/${userId}/${registeredGroupId}`, options);
+
+      if (!response.ok) {
+        const res: any = await response.json();
+        console.log(`Response was not okay with message: ${res.error}`);
+        return;
+      };
+      /*User is no longer in group*/
+      dispatch(leaveGroup());//leaves group
+      dispatch(setGroupId(-Infinity));//resets groupId
+      setGroupMembers([]);
+      return;
+    }
+    catch (error: any) {
+      console.log(`Failed to fetch invites for user with error: ${error}`);
+      return;
+    };
+  };
 
   return (
     <Navbar expand="md" className="bg-secondary-subtle">
@@ -523,7 +552,7 @@ const NavBar = () => {
                   {/*Render leave or delete group*/}
                   <div className="row">
                     <div className="d-flex justify-content-around">
-                      <button className="btn btn-danger btn-transition">
+                      <button className="btn btn-danger btn-transition" onClick={deleteGroup}>
                         Delete
                       </button>
                       <button className="btn btn-danger btn-transition" onClick={leaveGroup}>
