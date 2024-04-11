@@ -214,7 +214,7 @@ const QuickInfo = ({ barData }: Props) => {
                     </ToggleButton>
                   </ToggleButtonGroup>
                 </ListGroup.Item>
-                <ListGroup.Item className="d-flex justify-content-between  align-items-center">
+                <ListGroup.Item className="d-flex justify-content-between align-items-center">
                   Distance:{" "}
                   <ToggleButtonGroup type="radio" name="distanceSort">
                     <ToggleButton id="distance-radio-1" value={1}>
@@ -225,7 +225,7 @@ const QuickInfo = ({ barData }: Props) => {
                     </ToggleButton>
                   </ToggleButtonGroup>
                 </ListGroup.Item>
-                <ListGroup.Item className="d-flex justify-content-between  align-items-center">
+                <ListGroup.Item className="d-flex justify-content-between align-items-center">
                   Rating:{" "}
                   <ToggleButtonGroup type="radio" name="ratingSort">
                     <ToggleButton
@@ -261,14 +261,14 @@ const QuickInfo = ({ barData }: Props) => {
             <Row>
               <Col className="w-50 m-0">
                 <ListGroup>
-                  <ListGroup.Item className="p-1 d-flex justify-content-between align-items-center">
+                  <ListGroup.Item className="px-1 d-flex justify-content-between align-items-center">
                     <p>Rating: {bar.rating}/5 Stars</p>
                   </ListGroup.Item>
-                  <ListGroup.Item className="p-1 d-flex justify-content-between  align-items-center">
+                  <ListGroup.Item className="px-1 d-flex justify-content-between  align-items-center">
                     <p>Address: {bar.location.address1}</p>
                   </ListGroup.Item>
-                  <ListGroup.Item className="p-1 d-flex justify-content-between  align-items-center">
-                    <p>Phone: {bar.display_phone}</p>
+                  <ListGroup.Item className="p-0 d-flex justify-content-between  align-items-center text-center">
+                    <p className="text-center">Phone: {bar.display_phone}</p>
                   </ListGroup.Item>
                   <ListGroup.Item className="p-2 d-flex justify-content-center align-items-center">
                     <Button>More Info</Button>

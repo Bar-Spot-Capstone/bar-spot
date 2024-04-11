@@ -13,13 +13,13 @@
   background-color: bisque;
 }
 .mapView {
-  width: 70%;
+  width: 55%;
   height: 100vh;
 }
 #infoHolder {
   overflow: auto;
   height: 95vh;
-  width: 30%;
+  width: 45%;
   background-color: rgb(207, 138, 138);
 }
 
