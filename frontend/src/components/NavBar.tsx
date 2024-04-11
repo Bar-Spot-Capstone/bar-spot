@@ -12,7 +12,7 @@ import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.min.js";
 import "../styles/NavBar.css"
 import { useDispatch } from "react-redux";
-import { registerGroup, setGroupId } from "../state/slices/groupSlice";
+import { registerGroup, setGroupId, leaveGroup } from "../state/slices/groupSlice";
 
 const NavBar = () => {
   const isLoggedIn: boolean = useSelector((state: Rootstate) => state.user.isLoggedIn);
@@ -40,7 +40,7 @@ const NavBar = () => {
     fetchInvites();
     fetchGroupMembers();
     setIsInGroup(isInGroup);
-  }, [registeredGroupId]);
+  }, [registeredGroupId, isInGroup, inGroupBool]);
 
   const fetchUserGroupInfo = async () => {
     try {
@@ -303,7 +303,7 @@ const NavBar = () => {
     };
   };
 
-  const leaveGroup = async () => {
+  const leaveGroupFunction = async () => {
     if (!isInGroup || !registeredGroupId) {
       return;
     }
@@ -326,6 +326,7 @@ const NavBar = () => {
       dispatch(leaveGroup());//leaves group
       dispatch(setGroupId(-Infinity));//resets groupId
       fetchInvites();//search for invites
+      setGroupMembers([]);//resets group members
       return;
     }
     catch (error: any) {
@@ -356,7 +357,8 @@ const NavBar = () => {
       /*User is no longer in group*/
       dispatch(leaveGroup());//leaves group
       dispatch(setGroupId(-Infinity));//resets groupId
-      setGroupMembers([]);
+      fetchInvites();//search for invites
+      setGroupMembers([]);//resets group members
       return;
     }
     catch (error: any) {
@@ -584,7 +586,7 @@ const NavBar = () => {
                       <button className="btn btn-danger btn-transition" onClick={deleteGroup}>
                         Delete
                       </button>
-                      <button className="btn btn-danger btn-transition" onClick={leaveGroup}>
+                      <button className="btn btn-danger btn-transition" onClick={leaveGroupFunction}>
                         Leave
                       </button>
                     </div>
