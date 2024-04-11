@@ -75,6 +75,119 @@ const createGroup = async (dispatch: any, name: string, invitedUsers: Array<any>
     };
 };
 
+const fetchUserGroupInfo = async (userId: number, dispatch: any) => {
+    try {
+        const options: object = {
+            method: 'GET',
+            headers: {
+                "Content-Type": "application/json"
+            }
+        };
+
+        const response: Response = await fetch(`http://localhost:3001/party/group/info/${userId}`, options);
+
+        if (!response.ok) {
+            const res: any = await response.json();
+            console.log(`Response was not okay with message: ${res.error}`);
+            return;
+        };
+
+        //Update groupId and isIngroup
+        const res: any = await response.json();
+        dispatch(registerGroup());
+        dispatch(setGroupId(res.groupId));
+        return;
+    }
+    catch (error: any) {
+        console.log(`Failed to fetch invites for user with error: ${error}`);
+        return;
+    };
+};
+
+const fetchGroupMembers = async (registeredGroupId: number, isInGroup: boolean, setGroupMembers: any) => {
+    //User is not in a group or cannot find there groupId
+    if (!isInGroup || !registeredGroupId) {
+        return;
+    };
+
+    try {
+
+        const options: object = {
+            method: 'GET',
+            headers: {
+                "Content-Type": "application/json"
+            }
+        };
+
+        const response: Response = await fetch(`http://localhost:3001/party/members/${registeredGroupId}`, options);
+
+        if (!response.ok) {
+            const res: any = await response.json();
+            console.log(`Response was not okay with message: ${res.error}`);
+            return;
+        };
+
+        //Update groupMembers to be the group members
+        const res: any = await response.json();
+        setGroupMembers(res.members);//updates setGroupMembers to be the group members
+        return;
+    }
+    catch (error: any) {
+        console.log(`Failed to fetch invites for user with error: ${error}`);
+        return;
+    };
+};
+
+
+/*
+@params: userId -> fetchs the invites that a user has
+*/
+const fetchInvites = async (userId: number, setInvites: any, setInvitationsFetched: any) => {
+    try {
+        if (!userId) {
+            console.log("No userId provided");
+        }
+
+        const options: object = {
+            method: 'GET',
+            headers: {
+                "Content-Type": "application/json"
+            }
+        };
+
+        const response: Response = await fetch(`http://localhost:3001/invite/${userId}`, options);
+
+        if (!response.ok) {
+            const res: any = await response.json();
+            console.log(`Response was not okay with message: ${res.error}`);
+            return;
+        };
+
+        const res: any = await response.json();
+        setInvites(res.invitesFormatted.length);
+        //Now need to store all invites into useState
+        let filterInvites: Array<Object> = []
+        for (let i = 0; i < res.invitesFormatted.length; i++) {
+            filterInvites.push({
+                ownerName: res.invitesFormatted[i].ownerName,
+                id: res.invitesFormatted[i].id,
+                status: res.invitesFormatted[i].status,
+                groupId: res.invitesFormatted[i].groupId,
+                groupName: res.invitesFormatted[i].groupName,
+                numberOfMembers: res.invitesFormatted[i].numberOfMembers
+            });
+        };
+        setInvitationsFetched(filterInvites);//update
+        return;
+    }
+    catch (error: any) {
+        console.log(`Failed to fetch invites for user with error: ${error}`);
+    };
+};
+
 export {
-    createGroup
+    createGroup,
+    fetchUserGroupInfo,
+    fetchGroupMembers,
+    fetchInvites
 };
