@@ -51,6 +51,7 @@ const MapView = () => {
 
   const handleCloseout = () => {
     setOffCanvas(false);
+    
   };
 
   const getGeoloaction = async () => {
@@ -186,6 +187,10 @@ const MapView = () => {
                         },
                       });
                       setOffCanvas(true);
+                      setUserGeo({
+                        lat:marker.position.lat,
+                        lng: marker.position.lng
+                      })
                     }}
                   />
                 ))
