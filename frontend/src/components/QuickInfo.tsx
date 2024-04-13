@@ -1,5 +1,6 @@
 import "animate.css";
 import "../styles/MapView.css";
+import imageUnavailable from "../assets/image_unavailable_photo.png";
 import { useEffect, useState } from "react";
 import {
   Col,
@@ -23,7 +24,15 @@ const QuickInfo = ({ barData }: Props) => {
   const [show, setShow] = useState<boolean>(false);
   const [sort, setSort] = useState<boolean>(false);
   const [offCanvas, setOffCanvas] = useState<boolean>(false);
-  const [currentBar, setCurrentBar]  = useState<number>(0);
+  const [currentBar, setCurrentBar] = useState<barMenuInfo>({
+    name: "NULL",
+    display_phone: "NULL",
+    rating: "0.0",
+    location: {
+      address1: "NULL",
+    },
+    image_url: imageUnavailable,
+  });
 
   const handleDscName = () => {
     sortByName("dsc");
@@ -197,7 +206,11 @@ const QuickInfo = ({ barData }: Props) => {
   if (show) {
     return (
       <div className="p-2">
-        <MoreInfo barInfo={barData[currentBar]} show={offCanvas} handleCloseout={handleCloseout}></MoreInfo>
+        <MoreInfo
+          barInfo={currentBar}
+          show={offCanvas}
+          handleCloseout={handleCloseout}
+        ></MoreInfo>
         <Accordion>
           <Accordion.Item eventKey="0">
             <Accordion.Header>Sort/Filter</Accordion.Header>
@@ -261,7 +274,6 @@ const QuickInfo = ({ barData }: Props) => {
             className="d-flex flex-column m-2 p-2 rounded info w-auto "
             key={index}
           >
-            
             <Row>
               <Col className="my-1">
                 <h3 className="text-center">{bar.name}</h3>
@@ -280,7 +292,14 @@ const QuickInfo = ({ barData }: Props) => {
                     <p className="text-center">Phone: {bar.display_phone}</p>
                   </ListGroup.Item>
                   <ListGroup.Item className="p-2 d-flex justify-content-center align-items-center">
-                    <Button onClick={() => {setOffCanvas(true); setCurrentBar(index)}}>More Info</Button>
+                    <Button
+                      onClick={() => {
+                        setOffCanvas(true);
+                        setCurrentBar(barData[index]);
+                      }}
+                    >
+                      More Info
+                    </Button>
                   </ListGroup.Item>
                 </ListGroup>
               </Col>
