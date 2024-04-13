@@ -2,12 +2,11 @@ import { GoogleMap, MarkerF, useLoadScript } from "@react-google-maps/api";
 import { useEffect, useState } from "react";
 import Error from "../components/Error";
 import visibleStyle from "../styles/mapstyle";
-import { Offcanvas } from "react-bootstrap";
 import QuickInfo from "../components/QuickInfo";
 import "../styles/MapView.css";
 import { barMenuInfo } from "../types/types";
 import imageUnavailable from "../assets/image_unavailable_photo.png";
-import CardInfo from "../components/CardInfo";
+import MoreInfo from "../components/MoreInfo";
 
 interface LngLat {
   lat: number;
@@ -140,22 +139,11 @@ const MapView = () => {
         <QuickInfo barData={yelpData} />
       </div>
       <div style={mapStyle} className="mapView">
-        <Offcanvas show={offCanvas} onHide={handleCloseout} id="canvas">
-          <Offcanvas.Header closeButton>
-            <Offcanvas.Title>{barInfo.name}</Offcanvas.Title>
-          </Offcanvas.Header>
-          <Offcanvas.Body>
-            <CardInfo
-              description="This is some place holder text for now where we will have the bar
-            info pop up"
-              name={barInfo.name}
-              rating={barInfo.rating}
-              image={barInfo.image_url}
-              phone={barInfo.display_phone}
-              address={barInfo.location.address1}
-            ></CardInfo>
-          </Offcanvas.Body>
-        </Offcanvas>
+        <MoreInfo
+          barInfo={barInfo}
+          show={offCanvas}
+          handleCloseout={handleCloseout}
+        ></MoreInfo>
 
         {isLoaded ? (
           <GoogleMap
