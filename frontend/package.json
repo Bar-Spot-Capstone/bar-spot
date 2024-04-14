@@ -1,6 +1,6 @@
 {
   "homepage": "https://Bar-Spot-Capstone.github.io/bar-spot/frontend",
-  "name": "bar-spot-ui",
+  "name": "frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
