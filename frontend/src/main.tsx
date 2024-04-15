@@ -17,7 +17,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: "/",
-        element:<MapView/>,
+        element: <MapView />,
       },
       {
         path: "/profile",
@@ -33,7 +33,7 @@ const router = createBrowserRouter([
     path: "/sign-up",
     element: <CreateNewAcc />,
   },
-]);
+], { basename: '/' });
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <Provider store={store}>
