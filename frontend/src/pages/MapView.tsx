@@ -31,6 +31,7 @@ const MapView = () => {
   const [offCanvas, setOffCanvas] = useState<boolean>(false);
 
   const [barInfo, setBarInfo] = useState<barMenuInfo>({
+    id: "NULL",
     name: "NULL",
     display_phone: "NULL",
     rating: "0.0",
@@ -38,6 +39,10 @@ const MapView = () => {
       address1: "NULL",
     },
     image_url: imageUnavailable,
+    is_closed: true,
+    url: "www.google.com",
+    price: "$$$$$",
+    distance: 100,
   });
   const [yelpData, setYelpData] = useState<barMenuInfo[]>([]);
 
@@ -179,6 +184,7 @@ const MapView = () => {
                     onClick={() => {
                       const index = getIndex(marker.lable);
                       setBarInfo({
+                        id:yelpData[index].id,
                         name: yelpData[index].name,
                         display_phone: yelpData[index].display_phone,
                         image_url: yelpData[index].image_url,
@@ -186,6 +192,11 @@ const MapView = () => {
                         location: {
                           address1: yelpData[index].location.address1,
                         },
+                        url: yelpData[index].url,
+                        is_closed: yelpData[index].is_closed,
+                        price: yelpData[index].price,
+                        distance: yelpData[index].distance
+
                       });
                       setOffCanvas(true);
                       setUserGeo({
