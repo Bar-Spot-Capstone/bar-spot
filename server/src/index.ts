@@ -13,7 +13,7 @@ import "dotenv/config";
 
 const app: express.Application = express();
 const PORT: number = Number(process.env.PORT) | 3001;
-const API_URL: string = "http://localhost:5173";
+const API_URL: string = "https://bar-spot-capstone.github.io";
 const options: cors.CorsOptions = {
   allowedHeaders: [
     "Origin",
