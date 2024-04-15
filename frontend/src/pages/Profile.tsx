@@ -11,6 +11,7 @@ import unavailableImage from "../assets/image_unavailable_photo.png"
 import "../styles/Profile.css"
 import "bootstrap/dist/css/bootstrap.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { deleteFav, getFav } from "../types/fetchCall";
 
 const Profile = () => {
     const username: string = useSelector((state: Rootstate) => state.user.username);
@@ -24,7 +25,7 @@ const Profile = () => {
 
     const fetchFavorites = async () => {
         try {
-            const response = await fetch(`http://localhost:3001/favorite/get/${userId}`, {
+            const response = await fetch(`${getFav}/${userId}`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -40,14 +41,14 @@ const Profile = () => {
             console.error("Error fetching favorites:", error);
         }
     };
-    
+
     useEffect(() => {
         fetchFavorites();
     }, [userId]);
 
     const handleDeleteFavorite = async (barId: number) => {
         try {
-            const response = await fetch(`http://localhost:3001/favorite/delete/${userId}/${barId}`, {
+            const response = await fetch(`${deleteFav}/${userId}/${barId}`, {
                 method: "DELETE",
             });
             if (response.ok) {
@@ -168,8 +169,8 @@ const Profile = () => {
                                         )}
                                         <div className="bar-details d-flex flex-column align-items-center">
                                             <h6 className="text-center">{bar.barName}</h6>
-                                             {/* Delete button */}
-                                             <button 
+                                            {/* Delete button */}
+                                            <button
                                                 className="btn btn-danger btn-sm mt-2"
                                                 onClick={() => handleDeleteFavorite(bar.id)}
                                             >

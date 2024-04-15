@@ -1,4 +1,5 @@
 import { registerGroup, setGroupId } from "../state/slices/groupSlice";
+import { partyCreate } from "../types/fetchCall";
 
 const createGroup = async (dispatch: any, name: string, invitedUsers: Array<any>, userId: number) => {
     try {
@@ -27,7 +28,7 @@ const createGroup = async (dispatch: any, name: string, invitedUsers: Array<any>
                     invitedUsers: invitedUsersObj
                 })
             };
-            const response: Response = await fetch('http://localhost:3001/party/create', options);
+            const response: Response = await fetch(partyCreate, options);
 
             if (!response.ok) {
                 const res: any = await response.json();
@@ -55,7 +56,7 @@ const createGroup = async (dispatch: any, name: string, invitedUsers: Array<any>
             })
         };
 
-        const response: Response = await fetch('http://localhost:3001/party/create', options);
+        const response: Response = await fetch(partyCreate, options);
 
         if (!response.ok) {
             const res: any = await response.json();
