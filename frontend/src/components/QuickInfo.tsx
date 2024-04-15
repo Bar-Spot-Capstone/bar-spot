@@ -25,6 +25,7 @@ const QuickInfo = ({ barData }: Props) => {
   const [sort, setSort] = useState<boolean>(false);
   const [offCanvas, setOffCanvas] = useState<boolean>(false);
   const [currentBar, setCurrentBar] = useState<barMenuInfo>({
+    id: "NULL",
     name: "NULL",
     display_phone: "NULL",
     rating: "0.0",
@@ -32,6 +33,10 @@ const QuickInfo = ({ barData }: Props) => {
       address1: "NULL",
     },
     image_url: imageUnavailable,
+    is_closed: true,
+    url: "www.google.com",
+    price: "$$$$$",
+    distance: 100,
   });
 
   const handleDscName = () => {
@@ -50,6 +55,14 @@ const QuickInfo = ({ barData }: Props) => {
     sortByRating("dsc");
   };
 
+  const handleAscDist = () => {
+    sortByDistance("asc");
+  };
+
+  const handleDscDist = () => {
+    sortByDistance("dsc");
+  };
+
   const sortByName = (direction: string) => {
     mergeSort(barData, 0, barData.length - 1, direction, "name");
     setSort(true);
@@ -57,6 +70,11 @@ const QuickInfo = ({ barData }: Props) => {
 
   const sortByRating = (direction: string) => {
     mergeSort(barData, 0, barData.length - 1, direction, "rating");
+    setSort(true);
+  };
+
+  const sortByDistance = (direction: string) => {
+    mergeSort(barData, 0, barData.length - 1, direction, "distance");
     setSort(true);
   };
 
@@ -81,9 +99,9 @@ const QuickInfo = ({ barData }: Props) => {
       array2[x] = arr[middle + 1 + x];
     }
 
-    let index1 = 0;
-    let index2 = 0;
-    let mergedIndex = left;
+    let index1:number = 0;
+    let index2:number = 0;
+    let mergedIndex:number = left;
 
     if (factor == "name") {
       if (direction == "asc") {
@@ -129,10 +147,13 @@ const QuickInfo = ({ barData }: Props) => {
           mergedIndex++;
         }
       }
-    } else if (factor == "rating") {
+    } else {
       if (direction == "asc") {
         while (index1 < size1 && index2 < size2) {
-          if (Number(array1[index1].rating) <= Number(array2[index2].rating)) {
+          
+          if (
+            Number(array1[index1][factor as keyof barMenuInfo]) <= Number(array2[index2][factor as keyof barMenuInfo])
+          ) {
             arr[mergedIndex] = array1[index1];
             index1++;
           } else {
@@ -153,7 +174,9 @@ const QuickInfo = ({ barData }: Props) => {
         }
       } else {
         while (index1 < size1 && index2 < size2) {
-          if (Number(array1[index1].rating) >= Number(array2[index2].rating)) {
+          if (
+            Number(array1[index1][factor as keyof barMenuInfo]) >= Number(array2[index2][factor as keyof barMenuInfo])
+          ) {
             arr[mergedIndex] = array1[index1];
             index1++;
           } else {
@@ -238,10 +261,18 @@ const QuickInfo = ({ barData }: Props) => {
                 <ListGroup.Item className="d-flex justify-content-between align-items-center">
                   Distance:{" "}
                   <ToggleButtonGroup type="radio" name="distanceSort">
-                    <ToggleButton id="distance-radio-1" value={1}>
+                    <ToggleButton
+                      id="distance-radio-1"
+                      value={1}
+                      onClick={handleAscDist}
+                    >
                       Asc
                     </ToggleButton>
-                    <ToggleButton id="distance-radio-2" value={2}>
+                    <ToggleButton
+                      id="distance-radio-2"
+                      value={2}
+                      onClick={handleDscDist}
+                    >
                       Desc
                     </ToggleButton>
                   </ToggleButtonGroup>
