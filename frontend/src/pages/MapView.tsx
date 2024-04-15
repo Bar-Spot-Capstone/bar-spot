@@ -7,6 +7,7 @@ import "../styles/MapView.css";
 import { barMenuInfo } from "../types/types";
 import imageUnavailable from "../assets/image_unavailable_photo.png";
 import MoreInfo from "../components/MoreInfo";
+import { fetchPubs } from "../types/fetchCall";
 
 interface LngLat {
   lat: number;
@@ -88,7 +89,7 @@ const MapView = () => {
         return;
       }
       const response = await fetch(
-        `http://localhost:3001/yelp/pubs/${lat}/${lng}`,
+        `${fetchPubs}/${lat}/${lng}`,
         { method: "GET" }
       );
 
