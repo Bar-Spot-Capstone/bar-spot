@@ -12,25 +12,25 @@ import MapView from "./pages/MapView.tsx";
 
 const router = createBrowserRouter([
   {
-    path: "/bar-spot/frontend/",
+    path: "/",
     element: <Home />,
     children: [
       {
-        path: "/bar-spot/frontend/",
+        path: "/",
         element:<MapView/>,
       },
       {
-        path: "/bar-spot/frontend/profile",
+        path: "/profile",
         element: <Profile />,
       }
     ],
   },
   {
-    path: "/bar-spot/frontend/login",
+    path: "/login",
     element: <Login />,
   },
   {
-    path: "/bar-spot/frontend/sign-up",
+    path: "/sign-up",
     element: <CreateNewAcc />,
   },
 ]);
