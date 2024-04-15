@@ -33,7 +33,7 @@ const router = createBrowserRouter([
     path: "/sign-up",
     element: <CreateNewAcc />,
   },
-], { basename: '/' });
+], { basename: '/bar-spot/' }); 
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <Provider store={store}>
