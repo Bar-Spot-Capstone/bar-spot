@@ -12,12 +12,14 @@ import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.min.js";
 import "../styles/NavBar.css"
 import { useDispatch } from "react-redux";
-import { registerGroup, setGroupId, leaveGroup } from "../state/slices/groupSlice";
+import { registerGroup, setGroupId, leaveGroup, setUserRole } from "../state/slices/groupSlice";
 
 const NavBar = () => {
   const isLoggedIn: boolean = useSelector((state: Rootstate) => state.user.isLoggedIn);
   const isInGroup: boolean = useSelector((state: Rootstate) => state.group.isInGroup);//Checks if user is in a group
   const registeredGroupId: number = useSelector((state: Rootstate) => state.group.groupId);
+  const userRole: string = useSelector((state: Rootstate) => state.group.userRole);//tracking user's role in group
+
   const dispatch: any = useDispatch();
   const userId: number = useSelector((state: Rootstate) => state.user.userId);
 
@@ -83,6 +85,7 @@ const NavBar = () => {
         //Sets the groupId assoicated with the user and marks them in a group
         dispatch(registerGroup());//sets isInGroupTrue
         dispatch(setGroupId(groupId));//sets the groupId to the group Id
+        dispatch(setUserRole("member"));//sets the role of the user to member if there joining a group
         return;
       }
       //Else the user wants to reject invite
@@ -216,12 +219,13 @@ const NavBar = () => {
       /*User is no longer in group*/
       dispatch(leaveGroup());//leaves group
       dispatch(setGroupId(-Infinity));//resets groupId
+      dispatch(setUserRole(""));//resets user's role to default
       fetchInvites(userId, setInvites, setInvitationsFetched);//search for invites
       setGroupMembers([]);//resets group members
       return;
     }
     catch (error: any) {
-      console.log(`Failed to fetch invites for user with error: ${error}`);
+      console.log(`Failed to leave group with error: ${error}`);
       return;
     };
   };
@@ -248,12 +252,13 @@ const NavBar = () => {
       /*User is no longer in group*/
       dispatch(leaveGroup());//leaves group
       dispatch(setGroupId(-Infinity));//resets groupId
+      dispatch(setUserRole(""));//resets user's role to default
       fetchInvites(userId, setInvites, setInvitationsFetched);//search for invites
       setGroupMembers([]);//resets group members
       return;
     }
     catch (error: any) {
-      console.log(`Failed to fetch invites for user with error: ${error}`);
+      console.log(`Failed to delete user with error: ${error}`);
       return;
     };
   };
@@ -473,14 +478,16 @@ const NavBar = () => {
                   </div>
                   {/*Render leave or delete group*/}
                   <div className="row">
-                    <div className="d-flex justify-content-around">
+                    {userRole === "Owner" ?
                       <button className="btn btn-danger btn-transition" onClick={deleteGroup}>
                         Delete
                       </button>
-                      <button className="btn btn-danger btn-transition" onClick={leaveGroupFunction}>
-                        Leave
-                      </button>
-                    </div>
+                      : userRole === "member" ?
+                        <button className="btn btn-danger btn-transition" onClick={leaveGroupFunction}>
+                          Leave
+                        </button>
+                        : null
+                    }
                   </div>
                 </div>
               </Modal.Body>

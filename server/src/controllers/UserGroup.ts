@@ -317,12 +317,12 @@ const deleteParty = async (req: Request, res: Response): Promise<Response> => {
             }
         });
 
-        if(!requesterStatus){
+        if (!requesterStatus) {
             res.status(400);
             return res.json({ error: "User or group does not exist" });
         }
 
-        if(requesterStatus.role !== "Owner"){
+        if (requesterStatus.role !== "Owner") {
             res.status(400);
             return res.json({ error: "User is not the owner" });
         };
@@ -425,13 +425,13 @@ const getGroupInformation = async (req: Request, res: Response): Promise<Respons
             }
         });
 
-        if(!group){
+        if (!group) {
             res.status(400);
             return res.json({ error: "User is not in group" });
         }
 
         res.status(200);
-        return res.json({ success: "User is in group", groupId: group.groupId });
+        return res.json({ success: "User is in group", groupId: group.groupId, role: group.role });
     }
     catch (error: any) {
         res.status(500);

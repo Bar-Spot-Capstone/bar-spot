@@ -1,4 +1,4 @@
-import { registerGroup, setGroupId } from "../state/slices/groupSlice";
+import { registerGroup, setGroupId, setUserRole } from "../state/slices/groupSlice";
 
 const createGroup = async (dispatch: any, name: string, invitedUsers: Array<any>, userId: number) => {
     try {
@@ -40,7 +40,7 @@ const createGroup = async (dispatch: any, name: string, invitedUsers: Array<any>
             /*Update user as being in a group with the group id*/
             dispatch(registerGroup());
             dispatch(setGroupId(res.groupId));
-
+            dispatch(setUserRole("Owner"));//sets user as owner of a group
             return;
         }
         //Else no invited users
@@ -68,6 +68,7 @@ const createGroup = async (dispatch: any, name: string, invitedUsers: Array<any>
         /*Update user as being in a group with the group id*/
         dispatch(registerGroup());
         dispatch(setGroupId(group.groupId));
+        dispatch(setUserRole("Owner"));//sets user as owner of a group
         return;
     }
     catch (error: any) {
@@ -96,10 +97,11 @@ const fetchUserGroupInfo = async (userId: number, dispatch: any) => {
         const res: any = await response.json();
         dispatch(registerGroup());
         dispatch(setGroupId(res.groupId));
+        dispatch(setUserRole(res.role));//sets user as owner of a group
         return;
     }
     catch (error: any) {
-        console.log(`Failed to fetch invites for user with error: ${error}`);
+        console.log(`Failed to fetch user's group information with error: ${error}`);
         return;
     };
 };
@@ -133,7 +135,7 @@ const fetchGroupMembers = async (registeredGroupId: number, isInGroup: boolean, 
         return;
     }
     catch (error: any) {
-        console.log(`Failed to fetch invites for user with error: ${error}`);
+        console.log(`Failed to fetch group members with error: ${error}`);
         return;
     };
 };

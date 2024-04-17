@@ -3,11 +3,13 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 interface GroupState {
     isInGroup: boolean;
     groupId: number;
+    userRole: string;
 };
 
 const initialState: GroupState = {
     isInGroup: false,
-    groupId: -Infinity
+    groupId: -Infinity,
+    userRole: ""
 };
 
 const groupSlice = createSlice({
@@ -22,9 +24,12 @@ const groupSlice = createSlice({
         },
         setGroupId(state, action: PayloadAction<number>) {
             state.groupId = action.payload
+        },
+        setUserRole(state, action: PayloadAction<string>) {
+            state.userRole = action.payload
         }
     }
 });
 
-export const { registerGroup, leaveGroup, setGroupId } = groupSlice.actions;
+export const { registerGroup, leaveGroup, setGroupId, setUserRole } = groupSlice.actions;
 export default groupSlice.reducer;

@@ -714,11 +714,12 @@ describe('On vaild get user party', (): void => {
         };
 
         (UserGroup as any).findOne.mockResolvedValueOnce({
-            groupId: Number.MAX_SAFE_INTEGER
+            groupId: Number.MAX_SAFE_INTEGER,
+            role: "Owner"
         });
 
         await getGroupInformation(req, res);
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({ success: "User is in group", groupId: Number.MAX_SAFE_INTEGER });
+        expect(res.json).toHaveBeenCalledWith({ success: "User is in group", groupId: Number.MAX_SAFE_INTEGER, role: "Owner" });
     });
 });
