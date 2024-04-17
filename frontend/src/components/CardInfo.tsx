@@ -1,5 +1,8 @@
 import { Button, Card, ListGroup } from "react-bootstrap";
-import {useState} from "react";
+import { useSelector } from "react-redux";
+import { useState } from "react";
+import { Rootstate } from "../state/store";
+import { addFav } from "../types/fetchCall";
 
 interface Props {
     rating: string;
@@ -8,38 +11,35 @@ interface Props {
     address: string;
     image: string;
     description: string;
-    isFavorite: boolean; 
-
 }
-const CardInfo = ({rating, name, address, phone, image, description, isFavorite}:Props) => {
-    const [favoriteText, setFavoriteText] = useState(
-        isFavorite ? 'Favorited!': 'Add to Favorites'
-    );
 
-    const handleAddFavorite = async () => {
-        if (isFavorite) {
-            return;
-        }
+const userId = useSelector((state: Rootstate) => state.user.userId);
 
+const CardInfo = ({rating, name, address, phone, image, description}:Props) => {
+    const [isFavorite, setIsFavorite] = useState(false);
+
+    const addToFavorites = async () => {
         try {
-            const response = await fetch('/api/addFavorite', {
+            const response = await fetch(`${addFav}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    userId: 'your_user_id', // Provide actual user ID
+                    userId,
                     barName: name,
-                    address: address,
+                    address,
+                    note: '',
                     imageURL: image,
                 }),
             });
-            
             if (response.ok) {
-                setFavoriteText('Favorited!');
+                setIsFavorite(true);
+            } else {
+                console.error('Failed to add to favorites');
             }
         } catch (error) {
-            console.error('Error adding to favorites:', error);
+            console.error("Error adding to favorites: ", error);
         }
     };
 
@@ -67,7 +67,14 @@ const CardInfo = ({rating, name, address, phone, image, description, isFavorite}
                     </ListGroup>
             <Card.Body>
             <Button variant="success" className="my-3 me-2">Start Hopping</Button>
-                    <Button variant="outline-success" className="my-3" onClick={handleAddFavorite}>{favoriteText}</Button>
+                    <Button 
+                        variant = "outline-success"
+                        className = "my-3"
+                        onClick = {addToFavorites}
+                        disabled = {isFavorite}
+                    >
+                        {isFavorite ? 'Already in Favorites' : 'Add to Favorites!'}
+                    </Button>
             </Card.Body>
         </Card>
     );
