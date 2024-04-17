@@ -13,6 +13,7 @@ import "bootstrap/dist/js/bootstrap.min.js";
 import "../styles/NavBar.css"
 import { useDispatch } from "react-redux";
 import { registerGroup, setGroupId, leaveGroup, setUserRole } from "../state/slices/groupSlice";
+import { allOtherUsers, partyDelete, partyLeave, userInvResponse } from "../types/fetchCall";
 
 const NavBar = () => {
   const isLoggedIn: boolean = useSelector((state: Rootstate) => state.user.isLoggedIn);
@@ -70,7 +71,7 @@ const NavBar = () => {
           })
         };
 
-        const response: Response = await fetch('http://localhost:3001/invite/respond', options);
+        const response: Response = await fetch(`${userInvResponse}`, options);
 
         if (!response.ok) {
           const res: any = await response.json();
@@ -101,7 +102,7 @@ const NavBar = () => {
         })
       };
 
-      const response: Response = await fetch('http://localhost:3001/invite/respond', options);
+      const response: Response = await fetch(`${userInvResponse}`, options);
 
       if (!response.ok) {
         const res: any = await response.json();
@@ -151,7 +152,7 @@ const NavBar = () => {
         }
       };
 
-      const response: Response = await fetch(`http://localhost:3001/user/all/${userId}`, options);
+      const response: Response = await fetch(`${allOtherUsers}/${userId}`, options);
 
       if (!response.ok) {
         const res: any = await response.json();
@@ -209,7 +210,7 @@ const NavBar = () => {
         }
       };
 
-      const response: Response = await fetch(`http://localhost:3001/party/leave/${userId}/${registeredGroupId}`, options);
+      const response: Response = await fetch(`${partyLeave}/${userId}/${registeredGroupId}`, options);
 
       if (!response.ok) {
         const res: any = await response.json();
@@ -242,7 +243,7 @@ const NavBar = () => {
         }
       };
 
-      const response: Response = await fetch(`http://localhost:3001/party/delete/${userId}/${registeredGroupId}`, options);
+      const response: Response = await fetch(`${partyDelete}/${userId}/${registeredGroupId}`, options);
 
       if (!response.ok) {
         const res: any = await response.json();

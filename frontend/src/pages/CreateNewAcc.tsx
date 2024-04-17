@@ -4,6 +4,7 @@ import FormInput from "../components/FormInput";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import AlertBadge from "../components/AlertBadge";
+import { userRegister } from "../types/fetchCall";
 
 interface signUpData {
   email: string;
@@ -55,7 +56,7 @@ const CreateNewAcc = () => {
   // else returns 400 error code
   const callSignUp = async () => {
     try {
-      const response = await fetch("http://localhost:3001/user/register", {
+      const response = await fetch(userRegister, {
         method: "POST",
         mode: "cors",
         headers: {

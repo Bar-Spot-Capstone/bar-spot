@@ -1,4 +1,5 @@
 import { registerGroup, setGroupId, setUserRole } from "../state/slices/groupSlice";
+import { partyCreate, inviteMember, partyMembers, groupInfo } from "../types/fetchCall";
 
 const createGroup = async (dispatch: any, name: string, invitedUsers: Array<any>, userId: number) => {
     try {
@@ -27,7 +28,7 @@ const createGroup = async (dispatch: any, name: string, invitedUsers: Array<any>
                     invitedUsers: invitedUsersObj
                 })
             };
-            const response: Response = await fetch('http://localhost:3001/party/create', options);
+            const response: Response = await fetch(partyCreate, options);
 
             if (!response.ok) {
                 const res: any = await response.json();
@@ -55,7 +56,7 @@ const createGroup = async (dispatch: any, name: string, invitedUsers: Array<any>
             })
         };
 
-        const response: Response = await fetch('http://localhost:3001/party/create', options);
+        const response: Response = await fetch(partyCreate, options);
 
         if (!response.ok) {
             const res: any = await response.json();
@@ -85,7 +86,7 @@ const fetchUserGroupInfo = async (userId: number, dispatch: any) => {
             }
         };
 
-        const response: Response = await fetch(`http://localhost:3001/party/group/info/${userId}`, options);
+        const response: Response = await fetch(`${groupInfo}/${userId}`, options);
 
         if (!response.ok) {
             const res: any = await response.json();
@@ -121,7 +122,7 @@ const fetchGroupMembers = async (registeredGroupId: number, isInGroup: boolean, 
             }
         };
 
-        const response: Response = await fetch(`http://localhost:3001/party/members/${registeredGroupId}`, options);
+        const response: Response = await fetch(`${partyMembers}/${registeredGroupId}`, options);
 
         if (!response.ok) {
             const res: any = await response.json();
@@ -157,7 +158,7 @@ const fetchInvites = async (userId: number, setInvites: any, setInvitationsFetch
             }
         };
 
-        const response: Response = await fetch(`http://localhost:3001/invite/${userId}`, options);
+        const response: Response = await fetch(`${inviteMember}/${userId}`, options);
 
         if (!response.ok) {
             const res: any = await response.json();

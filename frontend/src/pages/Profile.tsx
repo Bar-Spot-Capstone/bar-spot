@@ -5,40 +5,63 @@ import { IoRibbon } from "react-icons/io5";
 import { useSelector } from "react-redux";
 import { Rootstate } from "../state/store";
 import { useState } from "react";
+import { useEffect } from "react";
 import TimerInput from "../components/TimerInput";
 import unavailableImage from "../assets/image_unavailable_photo.png"
 import "../styles/Profile.css"
 import "bootstrap/dist/css/bootstrap.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { deleteFav, getFav } from "../types/fetchCall";
 
 const Profile = () => {
     const username: string = useSelector((state: Rootstate) => state.user.username);
     const email: string = useSelector((state: Rootstate) => state.user.email);
+    const userId: number = useSelector((state: Rootstate) => state.user.userId);
+
     const [renderOption, setOption]: any = useState('accountSetting');
     const [trackLocation, setLocationOption] = useState(true);
     const [trackBars, setTrackedBars] = useState(true);
+    const [favoriteBars, setFavoriteBars] = useState<{ favorites: any[] }>({ favorites: [] });
 
-    /*
-        Will show favorite bars and the option to delete. No adding from here
-        Sample response from get favorite. Not complete, need to also store bar image url.
-    */
-    const [favoriteBars, setFavoriteBars] = useState({
-        favorites: [
-            {
-                barName: "O'Flannigans",
-                address: "123 Test St",
-                note: "Great mocktail menu!",
-                image_url: null
-            },
-            {
-                barName: "Hillarys Bar",
-                address: null,
-                note: null,
-                image_url: null
+    const fetchFavorites = async () => {
+        try {
+            const response = await fetch(`${getFav}/${userId}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setFavoriteBars(data);
+            } else {
+                console.error("Failed to fetch favorites");
             }
-        ]
-    });
+        } catch (error) {
+            console.error("Error fetching favorites:", error);
+        }
+    };
 
+    useEffect(() => {
+        fetchFavorites();
+    }, [userId]);
+
+    const handleDeleteFavorite = async (barId: number) => {
+        try {
+            const response = await fetch(`${deleteFav}/${userId}/${barId}`, {
+                method: "DELETE",
+            });
+            if (response.ok) {
+                // Refetch favorites after successful deletion
+                fetchFavorites();
+            } else {
+                console.error("Failed to delete favorite");
+            }
+        } catch (error) {
+            console.error("Error deleting favorite:", error);
+        }
+
+    };
 
     const renderSelection = () => {
         if (renderOption == 'accountSetting') {
@@ -139,19 +162,26 @@ const Profile = () => {
                                 favoriteBars.favorites.map((bar, index) => (
                                     <div key={index} className="col-md-4 mb-3">
                                         {/* Render the image if available, or a placeholder */}
-                                        {bar.image_url ? (
-                                            <img src={bar.image_url} alt={bar.barName} className="img-fluid" />
+                                        {bar.imageURL ? (
+                                            <img src={bar.imageURL} alt={bar.barName} className="img-fluid" />
                                         ) : (
                                             <img src={unavailableImage} alt={bar.barName} className="img-fluid" />
                                         )}
-                                        <div className="bar-details">
-                                            <h6>{bar.barName}</h6>
+                                        <div className="bar-details d-flex flex-column align-items-center">
+                                            <h6 className="text-center">{bar.barName}</h6>
+                                            {/* Delete button */}
+                                            <button
+                                                className="btn btn-danger btn-sm mt-2"
+                                                onClick={() => handleDeleteFavorite(bar.id)}
+                                            >
+                                                Delete
+                                            </button>
                                         </div>
                                     </div>
                                 ))
                             ) : (
                                 <div className="col-12">
-                                    <h6>No favorites</h6>
+                                    <h6 className="text-center">No favorites</h6>
                                 </div>
                             )}
                         </div>
