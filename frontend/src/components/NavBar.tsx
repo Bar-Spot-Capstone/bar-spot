@@ -12,7 +12,7 @@ import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.min.js";
 import "../styles/NavBar.css"
 import { useDispatch } from "react-redux";
-import { registerGroup, setGroupId, leaveGroup, setUserRole } from "../state/slices/groupSlice";
+import { registerGroup, setGroupId, leaveGroup, setUserRole, setUserGroupName } from "../state/slices/groupSlice";
 import { allOtherUsers, partyDelete, partyLeave, userInvResponse } from "../types/fetchCall";
 
 const NavBar = () => {
@@ -20,6 +20,7 @@ const NavBar = () => {
   const isInGroup: boolean = useSelector((state: Rootstate) => state.group.isInGroup);//Checks if user is in a group
   const registeredGroupId: number = useSelector((state: Rootstate) => state.group.groupId);
   const userRole: string = useSelector((state: Rootstate) => state.group.userRole);//tracking user's role in group
+  const usersGroupName: string = useSelector((state: Rootstate) => state.group.groupName);//tracking groups name
 
   const dispatch: any = useDispatch();
   const userId: number = useSelector((state: Rootstate) => state.user.userId);
@@ -83,10 +84,7 @@ const NavBar = () => {
         const res: any = await response.json();
         console.log(res);
         fetchInvites(userId, setInvites, setInvitationsFetched);//refresh invites page
-        //Sets the groupId assoicated with the user and marks them in a group
-        dispatch(registerGroup());//sets isInGroupTrue
-        dispatch(setGroupId(groupId));//sets the groupId to the group Id
-        dispatch(setUserRole("member"));//sets the role of the user to member if there joining a group
+        fetchUserGroupInfo(userId, dispatch);//updates group info including name
         return;
       }
       //Else the user wants to reject invite
@@ -221,6 +219,7 @@ const NavBar = () => {
       dispatch(leaveGroup());//leaves group
       dispatch(setGroupId(-Infinity));//resets groupId
       dispatch(setUserRole(""));//resets user's role to default
+      dispatch(setUserGroupName(""));//resets user's role to default
       fetchInvites(userId, setInvites, setInvitationsFetched);//search for invites
       setGroupMembers([]);//resets group members
       return;
@@ -254,6 +253,7 @@ const NavBar = () => {
       dispatch(leaveGroup());//leaves group
       dispatch(setGroupId(-Infinity));//resets groupId
       dispatch(setUserRole(""));//resets user's role to default
+      dispatch(setUserGroupName(""));//resets user's role to default
       fetchInvites(userId, setInvites, setInvitationsFetched);//search for invites
       setGroupMembers([]);//resets group members
       return;
@@ -449,7 +449,7 @@ const NavBar = () => {
             {/*Model for Group info page*/}
             <Modal show={groupShow} onHide={() => setGroupShow(false)}>
               <Modal.Header closeButton>
-                <Modal.Title>Group Information</Modal.Title>
+                <Modal.Title>{usersGroupName}</Modal.Title>
               </Modal.Header>
               <Modal.Body className="d-flex">
                 <div className="container-fluid">

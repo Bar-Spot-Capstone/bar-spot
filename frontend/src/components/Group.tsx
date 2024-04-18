@@ -1,4 +1,4 @@
-import { registerGroup, setGroupId, setUserRole } from "../state/slices/groupSlice";
+import { registerGroup, setGroupId, setUserRole, setUserGroupName } from "../state/slices/groupSlice";
 import { partyCreate, inviteMember, partyMembers, groupInfo } from "../types/fetchCall";
 
 const createGroup = async (dispatch: any, name: string, invitedUsers: Array<any>, userId: number) => {
@@ -42,6 +42,7 @@ const createGroup = async (dispatch: any, name: string, invitedUsers: Array<any>
             dispatch(registerGroup());
             dispatch(setGroupId(res.groupId));
             dispatch(setUserRole("Owner"));//sets user as owner of a group
+            dispatch(setUserGroupName(name));//resets user's role to default
             return;
         }
         //Else no invited users
@@ -70,6 +71,7 @@ const createGroup = async (dispatch: any, name: string, invitedUsers: Array<any>
         dispatch(registerGroup());
         dispatch(setGroupId(group.groupId));
         dispatch(setUserRole("Owner"));//sets user as owner of a group
+        dispatch(setUserGroupName(name));//resets user's role to default
         return;
     }
     catch (error: any) {
@@ -99,6 +101,7 @@ const fetchUserGroupInfo = async (userId: number, dispatch: any) => {
         dispatch(registerGroup());
         dispatch(setGroupId(res.groupId));
         dispatch(setUserRole(res.role));//sets user as owner of a group
+        dispatch(setUserGroupName(res.name));
         return;
     }
     catch (error: any) {

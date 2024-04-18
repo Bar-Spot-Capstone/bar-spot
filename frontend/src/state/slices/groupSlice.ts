@@ -4,12 +4,14 @@ interface GroupState {
     isInGroup: boolean;
     groupId: number;
     userRole: string;
+    groupName: string;
 };
 
 const initialState: GroupState = {
     isInGroup: false,
     groupId: -Infinity,
-    userRole: ""
+    userRole: "",
+    groupName: ""
 };
 
 const groupSlice = createSlice({
@@ -27,9 +29,12 @@ const groupSlice = createSlice({
         },
         setUserRole(state, action: PayloadAction<string>) {
             state.userRole = action.payload
+        },
+        setUserGroupName(state, action: PayloadAction<string>) {
+            state.groupName = action.payload
         }
     }
 });
 
-export const { registerGroup, leaveGroup, setGroupId, setUserRole } = groupSlice.actions;
+export const { registerGroup, leaveGroup, setGroupId, setUserRole, setUserGroupName } = groupSlice.actions;
 export default groupSlice.reducer;

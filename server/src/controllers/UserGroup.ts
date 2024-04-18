@@ -430,8 +430,14 @@ const getGroupInformation = async (req: Request, res: Response): Promise<Respons
             return res.json({ error: "User is not in group" });
         }
 
+        const groupInfo: any = await Group.findOne({
+            where: {
+                id: group.groupId
+            }
+        });
+
         res.status(200);
-        return res.json({ success: "User is in group", groupId: group.groupId, role: group.role });
+        return res.json({ success: "User is in group", groupId: group.groupId, role: group.role, name: groupInfo.name });
     }
     catch (error: any) {
         res.status(500);
