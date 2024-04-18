@@ -13,9 +13,9 @@ interface Props {
     description: string;
 }
 
-const userId = useSelector((state: Rootstate) => state.user.userId);
-
 const CardInfo = ({rating, name, address, phone, image, description}:Props) => {
+    const userId: number = useSelector((state: Rootstate) => state.user.userId);
+    
     const [isFavorite, setIsFavorite] = useState(false);
 
     const addToFavorites = async () => {
@@ -73,7 +73,7 @@ const CardInfo = ({rating, name, address, phone, image, description}:Props) => {
                         onClick = {addToFavorites}
                         disabled = {isFavorite}
                     >
-                        {isFavorite ? 'Already in Favorites' : 'Add to Favorites!'}
+                        Add Favorite
                     </Button>
             </Card.Body>
         </Card>
