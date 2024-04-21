@@ -1,4 +1,4 @@
-import { GoogleMap, MarkerF, useLoadScript } from "@react-google-maps/api";
+import { GoogleMap, MarkerF, useJsApiLoader } from "@react-google-maps/api";
 import { useEffect, useState } from "react";
 import Error from "../components/Error";
 import visibleStyle from "../styles/mapstyle";
@@ -24,7 +24,7 @@ const MapView = () => {
     lat: 0,
     lng: 0,
   });
-
+  const [map, setMap] = useState<google.maps.Map>()
   const [markers, setMarkers] = useState<marker[]>([]);
   const [showMarkers, setShowMarkers] = useState<boolean>(false);
   const [userMarker, setUserMarker] = useState<marker>();
@@ -124,6 +124,11 @@ const MapView = () => {
     }
   };
 
+  const handleRecenter = () => {
+    getGeoloaction()
+    map?.panTo(userGeo)
+  }
+
   useEffect(() => {
     getGeoloaction();
   }, []);
@@ -133,7 +138,7 @@ const MapView = () => {
     width: "100%",
   };
 
-  const { isLoaded } = useLoadScript({
+  const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_API_KEY,
   });
 
@@ -143,7 +148,7 @@ const MapView = () => {
   return (
     <div className="totalView">
       <div id="infoHolder">
-        <QuickInfo barData={yelpData} />
+        <QuickInfo barData={yelpData} handleRecenter={handleRecenter} />
       </div>
       <div style={mapStyle} className="mapView">
         <MoreInfo
@@ -157,6 +162,7 @@ const MapView = () => {
             mapContainerStyle={mapStyle}
             center={userGeo}
             zoom={16}
+            onLoad={map => setMap(map)}
             options={{
               streetViewControl: false,
               disableDefaultUI: true,
@@ -167,6 +173,7 @@ const MapView = () => {
             }}
           >
             {/* Render Markers */}
+
             {showMarkers ? (
               <MarkerF
                 position={
@@ -182,6 +189,10 @@ const MapView = () => {
                     position={marker.position}
                     label={marker.lable}
                     onClick={() => {
+                      map?.panTo({
+                        lat:marker.position.lat,
+                        lng: marker.position.lng
+                      })
                       const index = getIndex(marker.lable);
                       setBarInfo({
                         id:yelpData[index].id,
@@ -199,10 +210,7 @@ const MapView = () => {
 
                       });
                       setOffCanvas(true);
-                      setUserGeo({
-                        lat:marker.position.lat,
-                        lng: marker.position.lng
-                      })
+                      
                     }}
                   />
                 ))
