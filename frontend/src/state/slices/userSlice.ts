@@ -38,7 +38,7 @@ const userSlice = createSlice({
     setEmail(state, action: PayloadAction<string>) {
       state.email = action.payload
     }
-  },
+  }
 });
 
 export const { login, logout, setUsername, setUserID, setEmail } = userSlice.actions;

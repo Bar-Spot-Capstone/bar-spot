@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { login, setUsername, setUserID, setEmail } from "../state/slices/userSlice";
 import AlertBadge from "../components/AlertBadge";
+import { userLogin } from "../types/fetchCall";
 
 interface loginData {
   email: string;
@@ -58,7 +59,7 @@ const Login = () => {
   // else returns 400 error code
   const callLogin = async (): Promise<any> => {
     try {
-      const response = await fetch("http://localhost:3001/user/login", {
+      const response = await fetch(userLogin, {
         method: "POST",
         mode: "cors",
         headers: {
@@ -71,7 +72,7 @@ const Login = () => {
         setError(false);
 
         const res = response.json();
-        //console.log(res);
+
         loadPage(response.status);
 
         dispatch(login());
