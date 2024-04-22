@@ -1,25 +1,29 @@
 .info:hover {
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.297);
-
 }
 .info {
   transition: box-shadow 0.4s ease-in-out;
+  background-color: rgb(255, 228, 196);
 }
-.totalView{
+.totalView {
   display: flex;
   flex-wrap: row;
 }
+#canvas{
+  background-color: bisque;
+}
 .mapView {
-  width: 70%;
+  width: 55%;
   height: 100vh;
 }
 #infoHolder {
   overflow: auto;
   height: 95vh;
-  width: 30%;
+  width: 45%;
+  background-color: rgb(207, 138, 138);
 }
 
-.barinfo {
+.barImg {
   width: fit-content;
   height: fit-content;
   max-height: 200px;
@@ -34,7 +38,7 @@
     width: 100%;
     height: 50vh;
   }
-  .totalView{
+  .totalView {
     flex-direction: column-reverse;
   }
 }
