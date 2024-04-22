@@ -1,7 +1,7 @@
 import "animate.css";
 import "../styles/MapView.css";
 import imageUnavailable from "../assets/image_unavailable_photo.png";
-import { MdOutlineFindReplace } from "react-icons/md";
+import { FaLocationArrow } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import {
   Col,
@@ -309,7 +309,7 @@ const QuickInfo = ({ barData, handleRecenter }: Props) => {
             </Col>
             <Col>
               <Button onClick={handleRecenter} variant="light" className="w-100 h-100">
-                <MdOutlineFindReplace className="w-75 h-75"/>
+                <FaLocationArrow className="w-50 h-50"/>
               </Button>
             </Col>
           </Row>
