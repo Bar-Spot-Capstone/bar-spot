@@ -23,7 +23,7 @@ const CardInfo = ({rating, name, address, phone, image, description}:Props) => {
                         Rating: {rating}/5 Stars
                     </ListGroup.Item>
                     <ListGroup.Item>
-                        Phone Number: {phone}
+                        Phone Number: {phone != "" ? phone : "Not available"}
                     </ListGroup.Item>
                     <ListGroup.Item>
                         Address: {address}
