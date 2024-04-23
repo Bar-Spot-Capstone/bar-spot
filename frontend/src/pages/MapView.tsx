@@ -30,7 +30,8 @@ const MapView = () => {
     lng: 0,
   });
   const [map, setMap] = useState<google.maps.Map>();
-  const [directions, setDirections] = useState<google.maps.DirectionsResult| null>(null);
+  const [directions, setDirections] =
+    useState<google.maps.DirectionsResult | null>(null);
   // const [distance, setDistance] = useState<string>("");
 
   // const [origin, setOrigin] = useState<LngLat>({
@@ -76,7 +77,6 @@ const MapView = () => {
   const handleCloseout = () => {
     setOffCanvas(false);
     resetMap();
-    
   };
 
   const getGeoloaction = async () => {
@@ -148,7 +148,7 @@ const MapView = () => {
   };
 
   const calculateRoute = async (startingPoint: LngLat, endingPoint: LngLat) => {
-    setDirections(null)
+    setDirections(null);
     const directionsService = new google.maps.DirectionsService();
     const results = await directionsService.route(
       {
@@ -158,13 +158,13 @@ const MapView = () => {
       },
       (result, status) => {
         if (status == "OK") {
-          console.log(status)
-          console.log(result)
+          console.log(status);
+          console.log(result);
         }
       }
     );
 
-    setDirections(results)
+    setDirections(results);
   };
 
   const resetMap = () => {
@@ -213,7 +213,7 @@ const MapView = () => {
               styles: visibleStyle,
             }}
           >
-            {(offCanvas && directions )&& (
+            {offCanvas && directions && (
               <DirectionsRenderer directions={directions}></DirectionsRenderer>
             )}
             {/* Render Markers */}
@@ -237,11 +237,6 @@ const MapView = () => {
                         lat: marker.position.lat,
                         lng: marker.position.lng,
                       });
-                      // setOrigin(userGeo);
-                      // setDestination({
-                      //   lat: marker.position.lat,
-                      //   lng: marker.position.lng,
-                      // });
                       calculateRoute(userGeo, {
                         lat: marker.position.lat,
                         lng: marker.position.lng,
