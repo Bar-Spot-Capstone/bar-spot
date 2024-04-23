@@ -21,6 +21,7 @@ const options: cors.CorsOptions = {
     "Content-Type",
     "Accept",
     "X-Access-Token",
+    "Authorization"
   ],
   credentials: true,
   origin: API_URL,
