@@ -388,12 +388,12 @@ const NavBar = () => {
             className="me-3"
           >
             <NavDropdown.Divider />
-            <Link to="/profile">
+            <Link to={isLoggedIn ? "/profile" : ""}>
               <h6 className="m-1">Profile</h6>
             </Link>
 
             <NavDropdown.Divider />
-            <h6 className="m-1" onClick={() => setShow(true)} style={{ cursor: "pointer" }}>
+            <h6 className="m-1" onClick={() => { isLoggedIn ? setShow(true) : null }} style={{ cursor: "pointer" }}>
               Group
             </h6>
             {/*Model for group options*/}
