@@ -1,6 +1,8 @@
 import User from "../models/Users";
 import bcrypt from "bcrypt"
 import UserGroup from "../models/UserGroup";
+import "dotenv/config";
+import jwt from 'jsonwebtoken';
 import { Op } from "sequelize";
 import { Request, Response } from "express";
 
@@ -65,8 +67,18 @@ const userLogin = async (req: Request, res: Response): Promise<Response> => {
                 return res.json({ error: "Failed to login invaild password" });
             };
 
+            //Json token created on login
+            const userInformation = {
+                email: email, 
+                username: user.username, 
+                user_id: user.id
+            };
+
+            const token = jwt.sign(userInformation, String(process.env.SECRETKEY), { expiresIn: '1d' });
+
+
             res.status(200);
-            return res.json({ success: "Login Successful", email: email, username: user.username, user_id: user.id });
+            return res.json({ success: "Login Successful", token });
         }
         else {
             res.status(400);
