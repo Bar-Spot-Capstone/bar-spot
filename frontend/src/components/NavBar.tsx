@@ -58,12 +58,14 @@ const NavBar = () => {
     };
 
     try {
+      const authToken = localStorage.getItem('authToken');
       if (userRes) {
         //User accepts the invite - Most likely have to update the slice
         const options: object = {
           method: 'POST',
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            'Authorization': `Bearer ${authToken}`
           },
           body: JSON.stringify({
             userId: userId,
@@ -91,7 +93,8 @@ const NavBar = () => {
       const options: object = {
         method: 'POST',
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${authToken}`
         },
         body: JSON.stringify({
           userId: userId,
@@ -138,6 +141,7 @@ const NavBar = () => {
   */
   const fetchAllOtherUsers = async () => {
     try {
+      const authToken = localStorage.getItem('authToken');
       if (!userId || userId < 1) {
         console.log("UserId not found");
         return;
@@ -146,7 +150,8 @@ const NavBar = () => {
       const options: object = {
         method: 'GET',
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${authToken}`
         }
       };
 
@@ -201,10 +206,12 @@ const NavBar = () => {
       return;
     }
     try {
+      const authToken = localStorage.getItem('authToken');
       const options: object = {
         method: 'DELETE',
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${authToken}`
         }
       };
 
@@ -235,10 +242,12 @@ const NavBar = () => {
       return;
     }
     try {
+      const authToken = localStorage.getItem('authToken');
       const options: object = {
         method: 'DELETE',
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${authToken}`
         }
       };
 
