@@ -3,6 +3,8 @@ import { partyCreate, inviteMember, partyMembers, groupInfo } from "../types/fet
 
 const createGroup = async (dispatch: any, name: string, invitedUsers: Array<any>, userId: number) => {
     try {
+        const authToken = localStorage.getItem('authToken');
+
         if (!userId || userId < 1) {
             console.log("UserId not found");
             return;
@@ -20,7 +22,8 @@ const createGroup = async (dispatch: any, name: string, invitedUsers: Array<any>
             const options: object = {
                 method: 'POST',
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    'Authorization': `Bearer ${authToken}`
                 },
                 body: JSON.stringify({
                     userId: userId,
@@ -49,7 +52,8 @@ const createGroup = async (dispatch: any, name: string, invitedUsers: Array<any>
         const options: object = {
             method: 'POST',
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${authToken}`
             },
             body: JSON.stringify({
                 userId: userId,
@@ -81,10 +85,13 @@ const createGroup = async (dispatch: any, name: string, invitedUsers: Array<any>
 
 const fetchUserGroupInfo = async (userId: number, dispatch: any) => {
     try {
+        const authToken = localStorage.getItem('authToken');
+
         const options: object = {
             method: 'GET',
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${authToken}`
             }
         };
 
@@ -117,11 +124,12 @@ const fetchGroupMembers = async (registeredGroupId: number, isInGroup: boolean, 
     };
 
     try {
-
+        const authToken = localStorage.getItem('authToken');
         const options: object = {
             method: 'GET',
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${authToken}`
             }
         };
 
@@ -153,11 +161,12 @@ const fetchInvites = async (userId: number, setInvites: any, setInvitationsFetch
         if (!userId) {
             console.log("No userId provided");
         }
-
+        const authToken = localStorage.getItem('authToken');
         const options: object = {
             method: 'GET',
             headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${authToken}`
             }
         };
 
