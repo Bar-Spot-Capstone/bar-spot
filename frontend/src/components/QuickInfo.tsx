@@ -65,6 +65,13 @@ const QuickInfo = ({ barData, handleRecenter }: Props) => {
     sortByDistance("dsc");
   };
 
+  const handleAscPrice = () => {
+    sortByPrice("asc");
+  };
+  const handleDscPrice = () => {
+    sortByPrice("dsc");
+  };
+
   const sortByName = (direction: string) => {
     mergeSort(barData, 0, barData.length - 1, direction, "name");
     setSort(true);
@@ -77,6 +84,11 @@ const QuickInfo = ({ barData, handleRecenter }: Props) => {
 
   const sortByDistance = (direction: string) => {
     mergeSort(barData, 0, barData.length - 1, direction, "distance");
+    setSort(true);
+  };
+
+  const sortByPrice = (direction: string) => {
+    mergeSort(barData, 0, barData.length - 1, direction, "price");
     setSort(true);
   };
 
@@ -105,10 +117,13 @@ const QuickInfo = ({ barData, handleRecenter }: Props) => {
     let index2: number = 0;
     let mergedIndex: number = left;
 
-    if (factor == "name") {
+    if (factor == "name" || factor == "price") {
       if (direction == "asc") {
         while (index1 < size1 && index2 < size2) {
-          if (array1[index1].name <= array2[index2].name) {
+          if (
+            array1[index1][factor as keyof barMenuInfo] <=
+            array2[index2][factor as keyof barMenuInfo]
+          ) {
             arr[mergedIndex] = array1[index1];
             index1++;
           } else {
@@ -129,7 +144,10 @@ const QuickInfo = ({ barData, handleRecenter }: Props) => {
         }
       } else {
         while (index1 < size1 && index2 < size2) {
-          if (array1[index1].name >= array2[index2].name) {
+          if (
+            array1[index1][factor as keyof barMenuInfo] >=
+            array2[index2][factor as keyof barMenuInfo]
+          ) {
             arr[mergedIndex] = array1[index1];
             index1++;
           } else {
@@ -287,16 +305,36 @@ const QuickInfo = ({ barData, handleRecenter }: Props) => {
                         Rating:{" "}
                         <ToggleButtonGroup type="radio" name="ratingSort">
                           <ToggleButton
-                            id="price-radio-1"
+                            id="rating-radio-1"
                             value={1}
                             onClick={handleAscRating}
                           >
                             Asc
                           </ToggleButton>
                           <ToggleButton
-                            id="price-radio-2"
+                            id="rating-radio-2"
                             value={2}
                             onClick={handleDscRating}
+                          >
+                            Desc
+                          </ToggleButton>
+                        </ToggleButtonGroup>
+                      </ListGroup.Item>
+
+                      <ListGroup.Item className="d-flex justify-content-between align-items-center">
+                        Price:{" "}
+                        <ToggleButtonGroup type="radio" name="priceSort">
+                          <ToggleButton
+                            id="price-radio-1"
+                            value={1}
+                            onClick={handleAscPrice}
+                          >
+                            Asc
+                          </ToggleButton>
+                          <ToggleButton
+                            id="price-radio-2"
+                            value={2}
+                            onClick={handleDscPrice}
                           >
                             Desc
                           </ToggleButton>
@@ -308,8 +346,12 @@ const QuickInfo = ({ barData, handleRecenter }: Props) => {
               </Accordion>
             </Col>
             <Col>
-              <Button onClick={handleRecenter} variant="light" className="w-100 h-100">
-                <FaLocationArrow className="w-50 h-50"/>
+              <Button
+                onClick={handleRecenter}
+                variant="light"
+                className="w-100"
+              >
+                <FaLocationArrow className="w-25 h-25" />
               </Button>
             </Col>
           </Row>
