@@ -78,21 +78,29 @@ const Login = () => {
         dispatch(login());
 
         res.then((userInfo) => {
-          //console.log("Data: ", userInfo);
+          const jwtToken: string = userInfo.token;
+          // Decode the JWT token
+          const base64Url: string = jwtToken.split('.')[1];
+          const base64: string = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+          const decodedToken: any = JSON.parse(atob(base64));
+          //Store token locally
+          localStorage.setItem('authToken', userInfo.token);
 
-          dispatch(setUsername(userInfo.username));
-          dispatch(setEmail(userInfo.email));
-          dispatch(setUserID(userInfo.user_id));
+          dispatch(setUsername(decodedToken.username));
+          dispatch(setEmail(decodedToken.email));
+          dispatch(setUserID(decodedToken.user_id));
         });
-
         navigate("/");
-      } else {
-        setError(true);
       }
-    } catch (error) {
+      else {
+        setError(true);
+        return;
+      }
+    }
+    catch (error) {
       console.error("Error:", error);
       setError(true);
-    }
+    };
   };
 
   return (

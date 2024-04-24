@@ -376,7 +376,7 @@ const QuickInfo = ({ barData, handleRecenter }: Props) => {
                     <p>Address: {bar.location.address1}</p>
                   </ListGroup.Item>
                   <ListGroup.Item className="p-0 d-flex justify-content-between  align-items-center text-center">
-                    <p className="text-center">Phone: {bar.display_phone}</p>
+                    <p className="text-center">Phone: {bar.display_phone != "" ? bar.display_phone : "Not available" }</p>
                   </ListGroup.Item>
                   <ListGroup.Item className="p-2 d-flex justify-content-center align-items-center">
                     <Button

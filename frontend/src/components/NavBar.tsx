@@ -1,7 +1,7 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Rootstate } from "../state/store";
-import { createGroup } from "./Group"; //imported from Group.tsx
+import { createGroup, fetchUserGroupInfo, fetchGroupMembers, fetchInvites } from "./Group"; //imported from Group.tsx
 import { useState, useEffect } from "react";
 import { NavDropdown, Modal, Container, Navbar, Badge, Form } from "react-bootstrap";
 import { MdCheckCircle } from "react-icons/md";
@@ -12,13 +12,17 @@ import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.min.js";
 import "../styles/NavBar.css"
 import { useDispatch } from "react-redux";
-import { registerGroup, setGroupId } from "../state/slices/groupSlice";
-import { allOtherUsers, groupInfo, inviteMember, partyDelete, partyLeave, partyMembers, userInvResponse } from "../types/fetchCall";
+import { registerGroup, setGroupId, leaveGroup, setUserRole, setUserGroupName } from "../state/slices/groupSlice";
+import { allOtherUsers, partyDelete, partyLeave, userInvResponse } from "../types/fetchCall";
 
 const NavBar = () => {
   const isLoggedIn: boolean = useSelector((state: Rootstate) => state.user.isLoggedIn);
   const isInGroup: boolean = useSelector((state: Rootstate) => state.group.isInGroup);//Checks if user is in a group
   const registeredGroupId: number = useSelector((state: Rootstate) => state.group.groupId);
+  const userRole: string = useSelector((state: Rootstate) => state.group.userRole);//tracking user's role in group
+  const usersGroupName: string = useSelector((state: Rootstate) => state.group.groupName);//tracking groups name
+  const navigate = useNavigate();
+
   const dispatch: any = useDispatch();
   const userId: number = useSelector((state: Rootstate) => state.user.userId);
 
@@ -37,120 +41,11 @@ const NavBar = () => {
 
   /*Used to refresh upon new invites*/
   useEffect(() => {
-    fetchUserGroupInfo();
-    fetchInvites();
-    fetchGroupMembers();
+    fetchUserGroupInfo(userId, dispatch);
+    fetchInvites(userId, setInvites, setInvitationsFetched);
+    fetchGroupMembers(registeredGroupId, isInGroup, setGroupMembers);
     setIsInGroup(isInGroup);
-  }, [registeredGroupId]);
-
-  const fetchUserGroupInfo = async () => {
-    try {
-      const options: object = {
-        method: 'GET',
-        headers: {
-          "Content-Type": "application/json"
-        }
-      };
-
-      const response: Response = await fetch(`${groupInfo}/${userId}`, options);
-
-      if (!response.ok) {
-        const res: any = await response.json();
-        console.log(`Response was not okay with message: ${res.error}`);
-        return;
-      };
-
-      //Update groupId and isIngroup
-      const res: any = await response.json();
-      dispatch(registerGroup());
-      dispatch(setGroupId(res.groupId));
-      return;
-    }
-    catch (error: any) {
-      console.log(`Failed to fetch invites for user with error: ${error}`);
-      return;
-    };
-  };
-
-  const fetchGroupMembers = async () => {
-    //User is not in a group or cannot find there groupId
-    if (!isInGroup || !registeredGroupId) {
-      return;
-    };
-
-    try {
-
-      const options: object = {
-        method: 'GET',
-        headers: {
-          "Content-Type": "application/json"
-        }
-      };
-
-      const response: Response = await fetch(`${partyMembers}/${registeredGroupId}`, options);
-
-      if (!response.ok) {
-        const res: any = await response.json();
-        console.log(`Response was not okay with message: ${res.error}`);
-        return;
-      };
-
-      //Update groupMembers to be the group members
-      const res: any = await response.json();
-      setGroupMembers(res.members);//updates setGroupMembers to be the group members
-      return;
-    }
-    catch (error: any) {
-      console.log(`Failed to fetch invites for user with error: ${error}`);
-      return;
-    };
-  };
-
-  /*
-  @params: userId -> fetchs the invites that a user has
-  */
-  const fetchInvites = async () => {
-    try {
-      if (!userId) {
-        console.log("No userId provided");
-      }
-
-      const options: object = {
-        method: 'GET',
-        headers: {
-          "Content-Type": "application/json"
-        }
-      };
-
-      const response: Response = await fetch(`${inviteMember}/${userId}`, options);
-
-      if (!response.ok) {
-        const res: any = await response.json();
-        console.log(`Response was not okay with message: ${res.error}`);
-        return;
-      };
-
-      const res: any = await response.json();
-      setInvites(res.invitesFormatted.length);
-      //Now need to store all invites into useState
-      let filterInvites: Array<Object> = []
-      for (let i = 0; i < res.invitesFormatted.length; i++) {
-        filterInvites.push({
-          ownerName: res.invitesFormatted[i].ownerName,
-          id: res.invitesFormatted[i].id,
-          status: res.invitesFormatted[i].status,
-          groupId: res.invitesFormatted[i].groupId,
-          groupName: res.invitesFormatted[i].groupName,
-          numberOfMembers: res.invitesFormatted[i].numberOfMembers
-        });
-      };
-      setInvitationsFetched(filterInvites);//update
-      return;
-    }
-    catch (error: any) {
-      console.log(`Failed to fetch invites for user with error: ${error}`);
-    };
-  };
+  }, [registeredGroupId, isInGroup, inGroupBool, userId, invitation]);
 
   /*
   @breif: Rejects the invite to the user or accepts the invite to the user, making the user join a group and removes all other invites
@@ -164,12 +59,14 @@ const NavBar = () => {
     };
 
     try {
+      const authToken = localStorage.getItem('authToken');
       if (userRes) {
         //User accepts the invite - Most likely have to update the slice
         const options: object = {
           method: 'POST',
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            'Authorization': `Bearer ${authToken}`
           },
           body: JSON.stringify({
             userId: userId,
@@ -189,17 +86,16 @@ const NavBar = () => {
         //Invite has been accepted -> Most like have to update the slice to update this groupId
         const res: any = await response.json();
         console.log(res);
-        fetchInvites();//refresh invites page
-        //Sets the groupId assoicated with the user and marks them in a group
-        dispatch(registerGroup());//sets isInGroupTrue
-        dispatch(setGroupId(groupId));//sets the groupId to the group Id
+        fetchInvites(userId, setInvites, setInvitationsFetched);//refresh invites page
+        fetchUserGroupInfo(userId, dispatch);//updates group info including name
         return;
       }
       //Else the user wants to reject invite
       const options: object = {
         method: 'POST',
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${authToken}`
         },
         body: JSON.stringify({
           userId: userId,
@@ -218,7 +114,7 @@ const NavBar = () => {
 
       const res: any = await response.json();
       console.log(res);
-      fetchInvites();//refresh invites page
+      fetchInvites(userId, setInvites, setInvitationsFetched);//refresh invites page
       return;
     }
     catch (error: any) {
@@ -246,6 +142,7 @@ const NavBar = () => {
   */
   const fetchAllOtherUsers = async () => {
     try {
+      const authToken = localStorage.getItem('authToken');
       if (!userId || userId < 1) {
         console.log("UserId not found");
         return;
@@ -254,7 +151,8 @@ const NavBar = () => {
       const options: object = {
         method: 'GET',
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${authToken}`
         }
       };
 
@@ -304,15 +202,17 @@ const NavBar = () => {
     };
   };
 
-  const leaveGroup = async () => {
+  const leaveGroupFunction = async () => {
     if (!isInGroup || !registeredGroupId) {
       return;
     }
     try {
+      const authToken = localStorage.getItem('authToken');
       const options: object = {
         method: 'DELETE',
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${authToken}`
         }
       };
 
@@ -326,11 +226,14 @@ const NavBar = () => {
       /*User is no longer in group*/
       dispatch(leaveGroup());//leaves group
       dispatch(setGroupId(-Infinity));//resets groupId
-      fetchInvites();//search for invites
+      dispatch(setUserRole(""));//resets user's role to default
+      dispatch(setUserGroupName(""));//resets user's role to default
+      fetchInvites(userId, setInvites, setInvitationsFetched);//search for invites
+      setGroupMembers([]);//resets group members
       return;
     }
     catch (error: any) {
-      console.log(`Failed to fetch invites for user with error: ${error}`);
+      console.log(`Failed to leave group with error: ${error}`);
       return;
     };
   };
@@ -340,10 +243,12 @@ const NavBar = () => {
       return;
     }
     try {
+      const authToken = localStorage.getItem('authToken');
       const options: object = {
         method: 'DELETE',
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${authToken}`
         }
       };
 
@@ -357,11 +262,14 @@ const NavBar = () => {
       /*User is no longer in group*/
       dispatch(leaveGroup());//leaves group
       dispatch(setGroupId(-Infinity));//resets groupId
-      setGroupMembers([]);
+      dispatch(setUserRole(""));//resets user's role to default
+      dispatch(setUserGroupName(""));//resets user's role to default
+      fetchInvites(userId, setInvites, setInvitationsFetched);//search for invites
+      setGroupMembers([]);//resets group members
       return;
     }
     catch (error: any) {
-      console.log(`Failed to fetch invites for user with error: ${error}`);
+      console.log(`Failed to delete user with error: ${error}`);
       return;
     };
   };
@@ -388,12 +296,12 @@ const NavBar = () => {
             className="me-3"
           >
             <NavDropdown.Divider />
-            <Link to="/profile">
+            <Link to={isLoggedIn ? "/profile" : "/login"}>
               <h6 className="m-1">Profile</h6>
             </Link>
 
             <NavDropdown.Divider />
-            <h6 className="m-1" onClick={() => setShow(true)} style={{ cursor: "pointer" }}>
+            <h6 className="m-1" onClick={() => { isLoggedIn ? setShow(true) : navigate("/login") }} style={{ cursor: "pointer" }}>
               Group
             </h6>
             {/*Model for group options*/}
@@ -551,7 +459,7 @@ const NavBar = () => {
             {/*Model for Group info page*/}
             <Modal show={groupShow} onHide={() => setGroupShow(false)}>
               <Modal.Header closeButton>
-                <Modal.Title>Group Information</Modal.Title>
+                <Modal.Title>{usersGroupName}</Modal.Title>
               </Modal.Header>
               <Modal.Body className="d-flex">
                 <div className="container-fluid">
@@ -581,14 +489,16 @@ const NavBar = () => {
                   </div>
                   {/*Render leave or delete group*/}
                   <div className="row">
-                    <div className="d-flex justify-content-around">
+                    {userRole === "Owner" ?
                       <button className="btn btn-danger btn-transition" onClick={deleteGroup}>
                         Delete
                       </button>
-                      <button className="btn btn-danger btn-transition" onClick={leaveGroup}>
-                        Leave
-                      </button>
-                    </div>
+                      : userRole === "member" ?
+                        <button className="btn btn-danger btn-transition" onClick={leaveGroupFunction}>
+                          Leave
+                        </button>
+                        : null
+                    }
                   </div>
                 </div>
               </Modal.Body>
