@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Rootstate } from "../state/store";
 import { createGroup, fetchUserGroupInfo, fetchGroupMembers, fetchInvites } from "./Group"; //imported from Group.tsx
@@ -21,6 +21,7 @@ const NavBar = () => {
   const registeredGroupId: number = useSelector((state: Rootstate) => state.group.groupId);
   const userRole: string = useSelector((state: Rootstate) => state.group.userRole);//tracking user's role in group
   const usersGroupName: string = useSelector((state: Rootstate) => state.group.groupName);//tracking groups name
+  const navigate = useNavigate();
 
   const dispatch: any = useDispatch();
   const userId: number = useSelector((state: Rootstate) => state.user.userId);
@@ -58,12 +59,14 @@ const NavBar = () => {
     };
 
     try {
+      const authToken = localStorage.getItem('authToken');
       if (userRes) {
         //User accepts the invite - Most likely have to update the slice
         const options: object = {
           method: 'POST',
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            'Authorization': `Bearer ${authToken}`
           },
           body: JSON.stringify({
             userId: userId,
@@ -91,7 +94,8 @@ const NavBar = () => {
       const options: object = {
         method: 'POST',
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${authToken}`
         },
         body: JSON.stringify({
           userId: userId,
@@ -138,6 +142,7 @@ const NavBar = () => {
   */
   const fetchAllOtherUsers = async () => {
     try {
+      const authToken = localStorage.getItem('authToken');
       if (!userId || userId < 1) {
         console.log("UserId not found");
         return;
@@ -146,7 +151,8 @@ const NavBar = () => {
       const options: object = {
         method: 'GET',
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${authToken}`
         }
       };
 
@@ -201,10 +207,12 @@ const NavBar = () => {
       return;
     }
     try {
+      const authToken = localStorage.getItem('authToken');
       const options: object = {
         method: 'DELETE',
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${authToken}`
         }
       };
 
@@ -235,10 +243,12 @@ const NavBar = () => {
       return;
     }
     try {
+      const authToken = localStorage.getItem('authToken');
       const options: object = {
         method: 'DELETE',
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          'Authorization': `Bearer ${authToken}`
         }
       };
 
@@ -286,12 +296,12 @@ const NavBar = () => {
             className="me-3"
           >
             <NavDropdown.Divider />
-            <Link to="/profile">
+            <Link to={isLoggedIn ? "/profile" : "/login"}>
               <h6 className="m-1">Profile</h6>
             </Link>
 
             <NavDropdown.Divider />
-            <h6 className="m-1" onClick={() => setShow(true)} style={{ cursor: "pointer" }}>
+            <h6 className="m-1" onClick={() => { isLoggedIn ? setShow(true) : navigate("/login") }} style={{ cursor: "pointer" }}>
               Group
             </h6>
             {/*Model for group options*/}
