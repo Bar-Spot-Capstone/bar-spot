@@ -32,17 +32,6 @@ const MapView = () => {
   const [map, setMap] = useState<google.maps.Map>();
   const [directions, setDirections] =
     useState<google.maps.DirectionsResult | null>(null);
-  // const [distance, setDistance] = useState<string>("");
-
-  // const [origin, setOrigin] = useState<LngLat>({
-  //   lat: 0,
-  //   lng: 0,
-  // });
-
-  // const [destination, setDestination] = useState<LngLat>({
-  //   lat: 0,
-  //   lng: 0,
-  // });
 
   const [markers, setMarkers] = useState<marker[]>([]);
   const [showMarkers, setShowMarkers] = useState<boolean>(false);
