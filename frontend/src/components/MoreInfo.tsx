@@ -23,6 +23,7 @@ const MoreInfo = ({ handleCloseout, show, barInfo }: Props) => {
           image={barInfo.image_url}
           phone={barInfo.display_phone}
           address={barInfo.location.address1}
+          price={barInfo.price}
         ></CardInfo>
       </Offcanvas.Body>
     </Offcanvas>
