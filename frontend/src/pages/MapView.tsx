@@ -139,19 +139,11 @@ const MapView = () => {
   const calculateRoute = async (startingPoint: LngLat, endingPoint: LngLat) => {
     setDirections(null);
     const directionsService = new google.maps.DirectionsService();
-    const results = await directionsService.route(
-      {
-        origin: startingPoint,
-        destination: endingPoint,
-        travelMode: google.maps.TravelMode.WALKING,
-      },
-      (result, status) => {
-        if (status == "OK") {
-          console.log(status);
-          console.log(result);
-        }
-      }
-    );
+    const results = await directionsService.route({
+      origin: startingPoint,
+      destination: endingPoint,
+      travelMode: google.maps.TravelMode.WALKING,
+    });
 
     setDirections(results);
   };
