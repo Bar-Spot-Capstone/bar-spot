@@ -24,12 +24,15 @@ const Profile = () => {
     const [favoriteBars, setFavoriteBars] = useState<{ favorites: any[] }>({ favorites: [] });
 
     const fetchFavorites = async () => {
+        const authToken = localStorage.getItem('authToken');
+
         try {
             const response = await fetch(`${getFav}/${userId}`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
-                },
+                    'Authorization': `Bearer ${authToken}`
+                }
             });
             if (response.ok) {
                 const data = await response.json();
@@ -47,9 +50,15 @@ const Profile = () => {
     }, [userId]);
 
     const handleDeleteFavorite = async (barId: number) => {
+        const authToken = localStorage.getItem('authToken');
+
         try {
             const response = await fetch(`${deleteFav}/${userId}/${barId}`, {
                 method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    'Authorization': `Bearer ${authToken}`
+                }
             });
             if (response.ok) {
                 // Refetch favorites after successful deletion

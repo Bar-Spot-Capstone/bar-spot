@@ -5,12 +5,13 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "start": "vite",
+    "start": "npm run build && npm run preview",
     "build": "vite build",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview", 
+    "dev": "vite"
   },
   "dependencies": {
     "@react-google-maps/api": "^2.19.3",
@@ -22,7 +23,7 @@
     "react": "^18.2.0",
     "react-bootstrap": "^2.10.0",
     "react-dom": "^18.2.0",
-    "react-icons": "^5.0.1",
+    "react-icons": "^5.1.0",
     "react-redux": "^9.1.0",
     "react-router-dom": "^6.22.0",
     "redux": "^5.0.1"

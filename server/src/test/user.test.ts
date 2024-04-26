@@ -1,4 +1,5 @@
 import bcrypt from "bcrypt"
+import jwt from 'jsonwebtoken';
 import User from "../models/Users";
 import UserGroup from "../models/UserGroup";
 import { userRegister, userLogin, deleteUser, getUsers } from "../controllers/User";
@@ -23,6 +24,11 @@ jest.mock('../models/UserGroup', (): any => ({
 jest.mock('bcrypt', (): any => ({
     hash: jest.fn().mockResolvedValue('hashedpassword'),
     compare: jest.fn()
+}));
+
+// Mock jwt.sign
+jest.mock('jsonwebtoken', (): any => ({
+    sign: jest.fn()
 }));
 
 const res: any = {
@@ -177,7 +183,7 @@ describe('On successful user login', () => {
         jest.clearAllMocks(); // Reset mocks before each test case to not corrupt results
     });
 
-    it('should return a status code of 200 and the user_id', async (): Promise<void> => {
+    it('should return a status code of 200 and the user data', async (): Promise<void> => {
         const req: any = {
             body: {
                 password: "password",
@@ -192,9 +198,20 @@ describe('On successful user login', () => {
             id: `${Number.MAX_SAFE_INTEGER}`
         });
         (bcrypt.compare as jest.Mock).mockResolvedValue(true);
+        (jwt.sign as jest.Mock).mockReturnValueOnce("I am a JWT token hahaha");
+
         await userLogin(req, res);
         expect(res.status).toHaveBeenCalledWith(200);
-        expect(res.json).toHaveBeenCalledWith({ success: "Login Successful", email: 'test@email', username: 'capstone', user_id: `${Number.MAX_SAFE_INTEGER}` });
+        expect(jwt.sign).toHaveBeenCalledWith(
+            expect.objectContaining({
+                email: 'test@email',
+                username: 'capstone',
+                user_id: `${Number.MAX_SAFE_INTEGER}`
+            }),
+            expect.anything(), // Excluding the secret key assertion
+            expect.any(Object) // Exclude expiration date
+        );
+        expect(res.json).toHaveBeenCalledWith({ success: "Login Successful", token: "I am a JWT token hahaha" });
     });
 });
 

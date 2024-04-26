@@ -1,6 +1,7 @@
 import "animate.css";
 import "../styles/MapView.css";
 import imageUnavailable from "../assets/image_unavailable_photo.png";
+import { FaLocationArrow } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import {
   Col,
@@ -18,9 +19,10 @@ import MoreInfo from "./MoreInfo";
 
 interface Props {
   barData: barMenuInfo[];
+  handleRecenter: () => void;
 }
 
-const QuickInfo = ({ barData }: Props) => {
+const QuickInfo = ({ barData, handleRecenter }: Props) => {
   const [show, setShow] = useState<boolean>(false);
   const [sort, setSort] = useState<boolean>(false);
   const [offCanvas, setOffCanvas] = useState<boolean>(false);
@@ -63,6 +65,13 @@ const QuickInfo = ({ barData }: Props) => {
     sortByDistance("dsc");
   };
 
+  const handleAscPrice = () => {
+    sortByPrice("asc");
+  };
+  const handleDscPrice = () => {
+    sortByPrice("dsc");
+  };
+
   const sortByName = (direction: string) => {
     mergeSort(barData, 0, barData.length - 1, direction, "name");
     setSort(true);
@@ -75,6 +84,11 @@ const QuickInfo = ({ barData }: Props) => {
 
   const sortByDistance = (direction: string) => {
     mergeSort(barData, 0, barData.length - 1, direction, "distance");
+    setSort(true);
+  };
+
+  const sortByPrice = (direction: string) => {
+    mergeSort(barData, 0, barData.length - 1, direction, "price");
     setSort(true);
   };
 
@@ -99,60 +113,16 @@ const QuickInfo = ({ barData }: Props) => {
       array2[x] = arr[middle + 1 + x];
     }
 
-    let index1:number = 0;
-    let index2:number = 0;
-    let mergedIndex:number = left;
+    let index1: number = 0;
+    let index2: number = 0;
+    let mergedIndex: number = left;
 
-    if (factor == "name") {
+    if (factor == "name" || factor == "price") {
       if (direction == "asc") {
         while (index1 < size1 && index2 < size2) {
-          if (array1[index1].name <= array2[index2].name) {
-            arr[mergedIndex] = array1[index1];
-            index1++;
-          } else {
-            arr[mergedIndex] = array2[index2];
-            index2++;
-          }
-          mergedIndex++;
-        }
-        while (index1 < size1) {
-          arr[mergedIndex] = array1[index1];
-          index1++;
-          mergedIndex++;
-        }
-        while (index2 < size2) {
-          arr[mergedIndex] = array2[index2];
-          index2++;
-          mergedIndex++;
-        }
-      } else {
-        while (index1 < size1 && index2 < size2) {
-          if (array1[index1].name >= array2[index2].name) {
-            arr[mergedIndex] = array1[index1];
-            index1++;
-          } else {
-            arr[mergedIndex] = array2[index2];
-            index2++;
-          }
-          mergedIndex++;
-        }
-        while (index1 < size1) {
-          arr[mergedIndex] = array1[index1];
-          index1++;
-          mergedIndex++;
-        }
-        while (index2 < size2) {
-          arr[mergedIndex] = array2[index2];
-          index2++;
-          mergedIndex++;
-        }
-      }
-    } else {
-      if (direction == "asc") {
-        while (index1 < size1 && index2 < size2) {
-          
           if (
-            Number(array1[index1][factor as keyof barMenuInfo]) <= Number(array2[index2][factor as keyof barMenuInfo])
+            array1[index1][factor as keyof barMenuInfo] <=
+            array2[index2][factor as keyof barMenuInfo]
           ) {
             arr[mergedIndex] = array1[index1];
             index1++;
@@ -175,7 +145,58 @@ const QuickInfo = ({ barData }: Props) => {
       } else {
         while (index1 < size1 && index2 < size2) {
           if (
-            Number(array1[index1][factor as keyof barMenuInfo]) >= Number(array2[index2][factor as keyof barMenuInfo])
+            array1[index1][factor as keyof barMenuInfo] >=
+            array2[index2][factor as keyof barMenuInfo]
+          ) {
+            arr[mergedIndex] = array1[index1];
+            index1++;
+          } else {
+            arr[mergedIndex] = array2[index2];
+            index2++;
+          }
+          mergedIndex++;
+        }
+        while (index1 < size1) {
+          arr[mergedIndex] = array1[index1];
+          index1++;
+          mergedIndex++;
+        }
+        while (index2 < size2) {
+          arr[mergedIndex] = array2[index2];
+          index2++;
+          mergedIndex++;
+        }
+      }
+    } else {
+      if (direction == "asc") {
+        while (index1 < size1 && index2 < size2) {
+          if (
+            Number(array1[index1][factor as keyof barMenuInfo]) <=
+            Number(array2[index2][factor as keyof barMenuInfo])
+          ) {
+            arr[mergedIndex] = array1[index1];
+            index1++;
+          } else {
+            arr[mergedIndex] = array2[index2];
+            index2++;
+          }
+          mergedIndex++;
+        }
+        while (index1 < size1) {
+          arr[mergedIndex] = array1[index1];
+          index1++;
+          mergedIndex++;
+        }
+        while (index2 < size2) {
+          arr[mergedIndex] = array2[index2];
+          index2++;
+          mergedIndex++;
+        }
+      } else {
+        while (index1 < size1 && index2 < size2) {
+          if (
+            Number(array1[index1][factor as keyof barMenuInfo]) >=
+            Number(array2[index2][factor as keyof barMenuInfo])
           ) {
             arr[mergedIndex] = array1[index1];
             index1++;
@@ -234,72 +255,107 @@ const QuickInfo = ({ barData }: Props) => {
           show={offCanvas}
           handleCloseout={handleCloseout}
         ></MoreInfo>
-        <Accordion>
-          <Accordion.Item eventKey="0">
-            <Accordion.Header>Sort/Filter</Accordion.Header>
-            <Accordion.Body>
-              <ListGroup>
-                <ListGroup.Item className="d-flex justify-content-between align-items-center">
-                  Sort By Name:
-                  <ToggleButtonGroup type="radio" name="nameSort">
-                    <ToggleButton
-                      id="name-radio-1"
-                      value={1}
-                      onClick={handleAscName}
-                    >
-                      Asc
-                    </ToggleButton>
-                    <ToggleButton
-                      id="name-radio-2"
-                      value={2}
-                      onClick={handleDscName}
-                    >
-                      Desc
-                    </ToggleButton>
-                  </ToggleButtonGroup>
-                </ListGroup.Item>
-                <ListGroup.Item className="d-flex justify-content-between align-items-center">
-                  Distance:{" "}
-                  <ToggleButtonGroup type="radio" name="distanceSort">
-                    <ToggleButton
-                      id="distance-radio-1"
-                      value={1}
-                      onClick={handleAscDist}
-                    >
-                      Asc
-                    </ToggleButton>
-                    <ToggleButton
-                      id="distance-radio-2"
-                      value={2}
-                      onClick={handleDscDist}
-                    >
-                      Desc
-                    </ToggleButton>
-                  </ToggleButtonGroup>
-                </ListGroup.Item>
-                <ListGroup.Item className="d-flex justify-content-between align-items-center">
-                  Rating:{" "}
-                  <ToggleButtonGroup type="radio" name="ratingSort">
-                    <ToggleButton
-                      id="price-radio-1"
-                      value={1}
-                      onClick={handleAscRating}
-                    >
-                      Asc
-                    </ToggleButton>
-                    <ToggleButton
-                      id="price-radio-2"
-                      value={2}
-                      onClick={handleDscRating}
-                    >
-                      Desc
-                    </ToggleButton>
-                  </ToggleButtonGroup>
-                </ListGroup.Item>
-              </ListGroup>
-            </Accordion.Body>
-          </Accordion.Item>
-        </Accordion>
+        <Container>
+          <Row>
+            <Col xs={10}>
+              <Accordion>
+                <Accordion.Item eventKey="0">
+                  <Accordion.Header>Sort/Filter</Accordion.Header>
+                  <Accordion.Body>
+                    <ListGroup>
+                      <ListGroup.Item className="d-flex justify-content-between align-items-center">
+                        Sort By Name:
+                        <ToggleButtonGroup type="radio" name="nameSort">
+                          <ToggleButton
+                            id="name-radio-1"
+                            value={1}
+                            onClick={handleAscName}
+                          >
+                            Asc
+                          </ToggleButton>
+                          <ToggleButton
+                            id="name-radio-2"
+                            value={2}
+                            onClick={handleDscName}
+                          >
+                            Desc
+                          </ToggleButton>
+                        </ToggleButtonGroup>
+                      </ListGroup.Item>
+                      <ListGroup.Item className="d-flex justify-content-between align-items-center">
+                        Distance:{" "}
+                        <ToggleButtonGroup type="radio" name="distanceSort">
+                          <ToggleButton
+                            id="distance-radio-1"
+                            value={1}
+                            onClick={handleAscDist}
+                          >
+                            Asc
+                          </ToggleButton>
+                          <ToggleButton
+                            id="distance-radio-2"
+                            value={2}
+                            onClick={handleDscDist}
+                          >
+                            Desc
+                          </ToggleButton>
+                        </ToggleButtonGroup>
+                      </ListGroup.Item>
+                      <ListGroup.Item className="d-flex justify-content-between align-items-center">
+                        Rating:{" "}
+                        <ToggleButtonGroup type="radio" name="ratingSort">
+                          <ToggleButton
+                            id="rating-radio-1"
+                            value={1}
+                            onClick={handleAscRating}
+                          >
+                            Asc
+                          </ToggleButton>
+                          <ToggleButton
+                            id="rating-radio-2"
+                            value={2}
+                            onClick={handleDscRating}
+                          >
+                            Desc
+                          </ToggleButton>
+                        </ToggleButtonGroup>
+                      </ListGroup.Item>
+
+                      <ListGroup.Item className="d-flex justify-content-between align-items-center">
+                        Price:{" "}
+                        <ToggleButtonGroup type="radio" name="priceSort">
+                          <ToggleButton
+                            id="price-radio-1"
+                            value={1}
+                            onClick={handleAscPrice}
+                          >
+                            Asc
+                          </ToggleButton>
+                          <ToggleButton
+                            id="price-radio-2"
+                            value={2}
+                            onClick={handleDscPrice}
+                          >
+                            Desc
+                          </ToggleButton>
+                        </ToggleButtonGroup>
+                      </ListGroup.Item>
+                    </ListGroup>
+                  </Accordion.Body>
+                </Accordion.Item>
+              </Accordion>
+            </Col>
+            <Col>
+              <Button
+                onClick={handleRecenter}
+                variant="light"
+                className="w-100"
+              >
+                <FaLocationArrow className="w-25 h-25" />
+              </Button>
+            </Col>
+          </Row>
+        </Container>
         {barData.map((bar, index) => (
           <Container
             className="d-flex flex-column m-2 p-2 rounded info w-auto "
@@ -320,7 +376,7 @@ const QuickInfo = ({ barData }: Props) => {
                     <p>Address: {bar.location.address1}</p>
                   </ListGroup.Item>
                   <ListGroup.Item className="p-0 d-flex justify-content-between  align-items-center text-center">
-                    <p className="text-center">Phone: {bar.display_phone}</p>
+                    <p className="text-center">Phone: {bar.display_phone != "" ? bar.display_phone : "Not available" }</p>
                   </ListGroup.Item>
                   <ListGroup.Item className="p-2 d-flex justify-content-center align-items-center">
                     <Button

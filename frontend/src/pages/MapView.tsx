@@ -1,4 +1,9 @@
-import { GoogleMap, MarkerF, useLoadScript } from "@react-google-maps/api";
+import {
+  GoogleMap,
+  MarkerF,
+  useJsApiLoader,
+  DirectionsRenderer,
+} from "@react-google-maps/api";
 import { useEffect, useState } from "react";
 import Error from "../components/Error";
 import visibleStyle from "../styles/mapstyle";
@@ -24,6 +29,9 @@ const MapView = () => {
     lat: 0,
     lng: 0,
   });
+  const [map, setMap] = useState<google.maps.Map>();
+  const [directions, setDirections] =
+    useState<google.maps.DirectionsResult | null>(null);
 
   const [markers, setMarkers] = useState<marker[]>([]);
   const [showMarkers, setShowMarkers] = useState<boolean>(false);
@@ -57,7 +65,7 @@ const MapView = () => {
 
   const handleCloseout = () => {
     setOffCanvas(false);
-    
+    resetMap();
   };
 
   const getGeoloaction = async () => {
@@ -93,10 +101,9 @@ const MapView = () => {
         console.log("Position is at 0 did not fetch");
         return;
       }
-      const response = await fetch(
-        `${fetchPubs}/${lat}/${lng}`,
-        { method: "GET" }
-      );
+      const response = await fetch(`${fetchPubs}/${lat}/${lng}`, {
+        method: "GET",
+      });
 
       if (response.ok) {
         const res = response.json();
@@ -124,6 +131,26 @@ const MapView = () => {
     }
   };
 
+  const handleRecenter = () => {
+    // getGeoloaction()
+    map?.panTo(userGeo);
+  };
+
+  const calculateRoute = async (startingPoint: LngLat, endingPoint: LngLat) => {
+    setDirections(null);
+    const directionsService = new google.maps.DirectionsService();
+    const results = await directionsService.route({
+      origin: startingPoint,
+      destination: endingPoint,
+      travelMode: google.maps.TravelMode.WALKING,
+    });
+
+    setDirections(results);
+  };
+
+  const resetMap = () => {
+    setDirections(null);
+  };
   useEffect(() => {
     getGeoloaction();
   }, []);
@@ -133,7 +160,7 @@ const MapView = () => {
     width: "100%",
   };
 
-  const { isLoaded } = useLoadScript({
+  const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: import.meta.env.VITE_GOOGLE_API_KEY,
   });
 
@@ -143,7 +170,7 @@ const MapView = () => {
   return (
     <div className="totalView">
       <div id="infoHolder">
-        <QuickInfo barData={yelpData} />
+        <QuickInfo barData={yelpData} handleRecenter={handleRecenter} />
       </div>
       <div style={mapStyle} className="mapView">
         <MoreInfo
@@ -157,6 +184,7 @@ const MapView = () => {
             mapContainerStyle={mapStyle}
             center={userGeo}
             zoom={16}
+            onLoad={(map) => setMap(map)}
             options={{
               streetViewControl: false,
               disableDefaultUI: true,
@@ -166,7 +194,11 @@ const MapView = () => {
               styles: visibleStyle,
             }}
           >
+            {offCanvas && directions && (
+              <DirectionsRenderer directions={directions}></DirectionsRenderer>
+            )}
             {/* Render Markers */}
+
             {showMarkers ? (
               <MarkerF
                 position={
@@ -182,9 +214,17 @@ const MapView = () => {
                     position={marker.position}
                     label={marker.lable}
                     onClick={() => {
+                      map?.panTo({
+                        lat: marker.position.lat,
+                        lng: marker.position.lng,
+                      });
+                      calculateRoute(userGeo, {
+                        lat: marker.position.lat,
+                        lng: marker.position.lng,
+                      });
                       const index = getIndex(marker.lable);
                       setBarInfo({
-                        id:yelpData[index].id,
+                        id: yelpData[index].id,
                         name: yelpData[index].name,
                         display_phone: yelpData[index].display_phone,
                         image_url: yelpData[index].image_url,
@@ -195,14 +235,9 @@ const MapView = () => {
                         url: yelpData[index].url,
                         is_closed: yelpData[index].is_closed,
                         price: yelpData[index].price,
-                        distance: yelpData[index].distance
-
+                        distance: yelpData[index].distance,
                       });
                       setOffCanvas(true);
-                      setUserGeo({
-                        lat:marker.position.lat,
-                        lng: marker.position.lng
-                      })
                     }}
                   />
                 ))
