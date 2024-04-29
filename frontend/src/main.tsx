@@ -33,8 +33,8 @@ const router = createBrowserRouter([
     path: "/sign-up",
     element: <CreateNewAcc />,
   },
-], 
-{ basename: '/bar-spot/' }
+]//, 
+// { basename: '/bar-spot/' }
 ); 
 
 

@@ -26,24 +26,32 @@ const CardInfo = ({
     const userId: number = useSelector((state: Rootstate) => state.user.userId);
     
     const [isFavorite, setIsFavorite] = useState(false);
+    const [favoriteAdded, setFavoriteAdded] = useState(false);
 
     const addToFavorites = async () => {
         try {
-            const response = await fetch(`${addFav}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    userId,
-                    barName: name,
-                    address,
-                    note: '',
-                    imageURL: image,
-                }),
-            });
+            const authToken = localStorage.getItem('authToken');
+
+            const options: object = {
+              method: 'POST',
+              headers: {
+                  "Content-Type": "application/json",
+                  'Authorization': `Bearer ${authToken}`
+              },
+              body: JSON.stringify({
+                userId,
+                barName: name,
+                address,
+                note: '',
+                imageURL: image,
+              })
+            };
+
+            const response: Response = await fetch(addFav, options);
+
             if (response.ok) {
                 setIsFavorite(true);
+                setFavoriteAdded(true);
             } else {
                 console.error('Failed to add to favorites');
             }
@@ -74,7 +82,7 @@ const CardInfo = ({
           onClick = {addToFavorites}
           disabled = {isFavorite}
         >
-          Add Favorite
+          {favoriteAdded ? "Favorite Added!" : "Add Favorite"}
         </Button>
       </Card.Body>
     </Card>
