@@ -26,9 +26,14 @@ const CardInfo = ({
     const userId: number = useSelector((state: Rootstate) => state.user.userId);
     
     const [isFavorite, setIsFavorite] = useState(false);
-    const [favoriteAdded, setFavoriteAdded] = useState(false);
 
     const addToFavorites = async () => {
+        console.log(userId);
+        if (userId == -1 || !userId) {
+          console.error('User is not logged in');
+          return;
+        } 
+
         try {
             const authToken = localStorage.getItem('authToken');
 
@@ -51,7 +56,6 @@ const CardInfo = ({
 
             if (response.ok) {
                 setIsFavorite(true);
-                setFavoriteAdded(true);
             } else {
                 console.error('Failed to add to favorites');
             }
@@ -82,7 +86,7 @@ const CardInfo = ({
           onClick = {addToFavorites}
           disabled = {isFavorite}
         >
-          {favoriteAdded ? "Favorite Added!" : "Add Favorite"}
+          {isFavorite ? "Favorite Added!" : "Add Favorite"}
         </Button>
       </Card.Body>
     </Card>
