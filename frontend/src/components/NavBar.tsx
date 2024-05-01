@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { Rootstate } from "../state/store";
 import { createGroup, fetchUserGroupInfo, fetchGroupMembers, fetchInvites } from "./Group"; //imported from Group.tsx
 import { useState, useEffect } from "react";
-import { NavDropdown, Modal, Container, Navbar, Badge, Form } from "react-bootstrap";
+import { NavDropdown, Modal, Container, Navbar, Badge, Form, Dropdown, DropdownButton } from "react-bootstrap";
 import { MdCheckCircle } from "react-icons/md";
 import { MdCancel } from "react-icons/md";
 import Logo from "../assets/Bar-Spot-Translucent-Logo.png";
@@ -31,7 +31,6 @@ const NavBar = () => {
   const [inviteShow, setInviteShow] = useState<boolean>(false);
   const [show, setShow] = useState<boolean>(false);
   const [creationView, setCreateView] = useState<boolean>(false);// for switching views
-  const [featureShow, setFeatureShow] = useState<boolean>(false);
   const [groupName, setGroupName] = useState<string>("");// for group name
   const [usersList, setUsersList] = useState<Array<Object>>([]);// for fetching all users
   const [invitedMembers, setInvitedMembers] = useState<Array<object>>([]);// for storing invited members
@@ -40,6 +39,11 @@ const NavBar = () => {
   const [groupMembers, setGroupMembers] = useState<Array<Array<any>>>([]);//Come back to this
   const [trackLocation, setLocationOption] = useState(true);
   const [inGroupBool, setIsInGroup] = useState<boolean>(false);//Used for rendering if the user is in group
+
+  //Used for part activies
+  const [featureShow, setFeatureShow] = useState<boolean>(false);
+  const [activieSelector, setActivieSelector] = useState<string>("Bar Chaining");
+  const [showBarSetting, setShowBarSetting] = useState<string>("Any Bar");
 
   /*Used to refresh upon new invites*/
   useEffect(() => {
@@ -276,6 +280,23 @@ const NavBar = () => {
     };
   };
 
+  const renderActivie = () => {
+    if (activieSelector === "Bar Hopping") {
+      return (
+        <div>
+          Bar Hopping
+        </div>)
+    }
+    else {
+      return (
+        <div>
+          Bar Chaining
+        </div>
+      )
+
+    }
+  }
+
   return (
     <Navbar expand="md" className="bg-secondary-subtle">
       <Container>
@@ -467,7 +488,7 @@ const NavBar = () => {
                 <div className="container-fluid">
                   <div className="row">
                     <div className="col-12 p-0">
-                      <h5 onClick={() => {setGroupShow(!groupShow); setFeatureShow(!featureShow)}} style={{"cursor": "pointer"}}>Activities <IoMdArrowDropright /></h5>
+                      <h5 onClick={() => { setGroupShow(!groupShow); setFeatureShow(!featureShow) }} style={{ "cursor": "pointer" }}>Activities <IoMdArrowDropright /></h5>
                     </div>
                   </div>
                   <div className="row">
@@ -531,6 +552,55 @@ const NavBar = () => {
               <Modal.Body className="d-flex">
                 <div className="container-fluid">
                   {/*Need to dynamically render between bar chaining and bar hopping*/}
+                  <div className="row">
+                    <div className="card d-flex flex-row p-0">
+                      <div className="card-body col-sm-6 col-md-2" style={{ "cursor": "pointer" }} onClick={() => setActivieSelector("Bar Chaining")}>
+                        <>Bar Chaining</>
+                      </div>
+                      <div className="card-body col-sm-6 col-md-7" style={{ "cursor": "pointer" }} onClick={() => setActivieSelector("Bar Hopping")}>
+                        <>Bar Hopping</>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="row">
+                    <div className="content p-0 mt-4">
+                      {/*renderActivie()*/}
+                      <div className="card d-flex flex-column">
+                        <div className="card-body">
+                          <div className="pt-2">
+                            <label htmlFor="customRange3" className="form-label me-1"><h6>Radius: </h6></label>
+                            {3}
+                          </div>
+                          <div>
+                            <input type="range" className="form-range" min="1" max="200" step="10" id="customRange" />
+                          </div>
+                        </div>
+
+                        <div className="card-body p-0 d-flex">
+                          <button className="btn btn-transition">
+                            <h6>Show me</h6>
+                          </button>
+                          <DropdownButton variant={""} id="dropdown-basic-button" title={showBarSetting}>
+                            <Dropdown.Item onClick={() => { setShowBarSetting("Any Bar") }}>Any Bar</Dropdown.Item>
+                            <Dropdown.Item onClick={() => { setShowBarSetting("Cheapest Bars") }}>Cheapest Bars</Dropdown.Item>
+                            <Dropdown.Item onClick={() => { setShowBarSetting("Highest Rating") }}>Highest Rating</Dropdown.Item>
+                          </DropdownButton>
+                        </div>
+
+                        <div className="card-body">
+                          <div className="pt-2">
+                            <label htmlFor="customRange3" className="form-label me-1"><h6>Amount of Bars: </h6></label>
+                            {2}
+                          </div>
+                          <div>
+                            <input type="range" className="form-range" min="1" max="10" step="2" id="customRange2" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                 </div>
               </Modal.Body>
               <Modal.Footer className="justify-content-center">
@@ -546,10 +616,6 @@ const NavBar = () => {
                 </div>
               </Modal.Footer>
             </Modal>
-
-
-
-
 
 
           </NavDropdown>
