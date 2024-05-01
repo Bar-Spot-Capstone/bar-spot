@@ -624,10 +624,10 @@ const NavBar = () => {
                   {/*Need to dynamically render between bar chaining and bar hopping*/}
                   <div className="row">
                     <div className="card d-flex flex-row p-0">
-                      <div className="card-body col-sm-6 col-md-2" style={{ "cursor": "pointer" }} onClick={() => setActivieSelector("Bar Chaining")}>
+                      <div className="card-body col-sm-6 col-md-2" style={{ cursor: "pointer", color: activieSelector === "Bar Chaining" ? '#0d6efd' : '#adb5bd' }} onClick={() => setActivieSelector("Bar Chaining")}>
                         <>Bar Chaining</>
                       </div>
-                      <div className="card-body col-sm-6 col-md-7" style={{ "cursor": "pointer" }} onClick={() => setActivieSelector("Bar Hopping")}>
+                      <div className="card-body col-sm-6 col-md-7" style={{ cursor: "pointer", color: activieSelector === "Bar Hopping" ? '#0d6efd' : '#adb5bd' }} onClick={() => setActivieSelector("Bar Hopping")}>
                         <>Bar Hopping</>
                       </div>
                     </div>
