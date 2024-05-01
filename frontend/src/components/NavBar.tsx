@@ -11,6 +11,7 @@ import NavBadge from "./NavBadge";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.min.js";
 import "../styles/NavBar.css"
+import { IoMdArrowDropright } from "react-icons/io";
 import { useDispatch } from "react-redux";
 import { registerGroup, setGroupId, leaveGroup, setUserRole, setUserGroupName } from "../state/slices/groupSlice";
 import { allOtherUsers, partyDelete, partyLeave, userInvResponse } from "../types/fetchCall";
@@ -30,6 +31,7 @@ const NavBar = () => {
   const [inviteShow, setInviteShow] = useState<boolean>(false);
   const [show, setShow] = useState<boolean>(false);
   const [creationView, setCreateView] = useState<boolean>(false);// for switching views
+  const [featureShow, setFeatureShow] = useState<boolean>(false);
   const [groupName, setGroupName] = useState<string>("");// for group name
   const [usersList, setUsersList] = useState<Array<Object>>([]);// for fetching all users
   const [invitedMembers, setInvitedMembers] = useState<Array<object>>([]);// for storing invited members
@@ -464,6 +466,11 @@ const NavBar = () => {
               <Modal.Body className="d-flex">
                 <div className="container-fluid">
                   <div className="row">
+                    <div className="col-12 p-0">
+                      <h5 onClick={() => {setGroupShow(!groupShow); setFeatureShow(!featureShow)}} style={{"cursor": "pointer"}}>Activities <IoMdArrowDropright /></h5>
+                    </div>
+                  </div>
+                  <div className="row">
                     <table className="table col-12 table-responsive table-hover table-sm mb-4">
                       <thead>
                         <tr className="table-primary">
@@ -490,7 +497,7 @@ const NavBar = () => {
                   {/*Render leave or delete group*/}
                   <div className="row">
                     {userRole === "Owner" ?
-                      <button className="btn btn-danger btn-transition" onClick={deleteGroup}>
+                      <button className="btn btn-danger " onClick={deleteGroup}>
                         Delete
                       </button>
                       : userRole === "member" ?
@@ -515,6 +522,36 @@ const NavBar = () => {
                 </div>
               </Modal.Footer>
             </Modal>
+
+            {/*Model for bar chaining and hopping*/}
+            <Modal show={featureShow} onHide={() => setFeatureShow(false)}>
+              <Modal.Header closeButton>
+                <Modal.Title>Activities</Modal.Title>
+              </Modal.Header>
+              <Modal.Body className="d-flex">
+                <div className="container-fluid">
+                  {/*Need to dynamically render between bar chaining and bar hopping*/}
+                </div>
+              </Modal.Body>
+              <Modal.Footer className="justify-content-center">
+                <div className="me-5">
+                  <button className="btn btn-primary btn-transition" onClick={() => { setFeatureShow(!featureShow); setGroupShow(!groupShow); }}>
+                    Back
+                  </button>
+                </div>
+                <div>
+                  <button className="btn btn-success btn-transition" onClick={() => setFeatureShow(!featureShow)}>
+                    Confirm
+                  </button>
+                </div>
+              </Modal.Footer>
+            </Modal>
+
+
+
+
+
+
           </NavDropdown>
           <NavBadge isLoggedIn={isLoggedIn} />
         </Navbar.Collapse>
