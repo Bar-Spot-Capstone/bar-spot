@@ -1,8 +1,17 @@
 import { Button, Card, ListGroup, Modal, Form } from "react-bootstrap";
 import { useSelector } from "react-redux";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Rootstate } from "../state/store";
-import { addFav } from "../types/fetchCall";
+import { addFav, getFav } from "../types/fetchCall";
+
+interface Favorite {
+  id: number;
+  userId: number;
+  barName: string;
+  address: string;
+  note: string;
+  imageURL: string;
+}
 
 interface Props {
   rating: string;
@@ -24,10 +33,34 @@ const CardInfo = ({
   price,
 }: Props) => {
     const userId: number = useSelector((state: Rootstate) => state.user.userId);
-    
     const [isFavorite, setIsFavorite] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [note, setNote] = useState("");
+
+    useEffect(() => {
+      // Fetch user favorites when component mounts or when userId changes
+      if (userId) {
+        fetchFavorites(userId);
+      }
+    }, [userId, name]);
+  
+    const fetchFavorites = async (userId: number) => {
+      const authToken = localStorage.getItem('authToken');
+      try {
+        const response = await fetch(`http://localhost:3001/favorite/get/${userId}`, {
+          method: "GET",
+          headers: {
+              "Content-Type": "application/json",
+              'Authorization': `Bearer ${authToken}`
+          }
+        });
+        const data = await response.json();
+        const favorites: Favorite[] = data.favorites;
+        setIsFavorite(favorites.some((favorite: Favorite) => favorite.barName === name));
+      } catch (error) {
+        console.error("Error fetching favorites:", error);
+      }
+    };  
 
     const handleNoteChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       setNote(e.target.value);
