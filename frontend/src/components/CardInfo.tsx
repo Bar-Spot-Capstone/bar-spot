@@ -28,7 +28,6 @@ const CardInfo = ({
     const [isFavorite, setIsFavorite] = useState(false);
 
     const addToFavorites = async () => {
-        console.log(userId);
         if (userId == -1 || !userId) {
           console.error('User is not logged in');
           return;
@@ -53,11 +52,12 @@ const CardInfo = ({
             };
 
             const response: Response = await fetch(addFav, options);
+            const res = await response.json();
 
             if (response.ok) {
                 setIsFavorite(true);
             } else {
-                console.error('Failed to add to favorites');
+                console.error('Failed to add to favorites:', res.error);
             }
         } catch (error) {
             console.error("Error adding to favorites: ", error);
