@@ -37,6 +37,7 @@ const router = createBrowserRouter([
 { basename: '/bar-spot/' }
 ); 
 
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <Provider store={store}>
     <React.StrictMode>

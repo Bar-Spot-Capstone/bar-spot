@@ -6,6 +6,7 @@ const userLogin = `${baseURL}/user/login`;
 const fetchPubs = `${baseURL}/yelp/pubs`;
 const getFav = `${baseURL}/favorite/get`;
 const deleteFav = `${baseURL}/favorite/delete`;
+const addFav = `${baseURL}/favorite/add`
 const groupInfo = `${baseURL}/party/group/info`;
 const partyMembers = `${baseURL}/party/members`;
 const inviteMember = `${baseURL}/invite`;
@@ -21,6 +22,7 @@ export {
     fetchPubs,
     getFav,
     deleteFav,
+    addFav,
     groupInfo,
     partyMembers,
     inviteMember,
