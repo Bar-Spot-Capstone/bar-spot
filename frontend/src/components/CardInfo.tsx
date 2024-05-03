@@ -1,4 +1,4 @@
-import { Button, Card, ListGroup } from "react-bootstrap";
+import { Button, Card, ListGroup, Modal, Form } from "react-bootstrap";
 import { useSelector } from "react-redux";
 import { useState } from "react";
 import { Rootstate } from "../state/store";
@@ -26,6 +26,12 @@ const CardInfo = ({
     const userId: number = useSelector((state: Rootstate) => state.user.userId);
     
     const [isFavorite, setIsFavorite] = useState(false);
+    const [showModal, setShowModal] = useState(false);
+    const [note, setNote] = useState("");
+
+    const handleNoteChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      setNote(e.target.value);
+    };
 
     const addToFavorites = async () => {
         if (userId == -1 || !userId) {
@@ -46,7 +52,7 @@ const CardInfo = ({
                 userId,
                 barName: name,
                 address,
-                note: '',
+                note: note,
                 imageURL: image,
               })
             };
@@ -56,6 +62,7 @@ const CardInfo = ({
 
             if (response.ok) {
                 setIsFavorite(true);
+                setShowModal(false);
             } else {
                 console.error('Failed to add to favorites:', res.error);
             }
@@ -83,12 +90,38 @@ const CardInfo = ({
         <Button 
           variant = "outline-success"
           className = "my-3"
-          onClick = {addToFavorites}
+          onClick = {() => setShowModal(true)}
           disabled = {isFavorite}
         >
           {isFavorite ? "Favorite Added!" : "Add Favorite"}
         </Button>
       </Card.Body>
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Add Note</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group controlId="note">
+              <Form.Label>Note</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter note here..."
+                value={note}
+                onChange={handleNoteChange}
+              />
+            </Form.Group> 
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={addToFavorites}>
+            Add to Favorites
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Card>
   );
 };
