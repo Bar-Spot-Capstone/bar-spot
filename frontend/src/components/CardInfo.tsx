@@ -1,4 +1,5 @@
 import { Button, Card, ListGroup } from "react-bootstrap";
+import { Link } from "react-router-dom";
 
 interface Props {
   rating: string;
@@ -32,9 +33,11 @@ const CardInfo = ({
         <ListGroup.Item>Description: {description}</ListGroup.Item>
       </ListGroup>
       <Card.Body>
-        <Button variant="success" className="my-3 me-2">
-          Start Hopping
-        </Button>
+        <Link to={"/bar-chain"}>
+          <Button variant="success" className="my-3 me-2">
+            Start Hopping
+          </Button>
+        </Link>
         <Button variant="outline-success" className="my-3">
           Add to Favorites
         </Button>

@@ -7,12 +7,17 @@ import {
 import { useEffect, useState } from "react";
 import Error from "../components/Error";
 import visibleStyle from "../styles/mapstyle";
-import QuickInfo from "../components/QuickInfo";
+import { useOutletContext } from "react-router-dom";
 import "../styles/MapView.css";
 import { barMenuInfo } from "../types/types";
 import imageUnavailable from "../assets/image_unavailable_photo.png";
 import MoreInfo from "../components/MoreInfo";
 import { fetchPubs } from "../types/fetchCall";
+import { Outlet } from "react-router-dom";
+
+import { useSelector, useDispatch } from "react-redux";
+import { Rootstate } from "../state/store";
+import { setNewMap, setNull } from "../state/slices/mapSlice";
 
 interface LngLat {
   lat: number;
@@ -23,13 +28,27 @@ interface marker {
   lable: string;
 }
 
+type ContextType = {
+  yelpData: barMenuInfo[];
+  handleRecenter: () => void;
+};
+
 const MapView = () => {
+  //global map state
+  const dispatch: any = useDispatch();
+  const googleMap: google.maps.Map | null = useSelector(
+    (state: Rootstate) => state.map.map
+  );
+  const isChaining: boolean = useSelector(
+    (state: Rootstate) => state.barChain.isChaining
+  );
+
   //https://www.youtube.com/watch?v=OvDu9c8PYrk <= the geolocation tutorial I used
   const [userGeo, setUserGeo] = useState<LngLat>({
     lat: 0,
     lng: 0,
   });
-  const [map, setMap] = useState<google.maps.Map>();
+  // const [map, setMap] = useState<google.maps.Map>(); //task: replace this with a slice
   const [directions, setDirections] =
     useState<google.maps.DirectionsResult | null>(null);
 
@@ -37,6 +56,7 @@ const MapView = () => {
   const [showMarkers, setShowMarkers] = useState<boolean>(false);
   const [userMarker, setUserMarker] = useState<marker>();
   const [offCanvas, setOffCanvas] = useState<boolean>(false);
+  const [path, setPath] = useState<boolean>(false);
 
   const [barInfo, setBarInfo] = useState<barMenuInfo>({
     id: "NULL",
@@ -133,7 +153,7 @@ const MapView = () => {
 
   const handleRecenter = () => {
     // getGeoloaction()
-    map?.panTo(userGeo);
+    googleMap?.panTo(userGeo);
   };
 
   const calculateRoute = async (startingPoint: LngLat, endingPoint: LngLat) => {
@@ -170,7 +190,8 @@ const MapView = () => {
   return (
     <div className="totalView">
       <div id="infoHolder">
-        <QuickInfo barData={yelpData} handleRecenter={handleRecenter} />
+        {/* <QuickInfo barData={yelpData} handleRecenter={handleRecenter} /> */}
+        <Outlet context={{ yelpData, handleRecenter } satisfies ContextType} />
       </div>
       <div style={mapStyle} className="mapView">
         <MoreInfo
@@ -184,7 +205,7 @@ const MapView = () => {
             mapContainerStyle={mapStyle}
             center={userGeo}
             zoom={16}
-            onLoad={(map) => setMap(map)}
+            onLoad={(map) => dispatch(setNewMap(map))}
             options={{
               streetViewControl: false,
               disableDefaultUI: true,
@@ -194,7 +215,7 @@ const MapView = () => {
               styles: visibleStyle,
             }}
           >
-            {offCanvas && directions && (
+            {path && directions && (
               <DirectionsRenderer directions={directions}></DirectionsRenderer>
             )}
             {/* Render Markers */}
@@ -214,7 +235,7 @@ const MapView = () => {
                     position={marker.position}
                     label={marker.lable}
                     onClick={() => {
-                      map?.panTo({
+                      googleMap?.panTo({
                         lat: marker.position.lat,
                         lng: marker.position.lng,
                       });
@@ -237,7 +258,11 @@ const MapView = () => {
                         price: yelpData[index].price,
                         distance: yelpData[index].distance,
                       });
-                      setOffCanvas(true);
+                      // setOffCanvas(true);
+                      setPath(true);
+                      if(isChaining){
+                        
+                      }
                     }}
                   />
                 ))
@@ -252,3 +277,7 @@ const MapView = () => {
 };
 
 export default MapView;
+
+export function useData() {
+  return useOutletContext<ContextType>();
+}
