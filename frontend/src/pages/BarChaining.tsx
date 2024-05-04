@@ -2,15 +2,20 @@ import { Button, Container, Row, Col } from "react-bootstrap";
 import { SlArrowLeft } from "react-icons/sl";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { startChain } from "../state/slices/barHopSlice";
+import { endChain } from "../state/slices/barHopSlice";
 
 const BarChaining = () => {
+
+  const dispatch = useDispatch();
+  const clickHandler = () => {
+    dispatch(endChain());
+  };
   return (
     <Container>
       <Row className="mt-2 p-auto">
         <Col>
           <Link to={"/"}>
-            <Button variant="light">
+            <Button variant="light" onClick={clickHandler}>
               {" "}
               <SlArrowLeft /> Back
             </Button>
