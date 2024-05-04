@@ -5,7 +5,7 @@ import imageUnavailable from "../../assets/image_unavailable_photo.png";
 interface ChainState {
   isChaining: boolean;
   firstBar: barMenuInfo;
-  chain: barMenuInfo[];
+  chain: google.maps.DirectionsResult[];
 }
 const initialState: ChainState = {
   isChaining: false,
@@ -39,8 +39,10 @@ const chainSlice = createSlice({
     setFirstBar(state, action: PayloadAction<barMenuInfo>) {
       state.firstBar = action.payload;
     },
-    updateChain(state, action: PayloadAction<barMenuInfo[]>) {
-      state.chain = action.payload;
+    updateChain(state, action: PayloadAction<google.maps.DirectionsResult>) {
+      let temp = state.chain
+      temp.push(action.payload)
+      state.chain = temp;
     },
   },
 });

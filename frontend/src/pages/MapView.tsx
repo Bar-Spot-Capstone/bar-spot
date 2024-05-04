@@ -17,7 +17,8 @@ import { Outlet } from "react-router-dom";
 
 import { useSelector, useDispatch } from "react-redux";
 import { Rootstate } from "../state/store";
-import { setNewMap, setNull } from "../state/slices/mapSlice";
+import { setNewMap} from "../state/slices/mapSlice";
+import {updateChain} from '../state/slices/barHopSlice'
 
 interface LngLat {
   lat: number;
@@ -39,12 +40,20 @@ const MapView = () => {
   const googleMap: google.maps.Map | null = useSelector(
     (state: Rootstate) => state.map.map
   );
+  const chainedDirections: google.maps.DirectionsResult[] = useSelector(
+    (state: Rootstate) => state.barChain.chain
+  );
   const isChaining: boolean = useSelector(
     (state: Rootstate) => state.barChain.isChaining
   );
 
   //https://www.youtube.com/watch?v=OvDu9c8PYrk <= the geolocation tutorial I used
   const [userGeo, setUserGeo] = useState<LngLat>({
+    lat: 0,
+    lng: 0,
+  });
+
+  const [prevMarker, setPrevMarker] = useState<LngLat>({
     lat: 0,
     lng: 0,
   });
@@ -74,6 +83,8 @@ const MapView = () => {
   });
   const [yelpData, setYelpData] = useState<barMenuInfo[]>([]);
 
+
+
   const getIndex = (target: string): number => {
     for (let index = 0; index < yelpData.length; index++) {
       if (target == yelpData[index].name) {
@@ -93,6 +104,10 @@ const MapView = () => {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           setUserGeo({
+            lng: pos.coords.longitude,
+            lat: pos.coords.latitude,
+          });
+          setPrevMarker({
             lng: pos.coords.longitude,
             lat: pos.coords.latitude,
           });
@@ -157,7 +172,21 @@ const MapView = () => {
   };
 
   const calculateRoute = async (startingPoint: LngLat, endingPoint: LngLat) => {
-    setDirections(null);
+    if(isChaining){
+      // let arr: google.maps.DirectionsResult[] = chainedDirections
+      console.log(chainedDirections)
+      const directionsService = new google.maps.DirectionsService();
+      const results = await directionsService.route({
+        origin: startingPoint,
+        destination: endingPoint,
+        travelMode: google.maps.TravelMode.WALKING,
+      });
+      
+      dispatch(updateChain(results))
+      // arr.push(results)
+      // dispatch(updateChain(arr))
+    }else{
+      setDirections(null);
     const directionsService = new google.maps.DirectionsService();
     const results = await directionsService.route({
       origin: startingPoint,
@@ -166,6 +195,7 @@ const MapView = () => {
     });
 
     setDirections(results);
+    }
   };
 
   const resetMap = () => {
@@ -215,9 +245,15 @@ const MapView = () => {
               styles: visibleStyle,
             }}
           >
-            {path && directions && (
+            {/* Render Path normally*/}
+            {path && directions && !isChaining && (
               <DirectionsRenderer directions={directions}></DirectionsRenderer>
             )}
+
+            {/* Render Path during a chain*/}
+            {isChaining && (chainedDirections.length > 0)? chainedDirections.map( (direction, index)=> (
+              <DirectionsRenderer directions={direction} key={index}></DirectionsRenderer>
+            )) : null }
             {/* Render Markers */}
 
             {showMarkers ? (
@@ -239,28 +275,37 @@ const MapView = () => {
                         lat: marker.position.lat,
                         lng: marker.position.lng,
                       });
-                      calculateRoute(userGeo, {
-                        lat: marker.position.lat,
-                        lng: marker.position.lng,
-                      });
-                      const index = getIndex(marker.lable);
-                      setBarInfo({
-                        id: yelpData[index].id,
-                        name: yelpData[index].name,
-                        display_phone: yelpData[index].display_phone,
-                        image_url: yelpData[index].image_url,
-                        rating: String(yelpData[index].rating),
-                        location: {
-                          address1: yelpData[index].location.address1,
-                        },
-                        url: yelpData[index].url,
-                        is_closed: yelpData[index].is_closed,
-                        price: yelpData[index].price,
-                        distance: yelpData[index].distance,
-                      });
-                      // setOffCanvas(true);
-                      setPath(true);
-                      if(isChaining){
+                      if (isChaining) {
+                        calculateRoute(prevMarker, {
+                          lat: marker.position.lat,
+                          lng: marker.position.lng,
+                        });
+                        setPrevMarker({
+                          lat: marker.position.lat,
+                          lng: marker.position.lng,
+                        })
+                      } else {
+                        calculateRoute(userGeo, {
+                          lat: marker.position.lat,
+                          lng: marker.position.lng,
+                        });
+                        const index = getIndex(marker.lable);
+                        setBarInfo({
+                          id: yelpData[index].id,
+                          name: yelpData[index].name,
+                          display_phone: yelpData[index].display_phone,
+                          image_url: yelpData[index].image_url,
+                          rating: String(yelpData[index].rating),
+                          location: {
+                            address1: yelpData[index].location.address1,
+                          },
+                          url: yelpData[index].url,
+                          is_closed: yelpData[index].is_closed,
+                          price: yelpData[index].price,
+                          distance: yelpData[index].distance,
+                        });
+                        // setOffCanvas(true);
+                        setPath(true);
                         
                       }
                     }}

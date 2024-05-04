@@ -1,5 +1,8 @@
 import { Button, Card, ListGroup } from "react-bootstrap";
 import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+
+import { startChain } from "../state/slices/barHopSlice";
 
 interface Props {
   rating: string;
@@ -19,6 +22,11 @@ const CardInfo = ({
   description,
   price,
 }: Props) => {
+  const dispatch = useDispatch();
+  const clickHandler = () => {
+    dispatch(startChain());
+  };
+
   return (
     <Card>
       <Card.Img variant="top" src={image} />
@@ -34,7 +42,11 @@ const CardInfo = ({
       </ListGroup>
       <Card.Body>
         <Link to={"/bar-chain"}>
-          <Button variant="success" className="my-3 me-2">
+          <Button
+            variant="success"
+            onClick={clickHandler}
+            className="my-3 me-2"
+          >
             Start Hopping
           </Button>
         </Link>
