@@ -17,8 +17,12 @@ import { Outlet } from "react-router-dom";
 
 import { useSelector, useDispatch } from "react-redux";
 import { Rootstate } from "../state/store";
-import { setNewMap} from "../state/slices/mapSlice";
-import {updateChain} from '../state/slices/barHopSlice'
+import { setNewMap, setCenter } from "../state/slices/mapSlice";
+import {
+  updateChain,
+  updateBars,
+  setPrevCords,
+} from "../state/slices/barHopSlice";
 
 interface LngLat {
   lat: number;
@@ -46,6 +50,9 @@ const MapView = () => {
   const isChaining: boolean = useSelector(
     (state: Rootstate) => state.barChain.isChaining
   );
+  const prevBar: LngLat = useSelector(
+    (state: Rootstate) => state.barChain.center
+  );
 
   //https://www.youtube.com/watch?v=OvDu9c8PYrk <= the geolocation tutorial I used
   const [userGeo, setUserGeo] = useState<LngLat>({
@@ -53,11 +60,6 @@ const MapView = () => {
     lng: 0,
   });
 
-  const [prevMarker, setPrevMarker] = useState<LngLat>({
-    lat: 0,
-    lng: 0,
-  });
-  // const [map, setMap] = useState<google.maps.Map>(); //task: replace this with a slice
   const [directions, setDirections] =
     useState<google.maps.DirectionsResult | null>(null);
 
@@ -83,8 +85,6 @@ const MapView = () => {
   });
   const [yelpData, setYelpData] = useState<barMenuInfo[]>([]);
 
-
-
   const getIndex = (target: string): number => {
     for (let index = 0; index < yelpData.length; index++) {
       if (target == yelpData[index].name) {
@@ -107,10 +107,18 @@ const MapView = () => {
             lng: pos.coords.longitude,
             lat: pos.coords.latitude,
           });
-          setPrevMarker({
-            lng: pos.coords.longitude,
-            lat: pos.coords.latitude,
-          });
+          dispatch(
+            setCenter({
+              lng: pos.coords.longitude,
+              lat: pos.coords.latitude,
+            })
+          );
+          dispatch(
+            setPrevCords({
+              lng: pos.coords.longitude,
+              lat: pos.coords.latitude,
+            })
+          );
           setUserMarker({
             position: {
               lng: pos.coords.longitude,
@@ -167,39 +175,37 @@ const MapView = () => {
   };
 
   const handleRecenter = () => {
-    // getGeoloaction()
     googleMap?.panTo(userGeo);
+    resetMap();
   };
 
   const calculateRoute = async (startingPoint: LngLat, endingPoint: LngLat) => {
-    if(isChaining){
-      // let arr: google.maps.DirectionsResult[] = chainedDirections
-      console.log(chainedDirections)
+    if (isChaining) {
+      console.log(chainedDirections);
       const directionsService = new google.maps.DirectionsService();
       const results = await directionsService.route({
         origin: startingPoint,
         destination: endingPoint,
         travelMode: google.maps.TravelMode.WALKING,
       });
-      
-      dispatch(updateChain(results))
-      // arr.push(results)
-      // dispatch(updateChain(arr))
-    }else{
-      setDirections(null);
-    const directionsService = new google.maps.DirectionsService();
-    const results = await directionsService.route({
-      origin: startingPoint,
-      destination: endingPoint,
-      travelMode: google.maps.TravelMode.WALKING,
-    });
 
-    setDirections(results);
+      dispatch(updateChain(results));
+    } else {
+      setDirections(null);
+      const directionsService = new google.maps.DirectionsService();
+      const results = await directionsService.route({
+        origin: startingPoint,
+        destination: endingPoint,
+        travelMode: google.maps.TravelMode.WALKING,
+      });
+
+      setDirections(results);
     }
   };
 
   const resetMap = () => {
     setDirections(null);
+    setPath(false);
   };
   useEffect(() => {
     getGeoloaction();
@@ -235,7 +241,9 @@ const MapView = () => {
             mapContainerStyle={mapStyle}
             center={userGeo}
             zoom={16}
-            onLoad={(map) => dispatch(setNewMap(map))}
+            onLoad={(map) => {
+              dispatch(setNewMap(map));
+            }}
             options={{
               streetViewControl: false,
               disableDefaultUI: true,
@@ -251,9 +259,14 @@ const MapView = () => {
             )}
 
             {/* Render Path during a chain*/}
-            {isChaining && (chainedDirections.length > 0)? chainedDirections.map( (direction, index)=> (
-              <DirectionsRenderer directions={direction} key={index}></DirectionsRenderer>
-            )) : null }
+            {isChaining && chainedDirections.length > 0
+              ? chainedDirections.map((direction, index) => (
+                  <DirectionsRenderer
+                    directions={direction}
+                    key={index}
+                  ></DirectionsRenderer>
+                ))
+              : null}
             {/* Render Markers */}
 
             {showMarkers ? (
@@ -276,14 +289,32 @@ const MapView = () => {
                         lng: marker.position.lng,
                       });
                       if (isChaining) {
-                        calculateRoute(prevMarker, {
+                        calculateRoute(prevBar, {
                           lat: marker.position.lat,
                           lng: marker.position.lng,
                         });
-                        setPrevMarker({
-                          lat: marker.position.lat,
-                          lng: marker.position.lng,
-                        })
+                        dispatch(
+                          setPrevCords({
+                            lat: marker.position.lat,
+                            lng: marker.position.lng,
+                          })
+                        );
+                        dispatch(
+                          updateBars({
+                            id: yelpData[index].id,
+                            name: yelpData[index].name,
+                            display_phone: yelpData[index].display_phone,
+                            image_url: yelpData[index].image_url,
+                            rating: String(yelpData[index].rating),
+                            location: {
+                              address1: yelpData[index].location.address1,
+                            },
+                            url: yelpData[index].url,
+                            is_closed: yelpData[index].is_closed,
+                            price: yelpData[index].price,
+                            distance: yelpData[index].distance,
+                          })
+                        );
                       } else {
                         calculateRoute(userGeo, {
                           lat: marker.position.lat,
@@ -304,9 +335,7 @@ const MapView = () => {
                           price: yelpData[index].price,
                           distance: yelpData[index].distance,
                         });
-                        // setOffCanvas(true);
                         setPath(true);
-                        
                       }
                     }}
                   />

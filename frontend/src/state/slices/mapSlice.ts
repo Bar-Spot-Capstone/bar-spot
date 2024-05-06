@@ -1,17 +1,20 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-// import getDefaultMiddleware
-
-// const customizedMiddleware = getDefaultMiddleware({
-//     serializableCheck: false
-//   })
-
+interface LngLat {
+  lat: number;
+  lng: number;
+}
 interface MapState {
   map: google.maps.Map | null;
+  center: LngLat;
 }
 
 const initialState: MapState = {
   map: null,
+  center: {
+    lat: 0,
+    lng: 0,
+  },
 };
 
 const mapSlice = createSlice({
@@ -24,8 +27,11 @@ const mapSlice = createSlice({
     setNull(state) {
       state.map = null;
     },
+    setCenter(state, action: PayloadAction<LngLat>) {
+      state.center = action.payload;
+    },
   },
 });
 
-export const { setNewMap, setNull } = mapSlice.actions;
+export const { setNewMap, setNull, setCenter } = mapSlice.actions;
 export default mapSlice.reducer;
