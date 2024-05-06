@@ -32,9 +32,15 @@ const groupSlice = createSlice({
         },
         setUserGroupName(state, action: PayloadAction<string>) {
             state.groupName = action.payload
+        },
+        resetGroupState(state) {
+            state.isInGroup = false;
+            state.groupId = -Infinity;
+            state.userRole = "";
+            state.groupName = "";
         }
     }
 });
 
-export const { registerGroup, leaveGroup, setGroupId, setUserRole, setUserGroupName } = groupSlice.actions;
+export const { registerGroup, leaveGroup, setGroupId, setUserRole, setUserGroupName, resetGroupState } = groupSlice.actions;
 export default groupSlice.reducer;
