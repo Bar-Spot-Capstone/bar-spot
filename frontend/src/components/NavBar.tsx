@@ -397,6 +397,17 @@ const NavBar = () => {
             <h6 className="m-1" onClick={() => { isLoggedIn ? setShow(true) : navigate("/login") }} style={{ cursor: "pointer" }}>
               Group
             </h6>
+            {
+              isLoggedIn ?
+                <>
+                  <NavDropdown.Divider />
+                  <h6 className="m-1" onClick={() => {localStorage.removeItem("authToken"); window.location.reload(); }} style={{ cursor: "pointer" }}>
+                    Logout
+                  </h6>
+                </>
+                :
+                null
+            }
             {/*Model for group options*/}
             <Modal show={show} onHide={() => setShow(false)}>
               <Modal.Header closeButton>
