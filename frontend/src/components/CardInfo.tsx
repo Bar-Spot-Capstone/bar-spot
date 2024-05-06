@@ -38,8 +38,7 @@ const CardInfo = ({
     const [note, setNote] = useState("");
 
     useEffect(() => {
-      // Fetch user favorites when component mounts or when userId changes
-      if (userId) {
+      if (userId > 0) {
         fetchFavorites(userId);
       }
     }, [userId, name]);
@@ -47,7 +46,7 @@ const CardInfo = ({
     const fetchFavorites = async (userId: number) => {
       const authToken = localStorage.getItem('authToken');
       try {
-        const response = await fetch(`http://localhost:3001/favorite/get/${userId}`, {
+        const response = await fetch(`${getFav}/${userId}`, {
           method: "GET",
           headers: {
               "Content-Type": "application/json",
