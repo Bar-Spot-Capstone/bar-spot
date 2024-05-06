@@ -12,7 +12,7 @@ const MoreInfo = ({ handleCloseout, show, barInfo }: Props) => {
   return (
     <Offcanvas show={show} onHide={handleCloseout} id="canvas">
       <Offcanvas.Header closeButton>
-        <Offcanvas.Title>{barInfo.name}</Offcanvas.Title>
+        <Offcanvas.Title style={{color: "white"}}>{barInfo.name}</Offcanvas.Title>
       </Offcanvas.Header>
       <Offcanvas.Body>
         <CardInfo

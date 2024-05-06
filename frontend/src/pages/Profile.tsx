@@ -202,10 +202,13 @@ const Profile = () => {
 
 
     return (
-        <div className="profile-page">
+        <div className="profile-page" style={{
+            backgroundColor: "#646463",
+            height: "100vh"
+          }}>
             <div className="container">
                 <div className="profile-header pt-5">
-                    <h2 className="fs-2">Profile</h2>
+                    <h2 className="fs-2" style={{color: "white"}}>Profile</h2>
                 </div>
                 <div className="header-bar"></div>
                 <div className="row">

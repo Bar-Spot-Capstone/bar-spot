@@ -275,16 +275,19 @@ const NavBar = () => {
   };
 
   return (
-    <Navbar expand="md" className="bg-secondary-subtle">
-      <Container>
-        <Link to="/">
-          <Navbar.Brand>
+    <Navbar expand="md" style={{
+      backgroundColor: "#eea40c"
+    }}>
+      <Container >
+        <Link to="/"               >
+          <Navbar.Brand >
             <img
               src={Logo}
               width="100"
               height="50"
               className="d-inline-block align-top"
               alt="React Bootstrap logo"
+
             />
           </Navbar.Brand>
         </Link>

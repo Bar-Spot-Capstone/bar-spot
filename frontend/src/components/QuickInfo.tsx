@@ -390,6 +390,7 @@ const QuickInfo = () => {
                   </ListGroup.Item>
                   <ListGroup.Item className="p-2 d-flex justify-content-center align-items-center">
                     <Button
+                    variant="secondary"
                       onClick={() => {
                         setOffCanvas(true);
                         setCurrentBar(yelpData[index]);
