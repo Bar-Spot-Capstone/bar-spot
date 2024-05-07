@@ -3,6 +3,7 @@ import {
   MarkerF,
   useJsApiLoader,
   DirectionsRenderer,
+  InfoWindowF,
 } from "@react-google-maps/api";
 import { useEffect, useState } from "react";
 import Error from "../components/Error";
@@ -14,6 +15,7 @@ import imageUnavailable from "../assets/image_unavailable_photo.png";
 import MoreInfo from "../components/MoreInfo";
 import { fetchPubs } from "../types/fetchCall";
 import { Outlet } from "react-router-dom";
+import BeerIcon from "../assets/BeerIconTransparent.png";
 
 import { useSelector, useDispatch } from "react-redux";
 import { Rootstate } from "../state/store";
@@ -60,11 +62,17 @@ const MapView = () => {
     lng: 0,
   });
 
+  const [infoWindow, setInfoWindow] = useState<LngLat>({
+    lat: 0,
+    lng: 0,
+  });
+
   const [directions, setDirections] =
     useState<google.maps.DirectionsResult | null>(null);
 
   const [markers, setMarkers] = useState<marker[]>([]);
   const [showMarkers, setShowMarkers] = useState<boolean>(false);
+  const [showInfoWin, setShowInfoWin] = useState<boolean>(false);
   const [userMarker, setUserMarker] = useState<marker>();
   const [offCanvas, setOffCanvas] = useState<boolean>(false);
   const [path, setPath] = useState<boolean>(false);
@@ -98,7 +106,12 @@ const MapView = () => {
     setOffCanvas(false);
     resetMap();
   };
-
+  // const handleOnMouseEnter = () => {
+  //   setShowInfoWin(true);
+  // };
+  // const handleOnMouseLeave = () => {
+  //   setShowInfoWin(false);
+  // };
   const getGeoloaction = async () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -268,7 +281,11 @@ const MapView = () => {
                 ))
               : null}
             {/* Render Markers */}
-
+            {showInfoWin ? (
+              <InfoWindowF position={infoWindow}>
+                <p>Hello World</p>
+              </InfoWindowF>
+            ) : null}
             {showMarkers ? (
               <MarkerF
                 position={
@@ -281,8 +298,21 @@ const MapView = () => {
               ? markers.map((marker, index) => (
                   <MarkerF
                     key={index}
+                    options={{
+                      icon: BeerIcon,
+                    }}
                     position={marker.position}
                     label={marker.lable}
+                    onMouseOver={() => {
+                      setInfoWindow({
+                        lat: marker.position.lat,
+                        lng: marker.position.lng,
+                      });
+                      setShowInfoWin(true);
+                    }}
+                    onMouseOut={() => {
+                      setShowInfoWin(false);
+                    }}
                     onClick={() => {
                       googleMap?.panTo({
                         lat: marker.position.lat,
@@ -338,7 +368,7 @@ const MapView = () => {
                         setPath(true);
                       }
                     }}
-                  />
+                  ></MarkerF>
                 ))
               : null}
           </GoogleMap>
