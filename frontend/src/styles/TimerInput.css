@@ -1,0 +1,15 @@
+.timer-input{
+    background-color: rgba(96, 108, 110, 0.15);
+    height: 2rem;
+    font-size: 30px;
+    outline: 0 solid transparent;
+    border: 0 solid transparent;
+    width: 100%;
+    border-radius: 4px;
+    letter-spacing: -0.4px;
+    padding: 10px 18px;
+    width: 6rem;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 20px;
+    text-align: center;
+}
