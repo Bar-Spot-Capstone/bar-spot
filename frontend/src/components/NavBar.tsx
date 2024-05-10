@@ -13,6 +13,7 @@ import { useState, useEffect } from "react";
 import { NavDropdown, Modal, Container, Navbar, Badge, Form, Dropdown, DropdownButton } from "react-bootstrap";
 import { MdCheckCircle } from "react-icons/md";
 import { MdCancel } from "react-icons/md";
+import { io } from "socket.io-client";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.min.js";
 import 'react-bootstrap-range-slider/dist/react-bootstrap-range-slider.css';
@@ -55,6 +56,27 @@ const NavBar = () => {
     fetchInvites(userId, setInvites, setInvitationsFetched);
     fetchGroupMembers(registeredGroupId, isInGroup, setGroupMembers);
     setIsInGroup(isInGroup);
+
+    if (isInGroup) {
+      // Connect to Socket.IO server
+      const socket = io("http://localhost:3001");//NEED TO CHANGE THIS TO PROD
+
+      // Socket.IO event listeners
+      socket.on("connect", () => {
+        console.log("Connected to Socket.IO server");
+      });
+
+      socket.on("disconnect", () => {
+        console.log("Disconnected from Socket.IO server");
+      });
+
+      socket.on('group_message', (data: any) => {
+        const { message } = data;
+        alert(message); // Display an alert with the received message
+      });
+
+    };
+
   }, [registeredGroupId, isInGroup, inGroupBool, userId, invitation]);
 
   /*
@@ -367,6 +389,11 @@ const NavBar = () => {
     };
   };
 
+  const handleClickSendMessage: any = () => {
+    const socket = io('http://localhost:3001'); // Replace with PROD URL
+    socket.emit('send_message_to_all', { message: 'Hello group members!' });
+  };
+
   return (
     <Navbar expand="md" className="bg-secondary-subtle">
       <Container>
@@ -588,9 +615,14 @@ const NavBar = () => {
                   {/*Render leave or delete group*/}
                   <div className="row">
                     {userRole === "Owner" ?
-                      <button className="btn btn-danger " onClick={deleteGroup}>
-                        Delete
-                      </button>
+                      <>
+                        <button className="btn btn-danger " onClick={deleteGroup}>
+                          Delete
+                        </button>
+                        <button className="btn btn-danger" onClick={handleClickSendMessage}>
+                          Message
+                        </button>
+                      </>
                       : userRole === "member" ?
                         <button className="btn btn-danger btn-transition" onClick={leaveGroupFunction}>
                           Leave
