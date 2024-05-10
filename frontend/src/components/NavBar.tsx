@@ -402,7 +402,7 @@ const NavBar = () => {
               isLoggedIn ?
                 <>
                   <NavDropdown.Divider />
-                  <h6 className="m-1" onClick={() => { localStorage.removeItem("authToken"); window.location.reload(); dispatch(resetGroupState()); dispatch(resetUserState()); }} style={{ cursor: "pointer" }}>
+                  <h6 className="m-1" onClick={() => { localStorage.removeItem("authToken"); dispatch(resetGroupState()); window.location.reload(); dispatch(resetUserState()); }} style={{ cursor: "pointer" }}>
                     Logout
                   </h6>
                 </>
