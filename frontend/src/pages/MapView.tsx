@@ -25,6 +25,7 @@ import {
   updateBars,
   setPrevCords,
 } from "../state/slices/barHopSlice";
+import { Button } from "react-bootstrap";
 
 interface LngLat {
   lat: number;
@@ -62,9 +63,12 @@ const MapView = () => {
     lng: 0,
   });
 
-  const [infoWindow, setInfoWindow] = useState<LngLat>({
-    lat: 0,
-    lng: 0,
+  const [infoWindow, setInfoWindow] = useState<marker>({
+    position: {
+      lat: 0,
+      lng: 0,
+    },
+    lable: "null",
   });
 
   const [directions, setDirections] =
@@ -239,7 +243,6 @@ const MapView = () => {
   return (
     <div className="totalView">
       <div id="infoHolder">
-        {/* <QuickInfo barData={yelpData} handleRecenter={handleRecenter} /> */}
         <Outlet context={{ yelpData, handleRecenter } satisfies ContextType} />
       </div>
       <div style={mapStyle} className="mapView">
@@ -282,8 +285,22 @@ const MapView = () => {
               : null}
             {/* Render Markers */}
             {showInfoWin ? (
-              <InfoWindowF position={infoWindow}>
-                <p>Hello World</p>
+              <InfoWindowF
+                position={infoWindow.position}
+                onCloseClick={() => {
+                  setShowInfoWin(false);
+                  handleCloseout()
+                }}
+              >
+                <Button
+                  variant="dark"
+                  onClick={() => {
+                    setOffCanvas(true);
+                  }}
+                >
+                  {" "}
+                  {infoWindow.lable}
+                </Button>
               </InfoWindowF>
             ) : null}
             {showMarkers ? (
@@ -302,18 +319,17 @@ const MapView = () => {
                       icon: BeerIcon,
                     }}
                     position={marker.position}
-                    label={marker.lable}
-                    onMouseOver={() => {
+                    // label={marker.lable}
+
+                    onClick={() => {
                       setInfoWindow({
-                        lat: marker.position.lat,
-                        lng: marker.position.lng,
+                        position: {
+                          lat: marker.position.lat,
+                          lng: marker.position.lng,
+                        },
+                        lable: marker.lable,
                       });
                       setShowInfoWin(true);
-                    }}
-                    onMouseOut={() => {
-                      setShowInfoWin(false);
-                    }}
-                    onClick={() => {
                       googleMap?.panTo({
                         lat: marker.position.lat,
                         lng: marker.position.lng,

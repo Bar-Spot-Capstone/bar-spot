@@ -74,7 +74,7 @@ const BarChaining = () => {
                 className="p-auto my-2 barStop"
               >
                 <Col lg={2} xs={3} className="d-flex align-items-center">
-                  <p>Stop #{index}</p>
+                  <p>Stop #{index+1}</p>
                 </Col>
                 <Col className="d-flex align-items-center" lg={7} xs={5}>
                   <p>{bar.name}</p>
