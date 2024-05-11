@@ -9,7 +9,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Rootstate } from "../state/store";
 import { createGroup, fetchUserGroupInfo, fetchGroupMembers, fetchInvites } from "./Group"; //imported from Group.tsx
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { NavDropdown, Modal, Container, Navbar, Badge, Form, Dropdown, DropdownButton } from "react-bootstrap";
 import { MdCheckCircle } from "react-icons/md";
 import { MdCancel } from "react-icons/md";
@@ -25,6 +25,7 @@ const NavBar = () => {
   const registeredGroupId: number = useSelector((state: Rootstate) => state.group.groupId);
   const userRole: string = useSelector((state: Rootstate) => state.group.userRole);//tracking user's role in group
   const usersGroupName: string = useSelector((state: Rootstate) => state.group.groupName);//tracking groups name
+  const socketRef = useRef<Socket | null>(null);//variable for web socket
   const navigate = useNavigate();
 
   const dispatch: any = useDispatch();
@@ -57,24 +58,19 @@ const NavBar = () => {
     fetchGroupMembers(registeredGroupId, isInGroup, setGroupMembers);
     setIsInGroup(isInGroup);
 
-    if (isInGroup) {
-      // Connect to Socket.IO server
-      const socket = io("http://localhost:3001");//NEED TO CHANGE THIS TO PROD
-
-      // Socket.IO event listeners
-      socket.on("connect", () => {
-        console.log("Connected to Socket.IO server");
-      });
-
+    if (isInGroup && !socketRef.current) {
+      // Connect to Socket.IO server if not already connected
+      socketRef.current = io('http://localhost:3001');
+      const socket = socketRef.current;
+      // Join group room when component mounts
+      socket.emit('join_group', registeredGroupId);
       socket.on("disconnect", () => {
         console.log("Disconnected from Socket.IO server");
       });
-
       socket.on('group_message', (data: any) => {
         const { message } = data;
         alert(message); // Display an alert with the received message
       });
-
     };
 
   }, [registeredGroupId, isInGroup, inGroupBool, userId, invitation]);
@@ -262,6 +258,11 @@ const NavBar = () => {
       dispatch(setUserGroupName(""));//resets user's role to default
       fetchInvites(userId, setInvites, setInvitationsFetched);//search for invites
       setGroupMembers([]);//resets group members
+      //Remove user from socket group
+      const socket = socketRef.current; // Connect to WebSocket server
+      socket.emit('leave_group', registeredGroupId); // Leave group room when component unmounts
+      socket.disconnect(); // Disconnect WebSocket when component unmounts
+      socketRef.current = null;
       return;
     }
     catch (error: any) {
@@ -298,6 +299,11 @@ const NavBar = () => {
       dispatch(setUserGroupName(""));//resets user's role to default
       fetchInvites(userId, setInvites, setInvitationsFetched);//search for invites
       setGroupMembers([]);//resets group members
+      //Remove user from socket group
+      const socket = socketRef.current; // Connect to WebSocket server
+      socket.emit('destroy_group', registeredGroupId); // Removes all group members from socket
+      socket.disconnect(); // Disconnect WebSocket when component unmounts
+      socketRef.current = null;
       return;
     }
     catch (error: any) {
@@ -390,8 +396,12 @@ const NavBar = () => {
   };
 
   const handleClickSendMessage: any = () => {
-    const socket = io('http://localhost:3001'); // Replace with PROD URL
-    socket.emit('send_message_to_all', { message: 'Hello group members!' });
+    const socket = io('http://localhost:3001'); // Replace with your WebSocket server URL
+    const data = {
+      groupId: registeredGroupId,
+      message: "Hello group members!"
+    };
+    socket.emit('send_message_to_group', data);
   };
 
   return (

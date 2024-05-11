@@ -58,15 +58,37 @@ const io: Server = new Server(server, {
 io.on('connection', (socket: any) => {
   console.log('Client connected');
 
+  // Handle joining a group and adding user to room
+  socket.on('join_group', (groupId: number) => {
+    socket.join(groupId); // Add user to room corresponding to group ID
+  });
+
+  // Handle sending message to specific group
+  socket.on('send_message_to_group', (data: any) => {
+    const { groupId } = data;
+    const { message } = data;
+    io.to(groupId).emit('group_message', { message }); // Emit message to room corresponding to group ID
+  });
+
+  // Handle leaving a group and removing user from room
+  socket.on('leave_group', (groupId: number) => {
+    socket.leave(groupId); // Remove user from room corresponding to group ID
+  });
+
+  socket.on('destroy_group', (groupId: any) => {
+    // Remove all users from the group room
+    io.of('/').in(groupId).allSockets().then((sockets) => {
+      sockets.forEach((socketId: any) => {
+        io.sockets.sockets.get(socketId)?.leave(groupId);
+      });
+    }).catch((error: any) => {
+      console.error('Error removing users from group room:', error);
+    });
+  });
+
   socket.on('disconnect', () => {
     console.log('Client disconnected');
   });
-
-  socket.on('send_message_to_all', (data: any) => {
-    const { message } = data;
-    io.emit('group_message', { message }); // Broadcast message to all connected clients
-  });
-
 });
 
 sequelize.sync()
