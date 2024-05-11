@@ -36,6 +36,7 @@ const CardInfo = ({
     const [isFavorite, setIsFavorite] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [note, setNote] = useState("");
+    const [characterLimit, setCharacterLimit] = useState(200);
 
     useEffect(() => {
       if (userId > 0) {
@@ -62,7 +63,10 @@ const CardInfo = ({
     };  
 
     const handleNoteChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      setNote(e.target.value);
+      const inputNote = e.target.value;
+      if (inputNote.length <= characterLimit) {
+        setNote(e.target.value);
+      }
     };
 
     const addToFavorites = async () => {
