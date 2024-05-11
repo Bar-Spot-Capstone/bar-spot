@@ -3,6 +3,10 @@ import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
 import { startChain } from "../state/slices/barHopSlice";
+import { useSelector } from "react-redux";
+import { useState } from "react";
+import { Rootstate } from "../state/store";
+import { addFav } from "../types/fetchCall";
 
 interface Props {
   rating: string;
@@ -13,6 +17,7 @@ interface Props {
   description: string;
   price: string;
 }
+
 const CardInfo = ({
   rating,
   name,
@@ -22,6 +27,46 @@ const CardInfo = ({
   description,
   price,
 }: Props) => {
+    const userId: number = useSelector((state: Rootstate) => state.user.userId);
+    
+    const [isFavorite, setIsFavorite] = useState(false);
+
+    const addToFavorites = async () => {
+        if (userId == -1 || !userId) {
+          console.error('User is not logged in');
+          return;
+        } 
+
+        try {
+            const authToken = localStorage.getItem('authToken');
+
+            const options: object = {
+              method: 'POST',
+              headers: {
+                  "Content-Type": "application/json",
+                  'Authorization': `Bearer ${authToken}`
+              },
+              body: JSON.stringify({
+                userId,
+                barName: name,
+                address,
+                note: '',
+                imageURL: image,
+              })
+            };
+
+            const response: Response = await fetch(addFav, options);
+            const res = await response.json();
+
+            if (response.ok) {
+                setIsFavorite(true);
+            } else {
+                console.error('Failed to add to favorites:', res.error);
+            }
+        } catch (error) {
+            console.error("Error adding to favorites: ", error);
+        }
+    };
   const dispatch = useDispatch();
   const clickHandler = () => {
     dispatch(startChain());
@@ -50,8 +95,13 @@ const CardInfo = ({
             Start Hopping
           </Button>
         </Link>
-        <Button variant="outline-success" className="my-3">
-          Add to Favorites
+        <Button 
+          variant = "outline-success"
+          className = "my-3"
+          onClick = {addToFavorites}
+          disabled = {isFavorite}
+        >
+          {isFavorite ? "Favorite Added!" : "Add Favorite"}
         </Button>
       </Card.Body>
     </Card>

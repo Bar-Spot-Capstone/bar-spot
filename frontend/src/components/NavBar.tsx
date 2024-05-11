@@ -1,19 +1,22 @@
+import Logo from "../assets/Bar-Spot-Translucent-Logo.png";
+import NavBadge from "./NavBadge";
+import RangeSlider from "react-bootstrap-range-slider";
+import { IoMdArrowDropright } from "react-icons/io";
+import { useDispatch } from "react-redux";
+import { registerGroup, setGroupId, leaveGroup, setUserRole, setUserGroupName } from "../state/slices/groupSlice";
+import { allOtherUsers, partyDelete, partyLeave, userInvResponse } from "../types/fetchCall";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { Rootstate } from "../state/store";
 import { createGroup, fetchUserGroupInfo, fetchGroupMembers, fetchInvites } from "./Group"; //imported from Group.tsx
 import { useState, useEffect } from "react";
-import { NavDropdown, Modal, Container, Navbar, Badge, Form } from "react-bootstrap";
+import { NavDropdown, Modal, Container, Navbar, Badge, Form, Dropdown, DropdownButton } from "react-bootstrap";
 import { MdCheckCircle } from "react-icons/md";
 import { MdCancel } from "react-icons/md";
-import Logo from "../assets/Bar-Spot-Translucent-Logo.png";
-import NavBadge from "./NavBadge";
 import "bootstrap/dist/css/bootstrap.css";
 import "bootstrap/dist/js/bootstrap.min.js";
+import 'react-bootstrap-range-slider/dist/react-bootstrap-range-slider.css';
 import "../styles/NavBar.css"
-import { useDispatch } from "react-redux";
-import { registerGroup, setGroupId, leaveGroup, setUserRole, setUserGroupName } from "../state/slices/groupSlice";
-import { allOtherUsers, partyDelete, partyLeave, userInvResponse } from "../types/fetchCall";
 
 const NavBar = () => {
   const isLoggedIn: boolean = useSelector((state: Rootstate) => state.user.isLoggedIn);
@@ -38,6 +41,13 @@ const NavBar = () => {
   const [groupMembers, setGroupMembers] = useState<Array<Array<any>>>([]);//Come back to this
   const [trackLocation, setLocationOption] = useState(true);
   const [inGroupBool, setIsInGroup] = useState<boolean>(false);//Used for rendering if the user is in group
+
+  //Used for part activies
+  const [featureShow, setFeatureShow] = useState<boolean>(false);
+  const [activieSelector, setActivieSelector] = useState<string>("Bar Chaining");
+  const [showBarSetting, setShowBarSetting] = useState<string>("Any Bar");
+  const [radiusValue, setRadiusValue] = useState<number>(50);
+  const [amountOfBarValue, setAmountOfBarValueValue] = useState<number>(50);
 
   /*Used to refresh upon new invites*/
   useEffect(() => {
@@ -274,6 +284,89 @@ const NavBar = () => {
     };
   };
 
+  const renderActivie = () => {
+    if (activieSelector === "Bar Hopping") {
+      return (
+        <div className="card d-flex flex-column">
+          <div className="card-body">
+            <div className="pt-2">
+              <label htmlFor="customRange3" className="form-label me-1"><h6>Radius: </h6></label>
+              {radiusValue}
+            </div>
+            <div>
+              <RangeSlider
+                value={radiusValue}
+                onChange={e => setRadiusValue(e.target.value)}
+                min={10}
+                max={50}
+                step={5}
+              />
+            </div>
+          </div>
+
+          <div className="card-body p-0 d-flex">
+            <button className="btn btn-transition">
+              <h6>Show me</h6>
+            </button>
+            <DropdownButton variant={""} id="dropdown-basic-button" title={showBarSetting}>
+              <Dropdown.Item onClick={() => { setShowBarSetting("Any Bar") }}>Any Bar</Dropdown.Item>
+              <Dropdown.Item onClick={() => { setShowBarSetting("Cheapest Bars") }}>Cheapest Bars</Dropdown.Item>
+              <Dropdown.Item onClick={() => { setShowBarSetting("Highest Rating") }}>Highest Rating</Dropdown.Item>
+            </DropdownButton>
+          </div>
+        </div>
+      );
+    }
+    else {
+      return (
+        <div className="card d-flex flex-column">
+          <div className="card-body">
+            <div className="pt-2">
+              <label htmlFor="customRange3" className="form-label me-1"><h6>Radius: </h6></label>
+              {radiusValue}
+            </div>
+            <div>
+              <RangeSlider
+                value={radiusValue}
+                onChange={e => setRadiusValue(e.target.value)}
+                min={10}
+                max={50}
+                step={5}
+              />
+            </div>
+          </div>
+
+          <div className="card-body p-0 d-flex">
+            <button className="btn btn-transition">
+              <h6>Show me</h6>
+            </button>
+            <DropdownButton variant={""} id="dropdown-basic-button" title={showBarSetting}>
+              <Dropdown.Item onClick={() => { setShowBarSetting("Any Bar") }}>Any Bar</Dropdown.Item>
+              <Dropdown.Item onClick={() => { setShowBarSetting("Cheapest Bars") }}>Cheapest Bars</Dropdown.Item>
+              <Dropdown.Item onClick={() => { setShowBarSetting("Highest Rating") }}>Highest Rating</Dropdown.Item>
+            </DropdownButton>
+          </div>
+
+          <div className="card-body">
+            <div className="pt-2">
+              <label htmlFor="customRange3" className="form-label me-1"><h6>Amount of Bars: </h6></label>
+              {amountOfBarValue}
+            </div>
+            <div>
+              <RangeSlider
+                value={amountOfBarValue}
+                onChange={e => setAmountOfBarValueValue(e.target.value)}
+                min={2}
+                max={50}
+                step={1}
+              />
+            </div>
+          </div>
+        </div>
+      );
+    };
+  };
+
   return (
     <Navbar expand="md" style={{
       backgroundColor: "#eea40c"
@@ -467,6 +560,11 @@ const NavBar = () => {
               <Modal.Body className="d-flex">
                 <div className="container-fluid">
                   <div className="row">
+                    <div className="col-12 p-0">
+                      <h5 onClick={() => { setGroupShow(!groupShow); setFeatureShow(!featureShow) }} style={{ "cursor": "pointer" }}>Activities <IoMdArrowDropright /></h5>
+                    </div>
+                  </div>
+                  <div className="row">
                     <table className="table col-12 table-responsive table-hover table-sm mb-4">
                       <thead>
                         <tr className="table-primary">
@@ -493,7 +591,7 @@ const NavBar = () => {
                   {/*Render leave or delete group*/}
                   <div className="row">
                     {userRole === "Owner" ?
-                      <button className="btn btn-danger btn-transition" onClick={deleteGroup}>
+                      <button className="btn btn-danger " onClick={deleteGroup}>
                         Delete
                       </button>
                       : userRole === "member" ?
@@ -514,6 +612,45 @@ const NavBar = () => {
                 <div>
                   <button className="btn btn-primary btn-transition" onClick={() => setGroupShow(!groupShow)}>
                     Cancel
+                  </button>
+                </div>
+              </Modal.Footer>
+            </Modal>
+
+            {/*Model for bar chaining and hopping*/}
+            <Modal show={featureShow} onHide={() => setFeatureShow(false)}>
+              <Modal.Header closeButton>
+                <Modal.Title>Activities</Modal.Title>
+              </Modal.Header>
+              <Modal.Body className="d-flex">
+                <div className="container-fluid">
+                  {/*Need to dynamically render between bar chaining and bar hopping*/}
+                  <div className="row">
+                    <div className="card d-flex flex-row p-0">
+                      <div className="card-body col-sm-6 col-md-2" style={{ cursor: "pointer", color: activieSelector === "Bar Chaining" ? '#0d6efd' : '#adb5bd' }} onClick={() => setActivieSelector("Bar Chaining")}>
+                        <>Bar Chaining</>
+                      </div>
+                      <div className="card-body col-sm-6 col-md-7" style={{ cursor: "pointer", color: activieSelector === "Bar Hopping" ? '#0d6efd' : '#adb5bd' }} onClick={() => setActivieSelector("Bar Hopping")}>
+                        <>Bar Hopping</>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="row">
+                    <div className="content p-0 mt-4">
+                      {renderActivie()}
+                    </div>
+                  </div>
+                </div>
+              </Modal.Body>
+              <Modal.Footer className="justify-content-center">
+                <div className="me-5">
+                  <button className="btn btn-primary btn-transition" onClick={() => { setFeatureShow(!featureShow); setGroupShow(!groupShow); }}>
+                    Back
+                  </button>
+                </div>
+                <div>
+                  <button className="btn btn-success btn-transition" onClick={() => setFeatureShow(!featureShow)}>
+                    Confirm
                   </button>
                 </div>
               </Modal.Footer>
