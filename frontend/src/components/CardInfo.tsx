@@ -36,7 +36,7 @@ const CardInfo = ({
     const [isFavorite, setIsFavorite] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [note, setNote] = useState("");
-    const [characterLimit, setCharacterLimit] = useState(200);
+    const [characterLimit] = useState(200);
 
     useEffect(() => {
       if (userId > 0) {
