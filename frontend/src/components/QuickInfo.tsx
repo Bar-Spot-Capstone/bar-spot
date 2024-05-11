@@ -18,11 +18,6 @@ import { barMenuInfo } from "../types/types";
 import MoreInfo from "./MoreInfo";
 import { useData } from "../pages/MapView";
 
-// interface OutletContextType {
-//   yelpData: barMenuInfo[];
-//   handleRecenter: () => void;
-// }
-
 const QuickInfo = () => {
   const { yelpData, handleRecenter } = useData();
 

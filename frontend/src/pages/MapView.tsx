@@ -110,12 +110,7 @@ const MapView = () => {
     setOffCanvas(false);
     resetMap();
   };
-  // const handleOnMouseEnter = () => {
-  //   setShowInfoWin(true);
-  // };
-  // const handleOnMouseLeave = () => {
-  //   setShowInfoWin(false);
-  // };
+
   const getGeoloaction = async () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -198,7 +193,7 @@ const MapView = () => {
 
   const calculateRoute = async (startingPoint: LngLat, endingPoint: LngLat) => {
     if (isChaining) {
-      console.log(chainedDirections);
+
       const directionsService = new google.maps.DirectionsService();
       const results = await directionsService.route({
         origin: startingPoint,
@@ -319,7 +314,6 @@ const MapView = () => {
                       icon: BeerIcon,
                     }}
                     position={marker.position}
-                    // label={marker.lable}
 
                     onClick={() => {
                       setInfoWindow({
