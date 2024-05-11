@@ -1,4 +1,8 @@
 import { Button, Card, ListGroup } from "react-bootstrap";
+import { Link } from "react-router-dom";
+import { useDispatch } from "react-redux";
+
+import { startChain } from "../state/slices/barHopSlice";
 import { useSelector } from "react-redux";
 import { useState } from "react";
 import { Rootstate } from "../state/store";
@@ -63,6 +67,11 @@ const CardInfo = ({
             console.error("Error adding to favorites: ", error);
         }
     };
+  const dispatch = useDispatch();
+  const clickHandler = () => {
+    dispatch(startChain());
+  };
+
   return (
     <Card>
       <Card.Img variant="top" src={image} />
@@ -77,9 +86,15 @@ const CardInfo = ({
         <ListGroup.Item>Description: {description}</ListGroup.Item>
       </ListGroup>
       <Card.Body>
-        <Button variant="success" className="my-3 me-2">
-          Start Hopping
-        </Button>
+        <Link to={"/bar-chain"}>
+          <Button
+            variant="success"
+            onClick={clickHandler}
+            className="my-3 me-2"
+          >
+            Start Hopping
+          </Button>
+        </Link>
         <Button 
           variant = "outline-success"
           className = "my-3"

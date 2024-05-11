@@ -16,13 +16,11 @@ import {
 } from "react-bootstrap";
 import { barMenuInfo } from "../types/types";
 import MoreInfo from "./MoreInfo";
+import { useData } from "../pages/MapView";
 
-interface Props {
-  barData: barMenuInfo[];
-  handleRecenter: () => void;
-}
+const QuickInfo = () => {
+  const { yelpData, handleRecenter } = useData();
 
-const QuickInfo = ({ barData, handleRecenter }: Props) => {
   const [show, setShow] = useState<boolean>(false);
   const [sort, setSort] = useState<boolean>(false);
   const [offCanvas, setOffCanvas] = useState<boolean>(false);
@@ -73,22 +71,22 @@ const QuickInfo = ({ barData, handleRecenter }: Props) => {
   };
 
   const sortByName = (direction: string) => {
-    mergeSort(barData, 0, barData.length - 1, direction, "name");
+    mergeSort(yelpData, 0, yelpData.length - 1, direction, "name");
     setSort(true);
   };
 
   const sortByRating = (direction: string) => {
-    mergeSort(barData, 0, barData.length - 1, direction, "rating");
+    mergeSort(yelpData, 0, yelpData.length - 1, direction, "rating");
     setSort(true);
   };
 
   const sortByDistance = (direction: string) => {
-    mergeSort(barData, 0, barData.length - 1, direction, "distance");
+    mergeSort(yelpData, 0, yelpData.length - 1, direction, "distance");
     setSort(true);
   };
 
   const sortByPrice = (direction: string) => {
-    mergeSort(barData, 0, barData.length - 1, direction, "price");
+    mergeSort(yelpData, 0, yelpData.length - 1, direction, "price");
     setSort(true);
   };
 
@@ -345,18 +343,19 @@ const QuickInfo = ({ barData, handleRecenter }: Props) => {
                 </Accordion.Item>
               </Accordion>
             </Col>
-            <Col>
+            <Col xs={2}>
               <Button
                 onClick={handleRecenter}
                 variant="light"
-                className="w-100"
+                className="p-auto"
+                style={{ height: "53px", width: "100%" }}
               >
-                <FaLocationArrow className="w-25 h-25" />
+                <FaLocationArrow className="" />
               </Button>
             </Col>
           </Row>
         </Container>
-        {barData.map((bar, index) => (
+        {yelpData.map((bar, index) => (
           <Container
             className="d-flex flex-column m-2 p-2 rounded info w-auto "
             key={index}
@@ -375,14 +374,21 @@ const QuickInfo = ({ barData, handleRecenter }: Props) => {
                   <ListGroup.Item className="px-1 d-flex justify-content-between  align-items-center">
                     <p>Address: {bar.location.address1}</p>
                   </ListGroup.Item>
-                  <ListGroup.Item className="p-0 d-flex justify-content-between  align-items-center text-center">
-                    <p className="text-center">Phone: {bar.display_phone != "" ? bar.display_phone : "Not available" }</p>
+                  <ListGroup.Item className="px-1 d-flex justify-content-between  align-items-center text-center">
+                    <p>
+                      {" "}
+                      Phone:{" "}
+                      {bar.display_phone != ""
+                        ? bar.display_phone
+                        : "Not available"}
+                    </p>
                   </ListGroup.Item>
                   <ListGroup.Item className="p-2 d-flex justify-content-center align-items-center">
                     <Button
+                      variant="secondary"
                       onClick={() => {
                         setOffCanvas(true);
-                        setCurrentBar(barData[index]);
+                        setCurrentBar(yelpData[index]);
                       }}
                     >
                       More Info

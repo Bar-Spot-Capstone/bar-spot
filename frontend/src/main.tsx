@@ -9,33 +9,47 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { store } from "./state/store";
 import { Provider } from "react-redux";
 import MapView from "./pages/MapView.tsx";
+import BarChaining from "./pages/BarChaining.tsx";
+import QuickInfo from "./components/QuickInfo.tsx";
+import '@fontsource-variable/manrope';
 
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Home />,
-    children: [
-      {
-        path: "/",
-        element: <MapView />,
-      },
-      {
-        path: "/profile",
-        element: <Profile />,
-      }
-    ],
-  },
-  {
-    path: "/login",
-    element: <Login />,
-  },
-  {
-    path: "/sign-up",
-    element: <CreateNewAcc />,
-  },
-], 
-{ basename: '/bar-spot/' }
-); 
+const router = createBrowserRouter(
+  [
+    {
+      path: "/",
+      element: <Home />,
+      children: [
+        {
+          path: "/",
+          element: <MapView />,
+          children: [
+            {
+              path: "/",
+              element: <QuickInfo />,
+            },
+            {
+              path: "/bar-chain",
+              element: <BarChaining />,
+            },
+          ],
+        },
+        {
+          path: "/profile",
+          element: <Profile />,
+        },
+      ],
+    },
+    {
+      path: "/login",
+      element: <Login />,
+    },
+    {
+      path: "/sign-up",
+      element: <CreateNewAcc />,
+    },
+  ],
+  { basename: '/bar-spot/' }
+);
 
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
