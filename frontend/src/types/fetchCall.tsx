@@ -1,4 +1,4 @@
-const baseURL = "https://barspot-server.onrender.com";
+const baseURL = "https://localhost:3001";
 
 const partyCreate = `${baseURL}/party/create`;
 const userRegister = `${baseURL}/user/register`;
