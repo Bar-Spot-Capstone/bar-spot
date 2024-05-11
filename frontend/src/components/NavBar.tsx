@@ -3,7 +3,8 @@ import NavBadge from "./NavBadge";
 import RangeSlider from "react-bootstrap-range-slider";
 import { IoMdArrowDropright } from "react-icons/io";
 import { useDispatch } from "react-redux";
-import { registerGroup, setGroupId, leaveGroup, setUserRole, setUserGroupName } from "../state/slices/groupSlice";
+import { resetGroupState, setGroupId, leaveGroup, setUserRole, setUserGroupName } from "../state/slices/groupSlice";
+import { resetUserState } from "../state/slices/userSlice";
 import { allOtherUsers, partyDelete, partyLeave, userInvResponse } from "../types/fetchCall";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -397,6 +398,17 @@ const NavBar = () => {
             <h6 className="m-1" onClick={() => { isLoggedIn ? setShow(true) : navigate("/login") }} style={{ cursor: "pointer" }}>
               Group
             </h6>
+            {
+              isLoggedIn ?
+                <>
+                  <NavDropdown.Divider />
+                  <h6 className="m-1" onClick={() => { localStorage.removeItem("authToken"); dispatch(resetGroupState()); window.location.reload(); dispatch(resetUserState()); }} style={{ cursor: "pointer" }}>
+                    Logout
+                  </h6>
+                </>
+                :
+                null
+            }
             {/*Model for group options*/}
             <Modal show={show} onHide={() => setShow(false)}>
               <Modal.Header closeButton>

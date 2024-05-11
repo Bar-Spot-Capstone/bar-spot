@@ -37,9 +37,15 @@ const userSlice = createSlice({
     },
     setEmail(state, action: PayloadAction<string>) {
       state.email = action.payload
+    },
+    resetUserState(state) {
+      state.isLoggedIn = false;
+      state.userId = -1;
+      state.username = "null";
+      state.email = "null";
     }
   }
 });
 
-export const { login, logout, setUsername, setUserID, setEmail } = userSlice.actions;
+export const { login, logout, setUsername, setUserID, setEmail, resetUserState } = userSlice.actions;
 export default userSlice.reducer;
