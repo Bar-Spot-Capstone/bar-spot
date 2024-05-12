@@ -3,16 +3,29 @@ import {
   MarkerF,
   useJsApiLoader,
   DirectionsRenderer,
+  InfoWindowF,
 } from "@react-google-maps/api";
 import { useEffect, useState } from "react";
 import Error from "../components/Error";
 import visibleStyle from "../styles/mapstyle";
-import QuickInfo from "../components/QuickInfo";
+import { useOutletContext } from "react-router-dom";
 import "../styles/MapView.css";
 import { barMenuInfo } from "../types/types";
 import imageUnavailable from "../assets/image_unavailable_photo.png";
 import MoreInfo from "../components/MoreInfo";
 import { fetchPubs } from "../types/fetchCall";
+import { Outlet } from "react-router-dom";
+import BeerIcon from "../assets/BeerIconTransparent.png";
+
+import { useSelector, useDispatch } from "react-redux";
+import { Rootstate } from "../state/store";
+import { setNewMap, setCenter } from "../state/slices/mapSlice";
+import {
+  updateChain,
+  updateBars,
+  setPrevCords,
+} from "../state/slices/barHopSlice";
+import { Button } from "react-bootstrap";
 
 interface LngLat {
   lat: number;
@@ -23,20 +36,50 @@ interface marker {
   lable: string;
 }
 
+type ContextType = {
+  yelpData: barMenuInfo[];
+  handleRecenter: () => void;
+};
+
 const MapView = () => {
+  //global map state
+  const dispatch: any = useDispatch();
+  const googleMap: google.maps.Map | null = useSelector(
+    (state: Rootstate) => state.map.map
+  );
+  const chainedDirections: google.maps.DirectionsResult[] = useSelector(
+    (state: Rootstate) => state.barChain.chain
+  );
+  const isChaining: boolean = useSelector(
+    (state: Rootstate) => state.barChain.isChaining
+  );
+  const prevBar: LngLat = useSelector(
+    (state: Rootstate) => state.barChain.center
+  );
+
   //https://www.youtube.com/watch?v=OvDu9c8PYrk <= the geolocation tutorial I used
   const [userGeo, setUserGeo] = useState<LngLat>({
     lat: 0,
     lng: 0,
   });
-  const [map, setMap] = useState<google.maps.Map>();
+
+  const [infoWindow, setInfoWindow] = useState<marker>({
+    position: {
+      lat: 0,
+      lng: 0,
+    },
+    lable: "null",
+  });
+
   const [directions, setDirections] =
     useState<google.maps.DirectionsResult | null>(null);
 
   const [markers, setMarkers] = useState<marker[]>([]);
   const [showMarkers, setShowMarkers] = useState<boolean>(false);
+  const [showInfoWin, setShowInfoWin] = useState<boolean>(false);
   const [userMarker, setUserMarker] = useState<marker>();
   const [offCanvas, setOffCanvas] = useState<boolean>(false);
+  const [path, setPath] = useState<boolean>(false);
 
   const [barInfo, setBarInfo] = useState<barMenuInfo>({
     id: "NULL",
@@ -76,6 +119,18 @@ const MapView = () => {
             lng: pos.coords.longitude,
             lat: pos.coords.latitude,
           });
+          dispatch(
+            setCenter({
+              lng: pos.coords.longitude,
+              lat: pos.coords.latitude,
+            })
+          );
+          dispatch(
+            setPrevCords({
+              lng: pos.coords.longitude,
+              lat: pos.coords.latitude,
+            })
+          );
           setUserMarker({
             position: {
               lng: pos.coords.longitude,
@@ -132,24 +187,37 @@ const MapView = () => {
   };
 
   const handleRecenter = () => {
-    // getGeoloaction()
-    map?.panTo(userGeo);
+    googleMap?.panTo(userGeo);
+    resetMap();
   };
 
   const calculateRoute = async (startingPoint: LngLat, endingPoint: LngLat) => {
-    setDirections(null);
-    const directionsService = new google.maps.DirectionsService();
-    const results = await directionsService.route({
-      origin: startingPoint,
-      destination: endingPoint,
-      travelMode: google.maps.TravelMode.WALKING,
-    });
+    if (isChaining) {
 
-    setDirections(results);
+      const directionsService = new google.maps.DirectionsService();
+      const results = await directionsService.route({
+        origin: startingPoint,
+        destination: endingPoint,
+        travelMode: google.maps.TravelMode.WALKING,
+      });
+
+      dispatch(updateChain(results));
+    } else {
+      setDirections(null);
+      const directionsService = new google.maps.DirectionsService();
+      const results = await directionsService.route({
+        origin: startingPoint,
+        destination: endingPoint,
+        travelMode: google.maps.TravelMode.WALKING,
+      });
+
+      setDirections(results);
+    }
   };
 
   const resetMap = () => {
     setDirections(null);
+    setPath(false);
   };
   useEffect(() => {
     getGeoloaction();
@@ -170,7 +238,7 @@ const MapView = () => {
   return (
     <div className="totalView">
       <div id="infoHolder">
-        <QuickInfo barData={yelpData} handleRecenter={handleRecenter} />
+        <Outlet context={{ yelpData, handleRecenter } satisfies ContextType} />
       </div>
       <div style={mapStyle} className="mapView">
         <MoreInfo
@@ -184,7 +252,9 @@ const MapView = () => {
             mapContainerStyle={mapStyle}
             center={userGeo}
             zoom={16}
-            onLoad={(map) => setMap(map)}
+            onLoad={(map) => {
+              dispatch(setNewMap(map));
+            }}
             options={{
               streetViewControl: false,
               disableDefaultUI: true,
@@ -194,11 +264,40 @@ const MapView = () => {
               styles: visibleStyle,
             }}
           >
-            {offCanvas && directions && (
+            {/* Render Path normally*/}
+            {path && directions && !isChaining && (
               <DirectionsRenderer directions={directions}></DirectionsRenderer>
             )}
-            {/* Render Markers */}
 
+            {/* Render Path during a chain*/}
+            {isChaining && chainedDirections.length > 0
+              ? chainedDirections.map((direction, index) => (
+                  <DirectionsRenderer
+                    directions={direction}
+                    key={index}
+                  ></DirectionsRenderer>
+                ))
+              : null}
+            {/* Render Markers */}
+            {showInfoWin ? (
+              <InfoWindowF
+                position={infoWindow.position}
+                onCloseClick={() => {
+                  setShowInfoWin(false);
+                  handleCloseout()
+                }}
+              >
+                <Button
+                  variant="dark"
+                  onClick={() => {
+                    setOffCanvas(true);
+                  }}
+                >
+                  {" "}
+                  {infoWindow.lable}
+                </Button>
+              </InfoWindowF>
+            ) : null}
             {showMarkers ? (
               <MarkerF
                 position={
@@ -211,35 +310,75 @@ const MapView = () => {
               ? markers.map((marker, index) => (
                   <MarkerF
                     key={index}
-                    position={marker.position}
-                    label={marker.lable}
-                    onClick={() => {
-                      map?.panTo({
-                        lat: marker.position.lat,
-                        lng: marker.position.lng,
-                      });
-                      calculateRoute(userGeo, {
-                        lat: marker.position.lat,
-                        lng: marker.position.lng,
-                      });
-                      const index = getIndex(marker.lable);
-                      setBarInfo({
-                        id: yelpData[index].id,
-                        name: yelpData[index].name,
-                        display_phone: yelpData[index].display_phone,
-                        image_url: yelpData[index].image_url,
-                        rating: String(yelpData[index].rating),
-                        location: {
-                          address1: yelpData[index].location.address1,
-                        },
-                        url: yelpData[index].url,
-                        is_closed: yelpData[index].is_closed,
-                        price: yelpData[index].price,
-                        distance: yelpData[index].distance,
-                      });
-                      setOffCanvas(true);
+                    options={{
+                      icon: BeerIcon,
                     }}
-                  />
+                    position={marker.position}
+
+                    onClick={() => {
+                      setInfoWindow({
+                        position: {
+                          lat: marker.position.lat,
+                          lng: marker.position.lng,
+                        },
+                        lable: marker.lable,
+                      });
+                      setShowInfoWin(true);
+                      googleMap?.panTo({
+                        lat: marker.position.lat,
+                        lng: marker.position.lng,
+                      });
+                      if (isChaining) {
+                        calculateRoute(prevBar, {
+                          lat: marker.position.lat,
+                          lng: marker.position.lng,
+                        });
+                        dispatch(
+                          setPrevCords({
+                            lat: marker.position.lat,
+                            lng: marker.position.lng,
+                          })
+                        );
+                        dispatch(
+                          updateBars({
+                            id: yelpData[index].id,
+                            name: yelpData[index].name,
+                            display_phone: yelpData[index].display_phone,
+                            image_url: yelpData[index].image_url,
+                            rating: String(yelpData[index].rating),
+                            location: {
+                              address1: yelpData[index].location.address1,
+                            },
+                            url: yelpData[index].url,
+                            is_closed: yelpData[index].is_closed,
+                            price: yelpData[index].price,
+                            distance: yelpData[index].distance,
+                          })
+                        );
+                      } else {
+                        calculateRoute(userGeo, {
+                          lat: marker.position.lat,
+                          lng: marker.position.lng,
+                        });
+                        const index = getIndex(marker.lable);
+                        setBarInfo({
+                          id: yelpData[index].id,
+                          name: yelpData[index].name,
+                          display_phone: yelpData[index].display_phone,
+                          image_url: yelpData[index].image_url,
+                          rating: String(yelpData[index].rating),
+                          location: {
+                            address1: yelpData[index].location.address1,
+                          },
+                          url: yelpData[index].url,
+                          is_closed: yelpData[index].is_closed,
+                          price: yelpData[index].price,
+                          distance: yelpData[index].distance,
+                        });
+                        setPath(true);
+                      }
+                    }}
+                  ></MarkerF>
                 ))
               : null}
           </GoogleMap>
@@ -252,3 +391,7 @@ const MapView = () => {
 };
 
 export default MapView;
+
+export function useData() {
+  return useOutletContext<ContextType>();
+}

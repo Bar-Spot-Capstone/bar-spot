@@ -15,7 +15,13 @@ const NavBadge = ({ isLoggedIn }: Props) => {
   } else {
     return (
       <Link to={"/login"}>
-        <Button variant="secondary">
+        <Button 
+        style={{
+          backgroundColor: "#646463",
+          color: "white"
+        }}
+        variant="light"
+        >
           Login
         </Button>
       </Link>

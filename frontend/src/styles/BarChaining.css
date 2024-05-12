@@ -1,0 +1,12 @@
+.barStop {
+  transition: box-shadow 0.4s ease-in-out;
+  background-color: #c4c4c4;
+  padding: 3px;
+  border-radius: 5px;
+}
+.barStop:hover {
+  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.297);
+}
+*{
+    font-family: 'Manrope Variable', sans-serif;
+}
