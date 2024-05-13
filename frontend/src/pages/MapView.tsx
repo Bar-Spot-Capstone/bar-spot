@@ -58,10 +58,7 @@ const MapView = () => {
   );
 
   //https://www.youtube.com/watch?v=OvDu9c8PYrk <= the geolocation tutorial I used
-  const [userGeo, setUserGeo] = useState<LngLat>({
-    lat: 0,
-    lng: 0,
-  });
+  const [userGeo, setUserGeo] = useState<LngLat>({ lat: 40.7678, lng: -73.9645 });
 
   const [infoWindow, setInfoWindow] = useState<marker>({
     position: {
@@ -142,7 +139,22 @@ const MapView = () => {
           setShowMarkers(true);
         },
         (err) => {
-          console.log(err);
+          console.log("There was an error getting user location:" + err);
+          alert("There was an error getting your location, please check location settings");
+          setUserGeo({ lat: 40.7678, lng: -73.9645 });
+          dispatch(
+            setCenter({ lat: 40.7678, lng: -73.9645 })
+          );
+          dispatch(
+            setPrevCords({ lat: 40.7678, lng: -73.9645 })
+          );
+          setUserMarker({
+            position:{ lat: 40.7678, lng: -73.9645 },
+            lable: "me",
+          });
+          
+          fetchBars(userGeo.lat, userGeo.lng);
+          setShowMarkers(true);
         }
       );
     } else {

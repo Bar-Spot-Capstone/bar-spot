@@ -48,7 +48,7 @@ const router = createBrowserRouter(
       element: <CreateNewAcc />,
     },
   ],
-  { basename: '/bar-spot/' }
+  // { basename: '/bar-spot/' }
 );
 
 

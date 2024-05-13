@@ -11,10 +11,7 @@ interface MapState {
 
 const initialState: MapState = {
   map: null,
-  center: {
-    lat: 0,
-    lng: 0,
-  },
+  center: { lat: 40.7678, lng: -73.9645 },
 };
 
 const mapSlice = createSlice({
