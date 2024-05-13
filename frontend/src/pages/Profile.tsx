@@ -201,7 +201,7 @@ const Profile = () => {
                             <button 
                             className="btn btn-danger delete-all-btn" 
                             onClick={handleDeleteAllFavorites} 
-                            style={{backgroundColor: '#ff8c00', borderColor: '#ff8c00'}}>
+                            style={{backgroundColor: '#EEA40C', borderColor: '#EEA40C', color: 'black'}}>
                                 Delete All
                             </button>
                         )}
