@@ -7,11 +7,12 @@ import { Rootstate } from "../state/store";
 import { useState } from "react";
 import { useEffect } from "react";
 import TimerInput from "../components/TimerInput";
+import ConfirmationPopup from "../components/ConfirmationPopup";
 import unavailableImage from "../assets/image_unavailable_photo.png"
 import "../styles/Profile.css"
 import "bootstrap/dist/css/bootstrap.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { deleteFav, getFav } from "../types/fetchCall";
+import { deleteFav, getFav, clearFav } from "../types/fetchCall";
 
 const Profile = () => {
     const username: string = useSelector((state: Rootstate) => state.user.username);
@@ -21,6 +22,7 @@ const Profile = () => {
     const [renderOption, setOption]: any = useState('accountSetting');
     const [trackLocation, setLocationOption] = useState(true);
     const [trackBars, setTrackedBars] = useState(true);
+    const [showConfirmation, setShowConfirmation] = useState(false);
     const [favoriteBars, setFavoriteBars] = useState<{ favorites: any[] }>({ favorites: [] });
 
     const fetchFavorites = async () => {
@@ -70,6 +72,37 @@ const Profile = () => {
             console.error("Error deleting favorite:", error);
         }
 
+    };
+
+    const handleDeleteAllFavorites = () => {
+        setShowConfirmation(true);
+    };
+
+    const cancelDeleteAllFavorites = () => {
+        setShowConfirmation(false);
+    };
+
+    const confirmDeleteAllFavorites = async () => {
+        const authToken = localStorage.getItem('authToken');
+        setShowConfirmation(false);
+
+        try {
+            const response = await fetch(`${clearFav}/${userId}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    'Authorization': `Bearer ${authToken}`
+                }
+            });
+            if (response.ok) {
+                // Refetch favorites after successful deletion
+                fetchFavorites();
+            } else {
+                console.error("Failed to delete all favorites");
+            }
+        } catch (error) {
+            console.error("Error deleting all favorites:", error);
+        }
     };
 
     const renderSelection = () => {
@@ -162,7 +195,17 @@ const Profile = () => {
         else if (renderOption == 'favoriteBars') {
             return (
                 <div className="favorite-bars">
-                    <h5>Favorite Bars</h5>
+                    <h5 className="d-flex justify-content-between align-items-center">
+                        Favorite Bars
+                        {favoriteBars && favoriteBars.favorites && favoriteBars.favorites.length > 0 && (
+                            <button 
+                            className="btn btn-danger delete-all-btn" 
+                            onClick={handleDeleteAllFavorites} 
+                            style={{backgroundColor: '#EEA40C', borderColor: '#EEA40C', color: 'black'}}>
+                                Delete All
+                            </button>
+                        )}
+                    </h5>
                     <div className="header-bar"></div>
                     {/* Container for images */}
                     <div className="container-fluid pt-3">
@@ -178,9 +221,15 @@ const Profile = () => {
                                         )}
                                         <div className="bar-details d-flex flex-column align-items-center">
                                             <h6 className="text-center">{bar.barName}</h6>
+                                            {/* Display notes if available */}
+                                            {bar.note && (
+                                                <div className="note-container">
+                                                    <div className="note-box">{bar.note}</div>
+                                                </div>
+                                            )}
                                             {/* Delete button */}
                                             <button
-                                                className="btn btn-danger btn-sm mt-2"
+                                                className="btn btn-danger btn-sm mt-auto"
                                                 onClick={() => handleDeleteFavorite(bar.id)}
                                             >
                                                 Delete
@@ -233,6 +282,21 @@ const Profile = () => {
                     </div>
                 </div>
             </div>
+            {/* Render ConfirmationPopup conditionally */}
+            {showConfirmation && (
+                <div className="modal fade show" tabIndex={-1} role="dialog" style={{ display: 'block' }}>
+                    <div className="modal-dialog" role="document">
+                        <div className="modal-content">
+                            <div className="modal-body">
+                                <ConfirmationPopup
+                                    onConfirm={confirmDeleteAllFavorites}
+                                    onCancel={cancelDeleteAllFavorites}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
