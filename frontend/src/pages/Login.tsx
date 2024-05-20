@@ -104,71 +104,68 @@ const Login = () => {
   };
 
   return (
-    <div className="vh-100 ">
-      <Container className="my-5">
-        <Logo />
+<div className="container-fluid">
+      <div className="row m-5 p-5 d-flex justify-content-center">
+        <div className="col-12 card w-50 ">
+          <div className="card-body">
+            <Logo />
+            <FormInput
+              lable="Email"
+              type="email"
+              placeholder="johndoe@example.com"
+              name="email"
+              value={data.email}
+              handler={handleInputChange}
+            />
 
-        <AlertBadge
-          text="ALERT! Incorrect Password or E-mail!"
-          active={error}
-          variant="danger"
-        ></AlertBadge>
+            <FormInput
+              lable="Password"
+              type="password"
+              placeholder="password"
+              name="password"
+              value={data.password}
+              handler={handleInputChange}
+            />
 
-        <FormInput
-          lable="Email"
-          type="email"
-          placeholder="johndoe@example.com"
-          name="email"
-          value={data.email}
-          handler={handleInputChange}
-        />
+            <Row className="justify-content-lg-center mx-lg-5 my-2">
+              <Col lg="6">
+                <Link to="/sign-up">
+                  <Button variant="link" size="sm">
+                    Create new account
+                  </Button>
+                </Link>
+                <Link to="/">
+                  <Button variant="link" size="sm">
+                    Reset Password
+                  </Button>
+                </Link>
+              </Col>
+            </Row>
 
-        <FormInput
-          lable="Password"
-          type="password"
-          placeholder="password"
-          name="password"
-          value={data.password}
-          handler={handleInputChange}
-        />
-
-        <Row className="justify-content-lg-center mx-lg-5 my-2">
-          <Col lg="6">
-            <Link to="/sign-up">
-              <Button variant="link" size="sm">
-                Create new account
-              </Button>
-            </Link>
-            <Link to="/">
-              <Button variant="link" size="sm">
-                Reset Password
-              </Button>
-            </Link>
-          </Col>
-        </Row>
-
-        <Row className="justify-content-lg-center mx-lg-5 my-2">
-          <Col lg="6">
-            <Button
-              variant="success"
-              type="submit"
-              className="w-25"
-              onClick={handleLogin}
-            >
-              Login
-            </Button>
-          </Col>
-        </Row>
-        <Row className="justify-content-lg-center mx-lg-5 my-2">
-          <Col lg="6">
-            <Link to={"/"}>
-              <Button variant="outline-danger" className="w-25">
-                Cancel
-              </Button>
-            </Link>
-          </Col>
-        </Row>
-      </Container>
+            <Row className="justify-content-lg-center mx-lg-5 my-2">
+              <Col lg="6">
+                <Button
+                  variant="success"
+                  type="submit"
+                  className="w-25"
+                  onClick={handleLogin}
+                >
+                  Login
+                </Button>
+              </Col>
+            </Row>
+            <Row className="justify-content-lg-center mx-lg-5 my-2">
+              <Col lg="6">
+                <Link to={"/"}>
+                  <Button variant="outline-danger" className="w-25">
+                    Cancel
+                  </Button>
+                </Link>
+              </Col>
+            </Row>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
